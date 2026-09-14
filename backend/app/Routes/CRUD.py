@@ -4,11 +4,11 @@ from fastapi import Body, Depends, HTTPException, APIRouter
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 
-from app.Schemas.schemas import BookResponseSchema, CreateBookSchema, DeleteBookSchema, EditBookSchema
-from app.database.database import get_session
+from Schemas.schemas import BookResponseSchema, CreateBookSchema, DeleteBookSchema, EditBookSchema
+from database.database import get_session
 
-from app.Models.book import Book
-from app.Repositories.static_storage import BookRepository
+from Models.models import Book
+from Repositories.static_storage import BookRepository
 
 CRUD_ROUTER = APIRouter()
 SessionDep = Annotated[Session, Depends(get_session)]

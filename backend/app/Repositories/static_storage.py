@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 
-from app.Models.book import Book
-from app.Schemas.schemas import CreateBookSchema, DeleteBookSchema, EditBookSchema
+from Models.models import Book
+from Schemas.schemas import CreateBookSchema, DeleteBookSchema, EditBookSchema
 
 class BookRepository:
     def __init__(self, session: Session):

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from app.Routes import CRUD
-from app.database.database import Base, engine
+from Routes import CRUD
+from database.database import Base, engine
 
 app = FastAPI()
 
