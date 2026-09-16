@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from uuid import UUID, uuid4
-from database.database import Base
+from Database.database import Base
 import enum
 
 class TaskPriority(enum.Enum):

@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 
 from Schemas.schemas import BookResponseSchema, CreateBookSchema, DeleteBookSchema, EditBookSchema
-from database.database import get_session
+from Database.database import get_session
 
 from Repositories.static_storage import BookRepository
 

@@ -1,7 +1,11 @@
 from fastapi import FastAPI
+from dotenv import load_dotenv
 
 from Routes import CRUD
-from database.database import Base, engine
+
+# Environment Values
+
+# Routing & App
 
 app = FastAPI()
 
