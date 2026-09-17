@@ -13,6 +13,7 @@ DB_USER = os.getenv("db_user")
 DB_PASSWORD = os.getenv("db_password")
 DB_HOST = os.getenv("db_host")
 DB_NAME = os.getenv("db_name")
+DB_SCHEMA = os.getenv("db_schema")
 
 _DB_PORT_ = os.getenv("db_port")
 if not _DB_PORT_:
@@ -23,7 +24,7 @@ DB_PORT = int(_DB_PORT_)
 
 # Auth Variables
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="") # todo : change url to the form path
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login") # todo : change url to the form path
 
 # Routing & App
 

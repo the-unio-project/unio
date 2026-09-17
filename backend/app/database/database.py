@@ -1,7 +1,7 @@
-from sqlalchemy import URL, create_engine
+from sqlalchemy import URL, create_engine, event
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-from main import DB_USER, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT
+from main import DB_USER, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_SCHEMA
 
 # vou colocar no ambiente virtual ainda
 URL_DB = URL.create(
@@ -19,6 +19,12 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False
 )   
+
+@event.listens_for(engine, "connect", insert=True)
+def set_current_schema(dbapi_connection, connection_record):
+    cursor_obj = dbapi_connection.cursor()
+    cursor_obj.execute("ALTER SESSION SET CURRENT_SCHEMA=%s" % DB_SCHEMA)
+    cursor_obj.close()
 
 def get_session():
     try:
