@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Project
-from Schemas.schemas import CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
+from Schemas.project_schema import CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 
 class ProjectRepository:
     def __init__(self, session: Session):
@@ -28,9 +28,9 @@ class ProjectRepository:
         if project is None:
                 return None
         project.name = new_project.name
-        project.author = new_project.author
-        project.launch_date = new_project.launch_date
-        project.genre = new_project.genre
+        project.description = new_project.description
+        project.color = new_project.color
+        project.icon_url = new_project.icon_url
         self.session.commit()
         self.session.refresh(project)
         return project
@@ -54,5 +54,5 @@ class ProjectRepository:
             return None
         self.session.delete(project)
         self.session.commit()
-        return DeleteProjectSchema(mensagem=f"Livro {project.name} deletado com sucesso!", uuid=project_id)
+        return DeleteProjectSchema(mensagem=f"Projecto {project.name} deletado com sucesso!", uuid=project_id)
     
