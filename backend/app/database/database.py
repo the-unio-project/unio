@@ -1,14 +1,16 @@
 from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
+from main import DB_USER, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT
+
 # vou colocar no ambiente virtual ainda
 URL_DB = URL.create(
     drivername="postgresql+psycopg2",
-    username="postgres",
-    password="montreal@1930#",
-    host="localhost",
-    port=5432,
-    database="book_database",
+    username=DB_USER,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=DB_PORT,
+    database=DB_NAME,
 )
 
 engine = create_engine(URL_DB)
