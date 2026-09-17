@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Book
-from Schemas.schemas import CreateBookSchema, DeleteBookSchema, EditBookSchema
+from Schemas.book_schemas import CreateBookSchema, DeleteBookSchema, EditBookSchema
 
 class BookRepository:
     def __init__(self, session: Session):

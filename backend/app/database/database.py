@@ -19,8 +19,11 @@ SessionLocal = sessionmaker(
 )   
 
 def get_session():
-    with SessionLocal() as session:
-        yield session
+    try:
+        with SessionLocal() as session:
+            yield session
+    finally:
+        session.close()
 
 class Base(DeclarativeBase):
     pass
