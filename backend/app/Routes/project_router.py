@@ -11,6 +11,12 @@ from Models.models import Project
 from Repositories.project_storage import ProjectRepository
 
 CRUD_ROUTER = APIRouter()
+
+router = CRUD_ROUTER(
+    prefix="/workspaces/{workspace_id}/projects",
+    tags=["Projects"]
+)
+
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @CRUD_ROUTER.post("/", response_model=ProjectResponseSchema)
