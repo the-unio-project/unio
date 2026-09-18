@@ -8,6 +8,7 @@ from Database.database import get_session
 from Models.models import User
 from Schemas.auth_schemas import RegisterSchema
 from Services.Authentication.auth_methods import auth_user, create_token, verify_token
+from Repositories.user_storage import UserRepository
 
 auth_router = APIRouter()
 
@@ -29,9 +30,15 @@ async def verify_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
                 "token_type": "Bearer"
                 }
 
+# @auth_router.post("/register")
+# async def register_user(registerSchema:RegisterSchema, session:Session = Depends(get_session)):
+#     user = session.query(User).filter(User.email == registerSchema.email).first()
+
+#     if user:
+#         raise HTTPException(status_code=400, detail="Account alredy registered.")
+
+
 @auth_router.post("/register")
 async def register_user(registerSchema:RegisterSchema, session:Session = Depends(get_session)):
-    user = session.query(User).filter(User.email == registerSchema.email).first()
-
-    if user:
-        raise HTTPException(status_code=400, detail="Account alredy registered.")
+    repo = UserRepository(session)
+    return repo.create_user(registerSchema)
