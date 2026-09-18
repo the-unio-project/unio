@@ -60,7 +60,7 @@ class Project(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
     workspace: Mapped["Workspace"] = relationship(back_populates="projects")
-    lists: Mapped[list["List"]] = relationship(back_populates="project")
+    lists: Mapped[list["ListModel"]] = relationship(back_populates="project")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -84,7 +84,7 @@ class Task(Base):
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id"),nullable=False)
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="task")
-    list: Mapped["List"] = relationship(back_populates="tasks")
+    list: Mapped["ListModel"] = relationship(back_populates="tasks")
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
