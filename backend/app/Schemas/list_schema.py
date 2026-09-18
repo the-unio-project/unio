@@ -9,7 +9,7 @@ class CreateListSchema(BaseModel):
 class EditListSchema(BaseModel):
     name: str | None
 
-class ListReponseSchema(CreateListSchema):
+class ListResponseSchema(CreateListSchema):
     id: UUID
     workspace_id: UUID
     project_id: UUID

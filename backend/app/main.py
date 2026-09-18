@@ -28,15 +28,22 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login") # todo : change url 
 
 # Routing & App
 
-from Controller import book_crud, auth_routes
+from Controller import list_router, project_router, auth_routes
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
 
 app.include_router(
-        router=book_crud.CRUD_ROUTER,
-        prefix="/books",
-        tags=["books"],
+        router=project_router.project_router,
+        prefix="/workspaces/{workspace_id}/projects",
+        tags=["project"],
+        dependencies=[Depends(verify_token)]
+        )
+
+app.include_router(
+        router=list_router.list_router,
+        prefix="/projects/{project_id}/lists",
+        tags=["list"],
         dependencies=[Depends(verify_token)]
         )
 

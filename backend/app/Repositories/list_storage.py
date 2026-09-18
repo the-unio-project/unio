@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 
-from Models.models import List
-from Schemas.list_schema import CreateListSchema
+from Models.models import ListModel
+from Schemas.list_schema import CreateListSchema, ListResponseSchema
 
 class ListRepository:
     def __init__(self, session: Session):
@@ -17,8 +17,8 @@ class ListRepository:
         self.session.refresh(new_list)
         return new_list
 
-    def get_by_id(self, list_id: UUID) -> Optional[List]:
-        return self.session.query(List).filter(List.id == list_id).first()
+    def get_by_id(self, list_id: UUID) -> Optional[ListModel]:
+        return self.session.query(ListModel).filter(ListModel.id == list_id).first()
     
-    def get_all(self) -> List[List]:
-        return self.session.query(List).order_by(List.created_at.asc()).all()
+    def get_all(self) -> List[ListModel]:
+        return self.session.query(ListModel).order_by(ListModel.created_at.asc()).all()

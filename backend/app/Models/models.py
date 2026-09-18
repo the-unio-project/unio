@@ -71,7 +71,7 @@ class Project(Base):
     color: Mapped[str] = mapped_column(String(100), nullable=False)
     icon_url: Mapped[str] = mapped_column(String(100), nullable=True)
 
-class List(Base):
+class ListModel(Base):
     __tablename__ = "lists"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     project_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("projects.id"),nullable=False)

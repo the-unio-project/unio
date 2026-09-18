@@ -15,7 +15,7 @@ class EditProjectSchema(BaseModel):
     icon_url: HttpUrl | None
     color: str | None
 
-class ProjectReponseSchema(CreateProjectSchema):
+class ProjectResponseSchema(CreateProjectSchema):
     id: UUID
     workspace_id: UUID
     name: str
