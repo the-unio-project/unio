@@ -23,6 +23,11 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
     workspace_memberships: Mapped[list["WorkspaceMember"]] = relationship(back_populates="user")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
 class Workspace(Base):
     __tablename__ = "workspaces"

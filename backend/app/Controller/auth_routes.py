@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session
 from Database.database import get_session
 from Models.models import User
 from Schemas.auth_schemas import RegisterSchema
-from Services.Authentication.auth_methods import auth_user, create_token, verify_token
-from Repositories.user_storage import UserRepository
+from Services.Authentication.auth_methods import auth_user, create_token, verify_token  # pyright: ignore[reportAssignmentType]
+
+from Repositories import user_repo
 
 auth_router = APIRouter()
 
@@ -31,14 +32,13 @@ async def verify_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
                 }
 
 # @auth_router.post("/register")
-# async def register_user(registerSchema:RegisterSchema, session:Session = Depends(get_session)):
-#     user = session.query(User).filter(User.email == registerSchema.email).first()
-
-#     if user:
-#         raise HTTPException(status_code=400, detail="Account alredy registered.")
-
-
 @auth_router.post("/register")
 async def register_user(registerSchema:RegisterSchema, session:Session = Depends(get_session)):
-    repo = UserRepository(session)
-    return repo.create_user(registerSchema)
+    user = user_repo.create_user(registerSchema, session)
+
+    access_token = create_token(user.id)
+
+    return {
+            "access_token": access_token,
+            "token_type": "Bearer"
+            }

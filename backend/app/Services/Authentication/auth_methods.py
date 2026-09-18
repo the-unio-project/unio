@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends, HTTPException
 
 from datetime import datetime, timedelta, timezone
@@ -9,6 +11,7 @@ from Models.models import User
 
 from main import SECRET_KEY, ALGORITHM, AT_TIMEOUT, oauth2_schema
 from Services.Authentication import pwd_handler
+from Repositories import user_repo
 
 # Token Creation
 
@@ -31,7 +34,7 @@ def verify_token(token:str = Depends(oauth2_schema), session:Session = Depends(g
     except JWTError as error:
         raise HTTPException(status_code=401, detail="Access Denied")
 
-    usuario = session.query(User).filter(User.id==user_id).first()
+    usuario = user_repo.get_by_id(UUID(user_id), session)
 
     if not usuario:
         raise HTTPException(status_code=401, detail="Invalid Access")
