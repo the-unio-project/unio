@@ -6,7 +6,7 @@ from Models.models import User
 from Schemas.auth_schemas import RegisterSchema
 
 def create_user(user: RegisterSchema, session: Session) -> User:
-    existing_user = session.query(User).filter(User.email == RegisterSchema.email).first()
+    existing_user = session.query(User).filter(User.email == user.email).first()
 
     if existing_user:
         raise HTTPException(status_code=400, detail="E-mail already registered")
