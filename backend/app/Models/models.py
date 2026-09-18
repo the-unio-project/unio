@@ -3,16 +3,16 @@ from datetime import datetime, timezone
 from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from uuid import UUID, uuid4
-from enum import Enum
-from app.database.database import Base
+from Database.database import Base
+import enum
 
-class TaskPriority(Enum):
+class TaskPriority(enum.Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     URGENT = "urgent"
 
-class TaskStatus(Enum):
+class TaskStatus(enum.Enum):
     PENDING = "pending"
     DONE = "done"
     
@@ -89,8 +89,8 @@ class Task(Base):
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
     term: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority), nullable=False, default=TaskPriority.MEDIUM)
-    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), nullable=False, default=TaskStatus.PENDING)
+    priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
+    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus, name="task_status_enum"), nullable=False, default=TaskStatus.PENDING)
 
 class TaskAssignee(Base):
     __tablename__ = "task_assignees"
@@ -114,3 +114,19 @@ class TaskTag(Base):
     tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="task_tags")
     tag: Mapped["Tag"] = relationship(back_populates="task_tags")
+
+# Não deletar -> crud mockado da S1
+
+class Book(Base):
+    __tablename__ = "books"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(100))
+    author: Mapped[str] = mapped_column(String(100))
+    genre: Mapped[str] = mapped_column(String(100))
+    launch_date: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
