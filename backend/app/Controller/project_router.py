@@ -9,6 +9,7 @@ from Database.database import get_session
 
 from Models.models import Project
 from Repositories.project_storage import ProjectRepository
+from Services.Authentication import project_service
 
 project_router = APIRouter()
 
@@ -46,3 +47,11 @@ async def edit_project(project: EditProjectSchema, project_id: UUID, session: Se
 async def delete_project(project_id: UUID, session: SessionDep):
     repo = ProjectRepository(session)
     return repo.delete_project(project_id)
+
+@project_router.patch("/{project_id}/archive", response_model=ProjectResponseSchema)
+async def archive_project(project_id: UUID, session: SessionDep) -> ProjectResponseSchema:
+    return project_service.archive_project(session, project_id)
+
+@project_router.patch("/{project_id}/unarchive", response_model=ProjectResponseSchema)
+async def archive_project(project_id: UUID, session: SessionDep) -> ProjectResponseSchema:
+    return project_service.unarchive_project(session, project_id)

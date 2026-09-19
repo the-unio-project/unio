@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from uuid import UUID, uuid4
 from Database.database import Base
@@ -70,6 +70,7 @@ class Project(Base):
     )
     color: Mapped[str] = mapped_column(String(100), nullable=False)
     icon_url: Mapped[str] = mapped_column(String(100), nullable=True)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 class ListModel(Base):
     __tablename__ = "lists"

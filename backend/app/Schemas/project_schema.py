@@ -23,8 +23,10 @@ class ProjectResponseSchema(CreateProjectSchema):
     model_config = {
         "from_attributes": True
     }
+    icon_url: HttpUrl | None
+    color: str | None
+    is_archived: bool
 
 class DeleteProjectSchema(BaseModel):
     id: UUID
     mensagem: str
-
