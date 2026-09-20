@@ -23,7 +23,7 @@ SessionLocal = sessionmaker(
 @event.listens_for(engine, "connect", insert=True)
 def set_current_schema(dbapi_connection, connection_record):
     cursor_obj = dbapi_connection.cursor()
-    cursor_obj.execute("ALTER SESSION SET CURRENT_SCHEMA=%s" % DB_SCHEMA)
+    cursor_obj.execute('SET search_path TO "%s"' % DB_SCHEMA)
     cursor_obj.close()
 
 def get_session():
