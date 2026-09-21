@@ -54,5 +54,20 @@ class ProjectRepository:
             return None
         self.session.delete(project)
         self.session.commit()
-        return DeleteProjectSchema(mensagem=f"Projecto {project.name} deletado com sucesso!", uuid=project_id)
+        return DeleteProjectSchema(mensagem=f"Projeto {project.name} deletado com sucesso!", uuid=project_id)
+
+    def archive(self, project: Project):
+        project.is_archived = True
+
+        self.sessiom.commit()
+        self.session.refresh(project)
+
+        return project
+
+    def unarchive(self, project: Project):
+        project.is_archived = False
     
+        self.sessiom.commit()
+        self.session.refresh(project)
+    
+        return project
