@@ -23,6 +23,12 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
     workspace_memberships: Mapped[list["WorkspaceMember"]] = relationship(back_populates="user")
+    task_assignments: Mapped[list["TaskAssignee"]] = relationship(back_populates="user")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
 class Workspace(Base):
     __tablename__ = "workspaces"
@@ -60,7 +66,7 @@ class Project(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
     workspace: Mapped["Workspace"] = relationship(back_populates="projects")
-    lists: Mapped[list["List"]] = relationship(back_populates="project")
+    lists: Mapped[list["ListModel"]] = relationship(back_populates="project")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -77,7 +83,7 @@ class ListModel(Base):
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     project_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("projects.id"),nullable=False)
     project: Mapped["Project"] = relationship(back_populates="lists")
-    tasks: Mapped[list["Task"]] = relationship(back_populates="list")
+    tasks: Mapped[list["Task"]] = relationship(back_populates="list_")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
 
 class Task(Base):
@@ -85,7 +91,7 @@ class Task(Base):
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id"),nullable=False)
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="task")
-    list: Mapped["List"] = relationship(back_populates="tasks")
+    list_: Mapped["ListModel"] = relationship(back_populates="tasks")
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")

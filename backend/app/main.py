@@ -1,5 +1,5 @@
 from fastapi import Depends, FastAPI
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 
 import os
 
@@ -21,10 +21,6 @@ if not _DB_PORT_:
 elif not _DB_PORT_.isnumeric():
     raise Exception("DB_PORT env value invalid")
 DB_PORT = int(_DB_PORT_)
-
-# Auth Variables
-
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login") # todo : change url to the form path
 
 # Routing & App
 

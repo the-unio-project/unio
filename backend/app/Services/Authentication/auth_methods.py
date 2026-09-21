@@ -1,14 +1,22 @@
+from uuid import UUID
+
 from fastapi import Depends, HTTPException
 
 from datetime import datetime, timedelta, timezone
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
 from Database.database import get_session
 from Models.models import User
 
-from main import SECRET_KEY, ALGORITHM, AT_TIMEOUT, oauth2_schema
+from main import SECRET_KEY, ALGORITHM, AT_TIMEOUT
 from Services.Authentication import pwd_handler
+from Repositories import user_repo
+
+# HTTPBearer
+
+http_bearer = HTTPBearer()
 
 # Token Creation
 
@@ -20,18 +28,18 @@ def create_token(uid, time_delta:timedelta = timedelta(minutes=int(AT_TIMEOUT)))
             }
 
     encoded_jwt = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
-    return encoded_jwt
+    return (encoded_jwt, expiry_date)
 
 # Verify the Token
 
-def verify_token(token:str = Depends(oauth2_schema), session:Session = Depends(get_session)):
+def verify_token(creds:HTTPAuthorizationCredentials = Depends(http_bearer), session:Session = Depends(get_session)):
     try:
-        dic_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        dic_info = jwt.decode(creds.credentials, SECRET_KEY, ALGORITHM)
         user_id = str(dic_info.get("sub"))
     except JWTError as error:
         raise HTTPException(status_code=401, detail="Access Denied")
 
-    usuario = session.query(User).filter(User.id==user_id).first()
+    usuario = user_repo.get_by_id(UUID(user_id), session)
 
     if not usuario:
         raise HTTPException(status_code=401, detail="Invalid Access")
