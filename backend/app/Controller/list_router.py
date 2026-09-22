@@ -16,19 +16,19 @@ list_router = APIRouter()
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @list_router.post("/", response_model=ListResponseSchema)
-async def create_list(list: CreateListSchema, session: SessionDep) -> ListResponseSchema:
+async def create_list(project_id: UUID, list: CreateListSchema, session: SessionDep) -> ListResponseSchema:
     repo = ListRepository(session)
-    return repo.create_list(list)
+    return repo.create_list(project_id, list)
 
 @list_router.get("/{list_id}", response_model=ListResponseSchema)
-async def read_single_list(list_id: UUID, session: SessionDep) -> ListResponseSchema:
+async def read_single_list(list_id: UUID, project_id: UUID, session: SessionDep) -> ListResponseSchema:
     repo = ListRepository(session)
-    list = repo.get_by_id(list_id)
-    if list is None:
+    list_model = repo.get_by_id(list_id, project_id)
+    if list_model is None:
         raise HTTPException(status_code=404, detail="no list found for id provided")
-    return list
+    return list_model
 
 @list_router.get("/", response_model=List)
-async def list_lists(session: SessionDep) -> List:
+async def list_lists(session: SessionDep, project_id: UUID) -> List:
     repo = ListRepository(session)
-    return repo.get_all()
+    return repo.get_all(project_id)
