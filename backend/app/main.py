@@ -31,7 +31,7 @@ app = FastAPI()
 
 app.include_router(
         router=project_router.project_router,
-        prefix="/workspaces/{workspace_id}/projects",
+        prefix="/workspaces",
         tags=["project"],
         dependencies=[Depends(verify_token)]
         )
