@@ -24,7 +24,7 @@ DB_PORT = int(_DB_PORT_)
 
 # Routing & App
 
-from Controller import list_router, project_router, auth_routes, task_router
+from Controller import list_router, project_router, auth_routes, task_router, tag_router
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()

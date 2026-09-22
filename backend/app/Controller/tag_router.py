@@ -20,6 +20,14 @@ async def create_tag(project_id: UUID, tag: CreateTagSchema, session: SessionDep
     repo = TagRepository(session)
     return repo.create_tag(project_id, tag)
 
+@tag_router.get("/tags/{tag_id}", response_model=TagResponseSchema)
+async def read_single_tag(tag_id: UUID, session: SessionDep) -> TagResponseSchema:
+    repo = TagRepository(session)
+    tag = repo.get_by_id(tag_id)
+    if tag is None:
+        raise HTTPException(status_code=404, detail="no tag found for id provided")
+    return tag
+
 @tag_router.delete("/tags/{tag_id}", response_model=DeleteTagSchema)
 async def delete_tag(tag_id: UUID, session: SessionDep):
     repo = TagRepository(session)

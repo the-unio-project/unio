@@ -18,7 +18,7 @@ class ProjectRepository:
         return new_project
 
     def get_by_id(self, project_id: UUID) -> Optional[Project]:
-            return self.session.query(Project).filter(Project.id == project_id).first()
+        return self.session.query(Project).filter(Project.id == project_id).first()
     
     def get_all(self) -> List[Project]:
         return self.session.query(Project).order_by(Project.created_at.asc()).all()
