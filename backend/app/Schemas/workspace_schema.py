@@ -14,3 +14,8 @@ class WorkspaceMemberSchema(BaseModel):
     workspace_id: UUID
     user_id: UUID
     role: WorkspaceRole
+
+# Workspace Invite
+
+class WorkspaceInviteSchema(BaseModel):
+    workspace_id: UUID
