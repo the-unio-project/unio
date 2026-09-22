@@ -21,12 +21,12 @@ class EditTaskSchema(BaseModel):
     
 class TaskResponseSchema(CreateTaskSchema):
     id: UUID
-    project_id: UUID
+    list_id: UUID
     title: str
     description: str | None = None
     priority: TaskPriority | None = None
     term: datetime | None
-    task_status: TaskStatus | None
+    status: TaskStatus
     model_config = {
         "from_attributes": True
     }
