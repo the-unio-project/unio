@@ -55,6 +55,12 @@ app.include_router(
         dependencies=[Depends(verify_token)]
         )
 
+app.include_router(
+        router=tag_router.tag_router,
+        tags=["tag"],
+        dependencies=[Depends(verify_token)]
+        )
+
 @app.get("/")
 async def root():
     return{"message": "Default Path"}
