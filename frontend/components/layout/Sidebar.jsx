@@ -1,8 +1,14 @@
+"use client";
+
+import {useWorkspace} from "@/context/WorkspaceContext";
 import Link from 'next/link';
 
 export default function Sidebar() {
+    const { workspaceAtual } = useWorkspace();
+
     return (
         <nav className="w-64 h-screen p-4">
+            <span className="text-lg font-bold">{workspaceAtual ? workspaceAtual.nome : "Carregando..."}</span>
             <ul className="flex flex-col gap-4 list-none ">
                 <li><Link href="/dashboard">Dashboard</Link></li>
                 <li><Link href="/projetos">Projetos</Link></li>
