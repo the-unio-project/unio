@@ -32,7 +32,7 @@ def create_token(uid, time_delta:timedelta = timedelta(minutes=int(AT_TIMEOUT)))
 
 # Verify the Token
 
-def verify_token(creds:HTTPAuthorizationCredentials = Depends(http_bearer), session:Session = Depends(get_session)):
+def verify_token(creds:HTTPAuthorizationCredentials = Depends(http_bearer), session:Session = Depends(get_session)) -> User:
     try:
         dic_info = jwt.decode(creds.credentials, SECRET_KEY, ALGORITHM)
         user_id = str(dic_info.get("sub"))

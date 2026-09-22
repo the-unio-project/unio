@@ -1,19 +1,19 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 class CreateProjectSchema(BaseModel):
     name: str
     description: str | None = None
-    icon_url: HttpUrl | None = None
+    icon_url: str | None = Field(default='https://example.com/')
     color: str | None = None
 
 class EditProjectSchema(BaseModel):
-    name: str | None
-    description: str | None
-    icon_url: HttpUrl | None
-    color: str | None
+    name: str | None = None
+    description: str | None = None
+    icon_url: str | None = Field(default='https://example.com/')
+    color: str | None = None
 
 class ProjectResponseSchema(CreateProjectSchema):
     id: UUID
@@ -23,7 +23,7 @@ class ProjectResponseSchema(CreateProjectSchema):
     model_config = {
         "from_attributes": True
     }
-    icon_url: HttpUrl | None
+    icon_url: str | None = Field(default='https://example.com/')
     color: str | None
     is_archived: bool
 
