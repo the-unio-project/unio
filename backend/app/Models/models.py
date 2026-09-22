@@ -15,6 +15,11 @@ class TaskPriority(enum.Enum):
 class TaskStatus(enum.Enum):
     PENDING = "pending"
     DONE = "done"
+
+class WorkspaceRole(enum.Enum):
+    OWNER = "Owner"
+    ADMIN = "Admin"
+    MEMBER = "Member"
     
 class User(Base):
     __tablename__ = "users"
@@ -57,7 +62,7 @@ class WorkspaceMember(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
-    role: Mapped[str] = mapped_column(String(100), nullable=False)
+    role: Mapped[WorkspaceRole] = mapped_column(Enum(WorkspaceRole, name="role_enum"), nullable=False, default=WorkspaceRole.MEMBER)
     workspace: Mapped["Workspace"] = relationship(back_populates="members")
     user: Mapped["User"] = relationship(back_populates="workspace_memberships")
 

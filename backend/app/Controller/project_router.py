@@ -1,15 +1,13 @@
-from datetime import datetime
 from typing import Annotated, List
-from fastapi import Body, Depends, HTTPException, APIRouter
-from uuid import UUID, uuid4
+from fastapi import Depends, HTTPException, APIRouter
+from uuid import UUID
 from sqlalchemy.orm import Session
 
 from Schemas.project_schema import ProjectResponseSchema, CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 from Database.database import get_session
 
-from Models.models import Project
 from Repositories.project_storage import ProjectRepository
-from Services.Authentication import project_service
+from Services import project_service
 
 project_router = APIRouter()
 
