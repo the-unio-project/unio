@@ -59,7 +59,7 @@ class ProjectRepository:
     def archive(self, project: Project):
         project.is_archived = True
 
-        self.sessiom.commit()
+        self.session.commit()
         self.session.refresh(project)
 
         return project
@@ -67,7 +67,7 @@ class ProjectRepository:
     def unarchive(self, project: Project):
         project.is_archived = False
     
-        self.sessiom.commit()
+        self.session.commit()
         self.session.refresh(project)
     
         return project
