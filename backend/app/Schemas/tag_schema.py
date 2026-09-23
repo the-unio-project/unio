@@ -15,6 +15,7 @@ class EditTagSchema(BaseModel):
     
 class TagResponseSchema(CreateTagSchema):
     id: UUID
+    project_id: UUID
     name: str
     color: str
     model_config = {

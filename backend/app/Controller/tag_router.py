@@ -10,6 +10,7 @@ from Database.database import get_session
 
 from Models.models import Tag
 from Repositories.tag_storage import TagRepository
+from Services.tag_service import TagService
 
 tag_router = APIRouter()
 
@@ -37,3 +38,13 @@ async def delete_tag(tag_id: UUID, session: SessionDep):
 async def edit_tag(tag_id: UUID, session: SessionDep):
     repo = TagRepository(session)
     return repo.edit_tag(tag_id)
+
+@tag_router.post("/tasks/{task_id}/tags/{tag_id}", status_code=204)
+async def apply_tag(task_id: UUID, tag_id: UUID, session: SessionDep):
+    service = TagService(session)
+    return service.apply_tag(task_id=task_id, tag_id=tag_id)
+
+@tag_router.delete("/tasks/{task_id}/tags/{tag_id}", status_code=204)
+async def remove_tag(task_id: UUID, tag_id: UUID, session: SessionDep):
+    service = TagService(session)
+    return service.remove_tag(task_id=task_id, tag_id=tag_id)

@@ -80,6 +80,7 @@ class Project(Base):
     workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
     workspace: Mapped["Workspace"] = relationship(back_populates="projects")
     lists: Mapped[list["ListModel"]] = relationship(back_populates="project")
+    tags: Mapped[list["Tag"]] = relationship(back_populates="project")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -123,12 +124,17 @@ class TaskAssignee(Base):
 class Tag(Base):
     __tablename__ = "tags"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
+    project_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("projects.id"), nullable=False)
+    project: Mapped["Project"] = relationship(back_populates="tags")
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="tag")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     color: Mapped[str] = mapped_column(String(100), nullable=False)
 
 class TaskTag(Base):
     __tablename__ = "task_tags"
+    __table_args__ = (
+        UniqueConstraint("task_id", "tag_id", name="uq_task_tag"),
+    )
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=False)
     tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id"), nullable=False)

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 
-from Models.models import Tag
+from Models.models import Tag, TaskTag
 from Schemas.tag_schema import CreateTagSchema, DeleteTagSchema, EditTagSchema, TagResponseSchema
 
 class TagRepository:
@@ -41,4 +41,26 @@ class TagRepository:
         self.session.refresh(tag)
         return tag
 
-    def
+    def apply_tag(self, task_id: UUID, tag_id: UUID):
+        task_tag = TaskTag(
+            task_id=task_id,
+            tag_id=tag_id
+        )
+
+        self.session.add(task_tag)
+        self.session.commit()
+        self.session.refresh(task_tag)
+        return task_tag
+
+    def remove_tag(self, task_id: UUID, tag_id: UUID):
+        task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first()
+        self.session.delete(task_tag)
+        self.session.commit()
+        return DeleteTagSchema(mensagem=f"Tag {task_tag.name} removida da tarefa {task_tag.task.name} com sucesso!", uuid=tag_id)
+
+
+    def is_applied(self, task_id: UUID, tag_id: UUID) -> bool:
+        task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first() 
+        if task_tag is None:
+            return False
+        return True
