@@ -1,9 +1,11 @@
+import { AuthProvider } from "@/context/AuthContext";
 import { WorkspaceProvider } from "@/context/WorkspaceContext";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 
 export default function AppLayout({ children }) {
   return (
+    <AuthProvider>
     <WorkspaceProvider>
       <div className="flex">
         <Sidebar />
@@ -15,5 +17,6 @@ export default function AppLayout({ children }) {
         </div>
       </div>
     </WorkspaceProvider>
+    </AuthProvider>
   );
 }
