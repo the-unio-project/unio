@@ -52,6 +52,13 @@ class TagRepository:
         self.session.refresh(task_tag)
         return task_tag
 
+    def remove_tag(self, task_id: UUID, tag_id: UUID):
+        task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first()
+        self.session.delete(task_tag)
+        self.session.commit()
+        return DeleteTagSchema(mensagem=f"Tag {task_tag.name} removida da tarefa {task_tag.task.name} com sucesso!", uuid=tag_id)
+
+
     def is_applied(self, task_id: UUID, tag_id: UUID) -> bool:
         task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first() 
         if task_tag is None:

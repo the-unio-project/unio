@@ -43,3 +43,8 @@ async def edit_tag(tag_id: UUID, session: SessionDep):
 async def apply_tag(task_id: UUID, tag_id: UUID, session: SessionDep):
     service = TagService(session)
     return service.apply_tag(task_id=task_id, tag_id=tag_id)
+
+@tag_router.delete("/tasks/{task_id}/tags/{tag_id}", status_code=204)
+async def remove_tag(task_id: UUID, tag_id: UUID, session: SessionDep):
+    service = TagService(session)
+    return service.remove_tag(task_id=task_id, tag_id=tag_id)
