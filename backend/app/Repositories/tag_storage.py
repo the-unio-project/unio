@@ -28,7 +28,7 @@ class TagRepository:
         self.session.commit()
         return DeleteTagSchema(mensagem=f"Tag {tag.name} deletada com sucesso!", uuid=tag_id)
 
-    def edit_project(self, new_tag: EditTagSchema, tag_id: UUID):
+    def edit_tag(self, new_tag: EditTagSchema, tag_id: UUID):
         tag = self.get_by_id(tag_id)
         if tag is None:
             return None
@@ -40,3 +40,5 @@ class TagRepository:
         self.session.commit()
         self.session.refresh(tag)
         return tag
+
+    def
