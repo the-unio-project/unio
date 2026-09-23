@@ -1,20 +1,25 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from uuid import UUID, uuid4
-from enum import Enum
-from app.database.database import Base
+from Database.database import Base
+import enum
 
-class TaskPriority(Enum):
+class TaskPriority(enum.Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     URGENT = "urgent"
 
-class TaskStatus(Enum):
+class TaskStatus(enum.Enum):
     PENDING = "pending"
     DONE = "done"
+
+class WorkspaceRole(enum.Enum):
+    OWNER = "Owner"
+    ADMIN = "Admin"
+    MEMBER = "Member"
     
 class User(Base):
     __tablename__ = "users"
@@ -23,6 +28,12 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
     workspace_memberships: Mapped[list["WorkspaceMember"]] = relationship(back_populates="user")
+    task_assignments: Mapped[list["TaskAssignee"]] = relationship(back_populates="user")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
 class Workspace(Base):
     __tablename__ = "workspaces"
@@ -31,6 +42,7 @@ class Workspace(Base):
     owner_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     owner: Mapped["User"] = relationship()
     members: Mapped[list["WorkspaceMember"]] = relationship(back_populates="workspace")
+    invites: Mapped[list["WorkspaceInvite"]] = relationship(back_populates="workspace")
     projects: Mapped[list["Project"]] = relationship(back_populates="workspace")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -51,16 +63,23 @@ class WorkspaceMember(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
-    role: Mapped[str] = mapped_column(String(100), nullable=False)
+    role: Mapped[WorkspaceRole] = mapped_column(Enum(WorkspaceRole, name="role_enum"), nullable=False, default=WorkspaceRole.MEMBER)
     workspace: Mapped["Workspace"] = relationship(back_populates="members")
     user: Mapped["User"] = relationship(back_populates="workspace_memberships")
+
+class WorkspaceInvite(Base):
+    __tablename__ = "workspace_invites"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
+    workspace: Mapped["Workspace"] = relationship(back_populates="invites")
 
 class Project(Base):
     __tablename__ = "projects"
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
     workspace: Mapped["Workspace"] = relationship(back_populates="projects")
-    lists: Mapped[list["List"]] = relationship(back_populates="project")
+    lists: Mapped[list["ListModel"]] = relationship(back_populates="project")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -70,13 +89,14 @@ class Project(Base):
     )
     color: Mapped[str] = mapped_column(String(100), nullable=False)
     icon_url: Mapped[str] = mapped_column(String(100), nullable=True)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-class List(Base):
+class ListModel(Base):
     __tablename__ = "lists"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     project_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("projects.id"),nullable=False)
     project: Mapped["Project"] = relationship(back_populates="lists")
-    tasks: Mapped[list["Task"]] = relationship(back_populates="list")
+    tasks: Mapped[list["Task"]] = relationship(back_populates="list_")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
 
 class Task(Base):
@@ -84,13 +104,13 @@ class Task(Base):
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id"),nullable=False)
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="task")
-    list: Mapped["List"] = relationship(back_populates="tasks")
+    list_: Mapped["ListModel"] = relationship(back_populates="tasks")
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
     term: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority), nullable=False, default=TaskPriority.MEDIUM)
-    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), nullable=False, default=TaskStatus.PENDING)
+    priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
+    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus, name="task_status_enum"), nullable=False, default=TaskStatus.PENDING)
 
 class TaskAssignee(Base):
     __tablename__ = "task_assignees"
@@ -114,3 +134,19 @@ class TaskTag(Base):
     tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="task_tags")
     tag: Mapped["Tag"] = relationship(back_populates="task_tags")
+
+# Não deletar -> crud mockado da S1
+
+class Book(Base):
+    __tablename__ = "books"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(100))
+    author: Mapped[str] = mapped_column(String(100))
+    genre: Mapped[str] = mapped_column(String(100))
+    launch_date: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )

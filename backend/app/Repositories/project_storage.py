@@ -1,0 +1,76 @@
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from uuid import UUID
+
+from Models.models import Project
+from Schemas.project_schema import CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
+
+class ProjectRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def create_project(self, workspace_id:UUID, project: CreateProjectSchema):
+        new_project = Project(**project.model_dump(), workspace_id=workspace_id)
+        self.session.add(new_project)
+        self.session.commit()
+        self.session.refresh(new_project)
+        return new_project
+
+    def get_by_id(self, project_id: UUID) -> Optional[Project]:
+        return self.session.query(Project).filter(Project.id == project_id).first()
+    
+    def get_all(self) -> List[Project]:
+        return self.session.query(Project).order_by(Project.created_at.asc()).all()
+
+    def get_all_workspace(self, workspace_id: UUID):
+        return self.session.query(Project).filter(Project.workspace_id == workspace_id).order_by(Project.created_at.asc()).all()
+    
+    def replace_project(self, new_project: CreateProjectSchema, project_id: UUID):
+        project = self.get_by_id(project_id)
+        if project is None:
+                return None
+        project.name = new_project.name
+        project.description = new_project.description
+        project.color = new_project.color
+        project.icon_url = new_project.icon_url
+        self.session.commit()
+        self.session.refresh(project)
+        return project
+    
+    def edit_project(self, new_project: EditProjectSchema, project_id: UUID):
+        project = self.get_by_id(project_id)
+        if project is None:
+            return None
+        update_data = new_project.model_dump(exclude_unset=True, exclude_none=True)
+        if not update_data:
+            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+        for field, value in update_data.items():
+            setattr(project, field, value)
+        self.session.commit()
+        self.session.refresh(project)
+        return project
+    
+    def delete_project(self, project_id: UUID):
+        project = self.get_by_id(project_id)
+        if project is None:
+            return None
+        self.session.delete(project)
+        self.session.commit()
+        return DeleteProjectSchema(mensagem=f"Projeto {project.name} deletado com sucesso!", id=project_id)
+
+    def archive(self, project: Project):
+        project.is_archived = True
+
+        self.session.commit()
+        self.session.refresh(project)
+
+        return project
+
+    def unarchive(self, project: Project):
+        project.is_archived = False
+    
+        self.session.commit()
+        self.session.refresh(project)
+    
+        return project
