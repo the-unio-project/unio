@@ -6,10 +6,11 @@ from Repositories.project_storage import ProjectRepository
 
 class ProjectService:
     def __init__(self, session: Session):
-            self.session = session
+        self.session = session
+        self.project_repo = ProjectRepository(session)
             
-    def archive_project(session: Session, id: UUID):
-        project = ProjectRepository.get_by_id(id)
+    def archive_project(self, session: Session, id: UUID):
+        project = self.project_repo.get_by_id(id)
         if not project:
             raise HTTPException(
                 status_code=404,
@@ -22,10 +23,10 @@ class ProjectService:
                 detail="Project already archived"
             )
 
-        return ProjectRepository.archive(session, id)
+        return self.project_repo.archive(session, id)
 
-    def unarchive_project(session: Session, id: UUID):
-        project = ProjectRepository.get_by_id(id)
+    def unarchive_project(self, session: Session, id: UUID):
+        project = self.project_repo.get_by_id(id)
         if not project:
             raise HTTPException(
                 status_code=404,
@@ -38,4 +39,4 @@ class ProjectService:
                 detail="Project already archived"
             )
 
-        return ProjectRepository.unarchive(session, id)
+        return self.project_repo.unarchive(session, id)
