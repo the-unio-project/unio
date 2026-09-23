@@ -10,7 +10,7 @@ class ListRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_List(self, project_id: UUID, list: CreateListSchema):
+    def create_list(self, project_id: UUID, list: CreateListSchema):
         new_list = ListModel(**list.model_dump(), project_id=project_id)
         self.session.add(new_list)
         self.session.commit()

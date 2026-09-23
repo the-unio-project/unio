@@ -24,14 +24,14 @@ DB_PORT = int(_DB_PORT_)
 
 # Routing & App
 
-from Controller import list_router, project_router, auth_routes, task_router, tag_router
+from Controller import list_router, project_router, auth_routes, task_router, tag_router, workspace_router
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
 
 app.include_router(
         router=project_router.project_router,
-        prefix="/workspaces/{workspace_id}/projects",
+        prefix="/workspaces",
         tags=["project"],
         dependencies=[Depends(verify_token)]
         )
@@ -47,6 +47,13 @@ app.include_router(
         router=auth_routes.auth_router,
         prefix="/auth",
         tags=["authentication"]
+        )
+
+app.include_router(
+        router=workspace_router.workspace_router,
+        prefix="/workspaces",
+        tags=["workspace"],
+        dependencies=[Depends(verify_token)]
         )
 
 app.include_router(

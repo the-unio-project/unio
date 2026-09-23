@@ -10,8 +10,8 @@ class ProjectRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_project(self, project: CreateProjectSchema):
-        new_project = Project(**project.model_dump())
+    def create_project(self, workspace_id:UUID, project: CreateProjectSchema):
+        new_project = Project(**project.model_dump(), workspace_id=workspace_id)
         self.session.add(new_project)
         self.session.commit()
         self.session.refresh(new_project)
@@ -22,6 +22,9 @@ class ProjectRepository:
     
     def get_all(self) -> List[Project]:
         return self.session.query(Project).order_by(Project.created_at.asc()).all()
+
+    def get_all_workspace(self, workspace_id: UUID):
+        return self.session.query(Project).filter(Project.workspace_id == workspace_id).order_by(Project.created_at.asc()).all()
     
     def replace_project(self, new_project: CreateProjectSchema, project_id: UUID):
         project = self.get_by_id(project_id)
@@ -39,7 +42,7 @@ class ProjectRepository:
         project = self.get_by_id(project_id)
         if project is None:
             return None
-        update_data = new_project.model_dump(exclude_unset=True)
+        update_data = new_project.model_dump(exclude_unset=True, exclude_none=True)
         if not update_data:
             raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
         for field, value in update_data.items():
@@ -54,7 +57,7 @@ class ProjectRepository:
             return None
         self.session.delete(project)
         self.session.commit()
-        return DeleteProjectSchema(mensagem=f"Projeto {project.name} deletado com sucesso!", uuid=project_id)
+        return DeleteProjectSchema(mensagem=f"Projeto {project.name} deletado com sucesso!", id=project_id)
 
     def archive(self, project: Project):
         project.is_archived = True
