@@ -4,34 +4,38 @@ from uuid import UUID
 
 from Repositories.project_storage import ProjectRepository
 
-def archive_project(session: Session, id: UUID):
-    project = ProjectRepository(session).get_by_id(id)
-    if not project:
-        raise HTTPException(
-            status_code=404,
-            detail="Project not found"
-        )
+class ProjectService:
+    def __init__(self, session: Session):
+            self.session = session
+            
+    def archive_project(session: Session, id: UUID):
+        project = ProjectRepository.get_by_id(id)
+        if not project:
+            raise HTTPException(
+                status_code=404,
+                detail="Project not found"
+            )
 
-    if project.is_archived:
-        raise HTTPException(
-            status_code=400,
-            detail="Project already archived"
-        )
+        if project.is_archived:
+            raise HTTPException(
+                status_code=400,
+                detail="Project already archived"
+            )
 
-    return ProjectRepository(session).archive(project)
+        return ProjectRepository.archive(session, id)
 
-def unarchive_project(session: Session, id: UUID):
-    project = ProjectRepository(session).get_by_id(id)
-    if not project:
-        raise HTTPException(
-            status_code=404,
-            detail="Project not found"
-        )
+    def unarchive_project(session: Session, id: UUID):
+        project = ProjectRepository.get_by_id(id)
+        if not project:
+            raise HTTPException(
+                status_code=404,
+                detail="Project not found"
+            )
 
-    if not project.is_archived:
-        raise HTTPException(
-            status_code=400,
-            detail="Project already unarchived"
-        )
+        if project.is_archived:
+            raise HTTPException(
+                status_code=400,
+                detail="Project already archived"
+            )
 
-    return ProjectRepository(session).unarchive(project)
+        return ProjectRepository.unarchive(session, id)
