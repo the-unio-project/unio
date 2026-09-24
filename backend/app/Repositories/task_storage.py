@@ -17,6 +17,13 @@ class TaskRepository:
         self.session.refresh(new_task)
         return new_task
 
+    def create_subtask(self, task_id: UUID, task: CreateTaskSchema):
+        new_subtask = Task(**task.model_dump(), task_id=task_id)
+        self.session.add(new_subtask)
+        self.session.commit()
+        self.session.refresh(new_subtask)
+        return new_subtask
+
     def get_by_id(self, task_id: UUID) -> Optional[Task]:
         return self.session.query(Task).filter(Task.id == task_id).first()
     

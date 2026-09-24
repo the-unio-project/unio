@@ -103,6 +103,7 @@ class ListModel(Base):
 class Task(Base):
     __tablename__ = "tasks"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
+    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=True)
     list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id"),nullable=False)
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="task")
     list_: Mapped["ListModel"] = relationship(back_populates="tasks")
