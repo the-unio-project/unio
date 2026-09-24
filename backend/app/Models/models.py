@@ -17,9 +17,9 @@ class TaskStatus(enum.Enum):
     DONE = "done"
 
 class WorkspaceRole(enum.Enum):
-    OWNER = "Owner"
-    ADMIN = "Admin"
-    MEMBER = "Member"
+    OWNER = 2
+    ADMIN = 1
+    MEMBER = 0
     
 class User(Base):
     __tablename__ = "users"
