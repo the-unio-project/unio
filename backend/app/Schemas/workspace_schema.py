@@ -19,3 +19,7 @@ class WorkspaceMemberSchema(BaseModel):
 
 class WorkspaceInviteSchema(BaseModel):
     workspace_id: UUID
+
+class DeleteWorkspaceSchema(BaseModel):
+    message: str
+    id: UUID

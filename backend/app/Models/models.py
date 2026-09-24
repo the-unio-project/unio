@@ -42,8 +42,8 @@ class Workspace(Base):
     owner_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     owner: Mapped["User"] = relationship()
     members: Mapped[list["WorkspaceMember"]] = relationship(back_populates="workspace")
-    invites: Mapped[list["WorkspaceInvite"]] = relationship(back_populates="workspace")
-    projects: Mapped[list["Project"]] = relationship(back_populates="workspace")
+    invites: Mapped[list["WorkspaceInvite"]] = relationship(back_populates="workspace", passive_deletes=True)
+    projects: Mapped[list["Project"]] = relationship("Project", back_populates="workspace", passive_deletes=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -69,16 +69,15 @@ class WorkspaceMember(Base):
 
 class WorkspaceInvite(Base):
     __tablename__ = "workspace_invites"
-
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
-    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
+    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False)
     workspace: Mapped["Workspace"] = relationship(back_populates="invites")
 
 class Project(Base):
     __tablename__ = "projects"
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
-    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
-    workspace: Mapped["Workspace"] = relationship(back_populates="projects")
+    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False)
+    workspace: Mapped["Workspace"] = relationship("Workspace", back_populates="projects")
     lists: Mapped[list["ListModel"]] = relationship(back_populates="project")
     tags: Mapped[list["Tag"]] = relationship(back_populates="project")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -95,16 +94,16 @@ class Project(Base):
 class ListModel(Base):
     __tablename__ = "lists"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
-    project_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("projects.id"),nullable=False)
+    project_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("projects.id", ondelete="CASCADE"),nullable=False)
     project: Mapped["Project"] = relationship(back_populates="lists")
-    tasks: Mapped[list["Task"]] = relationship(back_populates="list_")
+    tasks: Mapped[list["Task"]] = relationship(back_populates="list_", passive_deletes=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
 
 class Task(Base):
     __tablename__ = "tasks"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=True)
-    list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id"),nullable=False)
+    list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id", ondelete="CASCADE"),nullable=False)
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="task")
     list_: Mapped["ListModel"] = relationship(back_populates="tasks")
     title: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -125,7 +124,7 @@ class TaskAssignee(Base):
 class Tag(Base):
     __tablename__ = "tags"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
-    project_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("projects.id"), nullable=False)
+    project_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
     project: Mapped["Project"] = relationship(back_populates="tags")
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="tag")
     name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -137,8 +136,8 @@ class TaskTag(Base):
         UniqueConstraint("task_id", "tag_id", name="uq_task_tag"),
     )
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
-    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=False)
-    tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id"), nullable=False)
+    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id", ondelete="CASCADE"),nullable=False)
+    tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id", ondelete="CASCADE"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="task_tags")
     tag: Mapped["Tag"] = relationship(back_populates="task_tags")
 
