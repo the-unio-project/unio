@@ -1,5 +1,3 @@
-from this import s
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -60,6 +58,52 @@ def create_member(member: WorkspaceMemberSchema, session:Session):
     session.add(new_member)
     session.commit()
     session.refresh(new_member)
+
+def get_members(workspace_id: UUID, session:Session) -> list[WorkspaceMember]:
+    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+
+    if not members:
+        raise HTTPException(status_code=400, detail="No workspace found")
+
+    return members
+
+def get_member(workspace_id: UUID, user_id: UUID, session:Session) -> WorkspaceMember:
+    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+
+    if not members:
+        raise HTTPException(status_code=400, detail="No workspace found'")
+    
+    for member in members:
+        if member.user.id == user_id:
+            return member
+
+    raise HTTPException(status_code=400, detail="No member found in workspace")
+
+def get_users(workspace_id: UUID, session:Session) -> list[User]:
+    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+
+    if not members:
+        raise HTTPException(status_code=400, detail="No workspace found")
+    
+    users = list[User]()
+
+    for member in members:
+        users.append(member.user)
+
+    return users
+
+def remove_member(workspace_id: UUID, user_id: UUID, session:Session) -> str:
+    member = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).filter(WorkspaceMember.user_id == user_id).first()
+
+    if not member:
+        raise HTTPException(status_code=400, detail="No membership found")
+
+    session.delete(member)
+    session.commit()
+
+    return "Workspace member deleted successfully"
+
+# INVITE FUNCTIONS
 
 def create_invite(workspace_id: UUID, session:Session) -> WorkspaceInvite:
     invite = WorkspaceInviteSchema(workspace_id=workspace_id)
