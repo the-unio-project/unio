@@ -92,4 +92,4 @@ def delete_workspace(workspace_id: UUID, session: Session) -> DeleteWorkspaceSch
         return None
     session.delete(workspace)
     session.commit()
-    return DeleteWorkspaceSchema(mensagem=f"Workspace {workspace.name} deletado com sucesso!", id=workspace_id)
+    return DeleteWorkspaceSchema(message=f"Workspace {workspace.name} deletado com sucesso!", id=workspace_id)

@@ -41,7 +41,7 @@ class Workspace(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     owner_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     owner: Mapped["User"] = relationship()
-    members: Mapped[list["WorkspaceMember"]] = relationship(back_populates="workspace")
+    members: Mapped[list["WorkspaceMember"]] = relationship("WorkspaceMember",back_populates="workspace", passive_deletes=True)
     invites: Mapped[list["WorkspaceInvite"]] = relationship(back_populates="workspace", passive_deletes=True)
     projects: Mapped[list["Project"]] = relationship("Project", back_populates="workspace", passive_deletes=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -49,7 +49,7 @@ class Workspace(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
-    logo_url: Mapped[str] = mapped_column(String(100))
+    logo_url: Mapped[str] = mapped_column(String(100), nullable=True)
 
 class WorkspaceMember(Base):
     __tablename__ = "workspace_members"
@@ -61,10 +61,10 @@ class WorkspaceMember(Base):
         ),
     )
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
-    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id"), nullable=False)
+    workspace_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False)
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     role: Mapped[WorkspaceRole] = mapped_column(Enum(WorkspaceRole, name="role_enum"), nullable=False, default=WorkspaceRole.MEMBER)
-    workspace: Mapped["Workspace"] = relationship(back_populates="members")
+    workspace: Mapped["Workspace"] = relationship("Workspace", back_populates="members")
     user: Mapped["User"] = relationship(back_populates="workspace_memberships")
 
 class WorkspaceInvite(Base):
