@@ -115,6 +115,9 @@ class Task(Base):
 
 class TaskAssignee(Base):
     __tablename__ = "task_assignees"
+    __table_args__ = (
+        UniqueConstraint("task_id", "user_id", name="uq_task_assignee"),
+    )
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=False)
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
@@ -140,19 +143,3 @@ class TaskTag(Base):
     tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id", ondelete="CASCADE"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="task_tags")
     tag: Mapped["Tag"] = relationship(back_populates="task_tags")
-
-# Não deletar -> crud mockado da S1
-
-class Book(Base):
-    __tablename__ = "books"
-
-    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
-    name: Mapped[str] = mapped_column(String(100))
-    author: Mapped[str] = mapped_column(String(100))
-    genre: Mapped[str] = mapped_column(String(100))
-    launch_date: Mapped[str] = mapped_column(String(100))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )

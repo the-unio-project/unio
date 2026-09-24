@@ -30,7 +30,7 @@ async def verify_token(login_data: LoginSchema, response: Response, session:Sess
 # @auth_router.post("/register")
 @auth_router.post("/register")
 async def register_user(registerSchema:RegisterSchema, response: Response, session:Session = Depends(get_session)):
-    user = user_repo.create_user(registerSchema, session)
+    user = user_repo.UserRepository.create_user(registerSchema, session)
 
     (access_token, timeout) = create_token(user.id)
 

@@ -10,6 +10,7 @@ from Database.database import get_session
 
 from Models.models import Task
 from Repositories.task_storage import TaskRepository
+from Services.task_service import TaskService
 
 task_router = APIRouter()
 
@@ -47,3 +48,8 @@ async def delete_task(task_id: UUID, session: SessionDep):
 async def create_subtask(task_id: UUID, task: CreateSubtaskSchema, session: SessionDep) -> SubtaskResponseSchema:
     repo = TaskRepository(session)
     return repo.create_subtask(task_id, task)
+
+@task_router.post("/tasks/{task_id}/user/{user_id}")
+async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep):
+    service = TaskService(session)
+    return service.assign_task_to_user(task_id, user_id)

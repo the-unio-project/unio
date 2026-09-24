@@ -2,28 +2,56 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import User
+from Models.models import Task, TaskAssignee, User
 from Schemas.auth_schemas import RegisterSchema
 from Services.Authentication import pwd_handler
 
-def create_user(user: RegisterSchema, session: Session) -> User:
-    existing_user = session.query(User).filter(User.email == user.email).first()
+class UserRepository:
+    def __init__(self, session: Session):
+        self.session = session
 
-    if existing_user:
-        raise HTTPException(status_code=400, detail="E-mail already registered")
+    def create_user(self, user: RegisterSchema, session: Session) -> User:
 
-    new_user = User(**user.model_dump())
+        existing_user = session.query(User).filter(User.email == user.email).first()
 
-    new_user.password = pwd_handler.hash_password(new_user.password)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="E-mail already registered")
 
-    session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
+        new_user = User(**user.model_dump())
 
-    return new_user
+        new_user.password = pwd_handler.hash_password(new_user.password)
 
-def get_by_id(User_id: UUID, session: Session) -> User | None:
-    return session.query(User).filter(User.id == User_id).first()
+        self.session.add(new_user)
+        self.session.commit()
+        self.session.refresh(new_user)
 
-def get_all(session:Session) -> list[User]:
-    return session.query(User).order_by(User.created_at.asc()).all()
+        return new_user
+
+    def get_by_id(self, user_id: UUID) -> User | None:
+        return self.session.query(User).filter(User.id == user_id).first()
+
+    def get_all(self) -> list[User]:
+        return self.session.query(User).order_by(User.created_at.asc()).all()
+
+    def assign_task_to_user(self, user_id: UUID, task_id: UUID) -> TaskAssignee:
+        task_assignee = TaskAssignee(
+            task_id=task_id,
+            user_id=user_id
+        )
+
+        self.session.add(task_assignee)
+        self.session.commit()
+        self.session.refresh(task_assignee)
+        return task_assignee
+
+    def is_member_of_workspace(self, user: User, task: Task) -> bool:
+        for member in task.list_.project.workspace.members:
+            if member.user_id == user.id:
+                return True
+        return False
+
+    def is_already_assigned(self, user: User, task) -> bool:
+        for assignee in task.assignees:
+            if assignee.user_id == user.id and assignee.task_id == task.id:
+                return True
+        return False
