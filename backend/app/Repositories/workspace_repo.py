@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from Models.models import User, Workspace, WorkspaceInvite, WorkspaceMember, WorkspaceRole
-from Schemas.workspace_schema import CreateWorkspaceSchema, WorkspaceInviteSchema, WorkspaceMemberSchema
+from Schemas.workspace_schema import CreateWorkspaceSchema, DeleteWorkspaceSchema, WorkspaceInviteSchema, WorkspaceMemberSchema
 
 def create_workspace(workspace: CreateWorkspaceSchema, user_id:UUID, session:Session) -> Workspace:
 
@@ -129,3 +129,11 @@ def accept_invite(invite_id: UUID, user:User, session:Session) -> WorkspaceMembe
     session.refresh(member)
 
     return member
+
+def delete_workspace(workspace_id: UUID, session: Session) -> DeleteWorkspaceSchema:
+    workspace = get_workspace_by_id(workspace_id, session)
+    if workspace is None:
+        return None
+    session.delete(workspace)
+    session.commit()
+    return DeleteWorkspaceSchema(message=f"Workspace {workspace.name} deletado com sucesso!", id=workspace_id)

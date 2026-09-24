@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
+from Schemas.list_schema import ListResponseSchema
+
 class CreateProjectSchema(BaseModel):
     name: str
     description: str | None = None

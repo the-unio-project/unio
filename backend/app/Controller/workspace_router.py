@@ -69,3 +69,7 @@ def remove_member(workspace_id:UUID, target_user_id:UUID, user = Depends(verify_
         response = workspace_repo.remove_member(workspace_id, target_user_id, session)
 
         return response
+      
+@workspace_router.delete(path="/{workspace_id}")
+def delete_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session = Depends(get_session)):
+    return workspace_repo.delete_workspace(workspace_id, session)
