@@ -28,7 +28,7 @@ async def read_single_list(list_id: UUID, project_id: UUID, session: SessionDep)
         raise HTTPException(status_code=404, detail="no list found for id provided")
     return list_model
 
-@list_router.get("/", response_model=List)
-async def list_lists(session: SessionDep, project_id: UUID) -> List:
+@list_router.get("/", response_model=list[ListResponseSchema])
+async def list_lists(session: SessionDep, project_id: UUID) -> list[ListResponseSchema]:
     repo = ListRepository(session)
-    return repo.get_all(project_id)
+    return repo.get_all_by_project(project_id)

@@ -1,7 +1,20 @@
+import os
+
 from sqlalchemy import URL, create_engine, event
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-from main import DB_USER, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_SCHEMA
+DB_USER = os.getenv("db_user")
+DB_PASSWORD = os.getenv("db_password")
+DB_HOST = os.getenv("db_host")
+DB_NAME = os.getenv("db_name")
+DB_SCHEMA = os.getenv("db_schema")
+
+_DB_PORT = os.getenv("db_port")
+if not _DB_PORT:
+    raise RuntimeError("DB_PORT env value empty")
+if not _DB_PORT.isnumeric():
+    raise RuntimeError("DB_PORT env value invalid")
+DB_PORT = int(_DB_PORT)
 
 # vou colocar no ambiente virtual ainda
 URL_DB = URL.create(

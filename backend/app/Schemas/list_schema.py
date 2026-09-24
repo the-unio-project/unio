@@ -11,7 +11,6 @@ class EditListSchema(BaseModel):
 
 class ListResponseSchema(CreateListSchema):
     id: UUID
-    workspace_id: UUID
     project_id: UUID
     name: str
     model_config = {

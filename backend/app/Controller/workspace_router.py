@@ -37,3 +37,7 @@ def create_invite(workspace_id:UUID, _ = Depends(verify_token), session:Session 
 @workspace_router.get(path="/invite/{invite_token}")
 def accept_invite(invite_token:UUID, user = Depends(verify_token), session:Session = Depends(get_session)):
     return workspace_repo.accept_invite(invite_token, user, session)
+
+@workspace_router.delete(path="/{workspace_id}")
+def delete_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session = Depends(get_session)):
+    return workspace_repo.delete_workspace(workspace_id, session)

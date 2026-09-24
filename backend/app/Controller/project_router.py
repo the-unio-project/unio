@@ -7,7 +7,7 @@ from Schemas.project_schema import ProjectResponseSchema, CreateProjectSchema, D
 from Database.database import get_session
 
 from Repositories.project_storage import ProjectRepository
-from backend.app.Services.project_service import ProjectService
+from Services.project_service import ProjectService
 
 project_router = APIRouter()
 
