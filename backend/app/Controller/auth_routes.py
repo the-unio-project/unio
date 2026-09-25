@@ -10,10 +10,6 @@ from Repositories import user_repo
 
 auth_router = APIRouter()
 
-@auth_router.get("/")
-async def default_path(_ = Depends(verify_token)):
-    return {"Message": "root path, nothing here :)"}
-
 @auth_router.post("/login")
 async def verify_token(login_data: LoginSchema, response: Response, session:Session = Depends(get_session)):
     user = auth_user(login_data.email, login_data.password, session)

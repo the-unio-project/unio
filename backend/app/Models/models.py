@@ -34,6 +34,9 @@ class User(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
+    nickname: Mapped[str] = mapped_column(String(100), nullable=False)
+    bio: Mapped[str] = mapped_column(String(300), nullable=False)
+    profile_picture: Mapped[str] = mapped_column(String(200))
 
 class Workspace(Base):
     __tablename__ = "workspaces"

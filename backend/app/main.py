@@ -24,50 +24,52 @@ DB_PORT = int(_DB_PORT_)
 
 # Routing & App
 
-from Controller import list_router, project_router, auth_routes, task_router, tag_router, workspace_router
+from Controller import list_router, project_router, auth_routes, task_router, tag_router, workspace_router, profile_router
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
 
 app.include_router(
+        router=auth_routes.auth_router,
+        prefix="/auth",
+        tags=["Authentication"]
+        )
+
+app.include_router(
+        router=profile_router.profile_router,
+        prefix="/me",
+        tags=["Profile Routes"]
+        )
+
+app.include_router(
+        router=workspace_router.workspace_router,
+        prefix="/workspaces",
+        tags=["Workspace"],
+        dependencies=[Depends(verify_token)]
+        )
+
+app.include_router(
         router=project_router.project_router,
         prefix="/workspaces",
-        tags=["project"],
+        tags=["Project"],
         dependencies=[Depends(verify_token)]
         )
 
 app.include_router(
         router=list_router.list_router,
         prefix="/projects/{project_id}/lists",
-        tags=["list"],
-        dependencies=[Depends(verify_token)]
-        )
-
-app.include_router(
-        router=auth_routes.auth_router,
-        prefix="/auth",
-        tags=["authentication"]
-        )
-
-app.include_router(
-        router=workspace_router.workspace_router,
-        prefix="/workspaces",
-        tags=["workspace"],
+        tags=["List"],
         dependencies=[Depends(verify_token)]
         )
 
 app.include_router(
         router=task_router.task_router,
-        tags=["task"],
+        tags=["Task"],
         dependencies=[Depends(verify_token)]
         )
 
 app.include_router(
         router=tag_router.tag_router,
-        tags=["tag"],
+        tags=["Tag"],
         dependencies=[Depends(verify_token)]
         )
-
-@app.get("/")
-async def root():
-    return{"message": "Default Path"}
