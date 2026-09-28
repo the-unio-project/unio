@@ -1,0 +1,17 @@
+export const projetosMock = [
+  { id: 1, workspaceId: 1, nome: "Site Institucional" },
+  { id: 2, workspaceId: 1, nome: "App Mobile" },
+  { id: 3, workspaceId: 2, nome: "Campanha de Marketing" },
+];
+
+export const tarefasMock = [
+  { id: 1, projetoId: 1, titulo: "Criar wireframes", status: "A fazer", prioridade: "alta" },
+  { id: 2, projetoId: 1, titulo: "Configurar deploy", status: "Em andamento", prioridade: "média" },
+  { id: 3, projetoId: 1, titulo: "Revisar textos", status: "Concluída", prioridade: "baixa" },
+];
+
+const porStatus = tarefasMock.reduce((acc, tarefa) => {
+  acc[tarefa.status] = acc[tarefa.status] || []; 
+  acc[tarefa.status].push(tarefa);               
+  return acc;
+}, {});
