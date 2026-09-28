@@ -1,14 +1,11 @@
-from datetime import datetime
-from typing import Annotated, List
-import typing
-from fastapi import Body, Depends, HTTPException, APIRouter
-from uuid import UUID, uuid4
+from typing import Annotated
+from fastapi import Depends, HTTPException, APIRouter
+from uuid import UUID
 from sqlalchemy.orm import Session
 
 from Schemas.list_schema import ListResponseSchema, CreateListSchema
 from Database.database import get_session
 
-from Models.models import ListModel
 from Repositories.list_storage import ListRepository
 
 list_router = APIRouter()
