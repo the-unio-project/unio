@@ -2,9 +2,11 @@ from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.declarative import declarative_base
 from uuid import UUID, uuid4
-from Database.database import Base
 import enum
+
+Base = declarative_base()
 
 class TaskPriority(enum.Enum):
     LOW = "low"
