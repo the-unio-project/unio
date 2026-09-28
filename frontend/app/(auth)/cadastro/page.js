@@ -1,17 +1,20 @@
 "use client";
 
 import {useState} from 'react';
+import { useRouter } from "next/navigation";
+import { cadastro } from "@/lib/api";
 import Input from '@/components//ui/Input';
 import Button from '@/components/ui/Button';
 
 export default function CadastroPage() {
+    const router = useRouter();
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
     const [erro, setErro] = useState('');
 
-    const handleSubmit = (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
 
         if (nome.trim() === '') {
@@ -39,8 +42,14 @@ export default function CadastroPage() {
             return;
         }
 
-        setErro('');
-        console.log('Cadastro com:', nome, email, senha);
+        try {
+            await cadastro(nome, email, senha);
+            router.push('/login');
+            
+        } catch (err) {
+            setErro(err.message);
+            return;
+        }
     }
 
     return (

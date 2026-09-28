@@ -1,15 +1,18 @@
 "use client";
 
 import {useState} from 'react';
+import { useRouter } from "next/navigation";
+import { login } from "@/lib/api";
 import Input from '@/components//ui/Input';
 import Button from '@/components/ui/Button';
 
 export default function LoginPage() {
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
 
-    const handleSubmit = (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
 
         if (!email.includes('@')) {
@@ -17,8 +20,24 @@ export default function LoginPage() {
             return;
         }
 
-        setErro('');
-        console.log('Login com:', email, senha);
+        if (!senha) {
+            setErro('Senha não pode ser vazia');
+            return;
+        }
+
+        if (senha.length < 6) {
+            setErro('Senha deve ter pelo menos 6 caracteres');
+            return;
+        }
+
+        try {
+            await login(email, senha);
+            router.push('/dashboard');
+
+        } catch (err) {
+            setErro(err.message);
+            return;
+        }
     }
 
     return (
