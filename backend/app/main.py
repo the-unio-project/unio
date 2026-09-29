@@ -81,3 +81,9 @@ app.include_router(
         tags=["Tag"],
         dependencies=[Depends(verify_token)]
         )
+
+app.include_router(
+    router=status_router.status_router,
+    tags=["Status"],
+    dependencies=[Depends(verify_token)]
+)
