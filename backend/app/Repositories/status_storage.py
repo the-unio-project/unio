@@ -47,4 +47,12 @@ class StatusRepository:
         self.session.commit()
         self.session.refresh(status)
         return status
+
+    def delete_status(self, status_id: UUID):
+        status = self.get_by_id(status_id)
+        if status is None:
+            return None
+        self.session.delete(status)
+        self.session.commit()
+        return DeleteStatusSchema(message=f"Status {status.name} deletado com sucesso!", id=status_id)
     

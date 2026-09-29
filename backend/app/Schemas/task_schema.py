@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, HttpUrl
 
-from Models.models import TaskPriority, TaskStatus
+from Models.models import TaskPriority
 
 
 class CreateTaskSchema(BaseModel):
@@ -23,7 +23,6 @@ class EditTaskSchema(BaseModel):
     description: str | None
     priority: TaskPriority | None
     term: datetime | None
-    task_status: TaskStatus | None
     
 class TaskResponseSchema(CreateTaskSchema):
     id: UUID
@@ -32,7 +31,6 @@ class TaskResponseSchema(CreateTaskSchema):
     description: str | None = None
     priority: TaskPriority | None = None
     term: datetime | None
-    status: TaskStatus
     model_config = {
         "from_attributes": True
     }

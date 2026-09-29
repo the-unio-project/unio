@@ -34,7 +34,10 @@ class User(Base):
     )
     nickname: Mapped[str] = mapped_column(String(100), nullable=False)
     bio: Mapped[str] = mapped_column(String(300), nullable=False)
-    profile_picture: Mapped[str] = mapped_column(String(200))
+    profile_picture: Mapped[str | None] = mapped_column(
+        String(200),
+        nullable=True,
+    )
 
 class Workspace(Base):
     __tablename__ = "workspaces"

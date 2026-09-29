@@ -1,7 +1,7 @@
 from sqlalchemy import URL, create_engine, event
 from sqlalchemy.orm import sessionmaker
 
-from main import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, DB_SCHEMA, DB_PORT
+from config import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, DB_SCHEMA, DB_PORT
 
 URL_DB = URL.create(
     drivername="postgresql+psycopg2",
