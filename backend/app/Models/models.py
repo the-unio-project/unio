@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, Uuid, Enum
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint, Uuid, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from uuid import UUID, uuid4
@@ -13,10 +13,6 @@ class TaskPriority(enum.Enum):
     MEDIUM = "medium"
     HIGH = "high"
     URGENT = "urgent"
-
-class TaskStatus(enum.Enum):
-    PENDING = "pending"
-    DONE = "done"
 
 class WorkspaceRole(enum.Enum):
     OWNER = 2
@@ -95,6 +91,11 @@ class Project(Base):
     color: Mapped[str] = mapped_column(String(100), nullable=False)
     icon_url: Mapped[str] = mapped_column(String(100), nullable=True)
     is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    statuses: Mapped[list["Status"]] = relationship(
+        "Status",
+        back_populates="project",
+        passive_deletes=True
+    )
 
 class ListModel(Base):
     __tablename__ = "lists"
@@ -116,7 +117,15 @@ class Task(Base):
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
     term: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
-    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus, name="task_status_enum"), nullable=False, default=TaskStatus.PENDING)
+    status_id: Mapped[UUID | None] = mapped_column(
+        Uuid,
+        ForeignKey("statuses.id", ondelete="SET NULL"),
+        nullable=True
+    )
+    status: Mapped["Status | None"] = relationship(
+        "Status",
+        back_populates="tasks"
+    )
 
 class TaskAssignee(Base):
     __tablename__ = "task_assignees"
@@ -148,3 +157,17 @@ class TaskTag(Base):
     tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id", ondelete="CASCADE"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="task_tags")
     tag: Mapped["Tag"] = relationship(back_populates="task_tags")
+
+class Status(Base):
+    __tablename__ = "statuses"
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    project_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    color: Mapped[str] = mapped_column( String(20), nullable=False)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    project: Mapped["Project"] = relationship("Project", back_populates="statuses")
+    tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        back_populates="status",
+        passive_deletes=True
+    )
