@@ -117,6 +117,7 @@ class Task(Base):
     term: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
     status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus, name="task_status_enum"), nullable=False, default=TaskStatus.PENDING)
+    comments: Mapped[list["Comment"]] = relationship(back_populates="task")
 
 class TaskAssignee(Base):
     __tablename__ = "task_assignees"
@@ -148,3 +149,11 @@ class TaskTag(Base):
     tag_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("tags.id", ondelete="CASCADE"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="task_tags")
     tag: Mapped["Tag"] = relationship(back_populates="task_tags")
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
+    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    comment: Mapped[str] = mapped_column(String(300), nullable=False)
+    task: Mapped["Task"] = relationship(back_populates="comments")
