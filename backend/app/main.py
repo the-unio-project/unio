@@ -32,7 +32,7 @@ S3_REGION = os.getenv("s3_region_name")
 
 # Routing & App
 
-from Controller import list_router, project_router, auth_routes, task_router, tag_router, workspace_router, profile_router
+from Controller import list_router, project_router, auth_routes, task_router, tag_router, workspace_router, profile_router, comment_router
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
@@ -73,6 +73,12 @@ app.include_router(
 app.include_router(
         router=task_router.task_router,
         tags=["Task"],
+        dependencies=[Depends(verify_token)]
+        )
+
+app.include_router(
+        router=comment_router.comment_router,
+        tags=["Comments"],
         dependencies=[Depends(verify_token)]
         )
 

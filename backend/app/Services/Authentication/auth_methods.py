@@ -12,7 +12,7 @@ from Models.models import User
 
 from main import SECRET_KEY, ALGORITHM, AT_TIMEOUT
 from Services.Authentication import pwd_handler
-from Repositories import user_repo
+from Repositories.user_repo import UserRepository
 
 # HTTPBearer
 
@@ -33,13 +33,15 @@ def create_token(uid, time_delta:timedelta = timedelta(minutes=int(AT_TIMEOUT)))
 # Verify the Token
 
 def verify_token(creds:HTTPAuthorizationCredentials = Depends(http_bearer), session:Session = Depends(get_session)) -> User:
+    repo = UserRepository(session)
+
     try:
         dic_info = jwt.decode(creds.credentials, SECRET_KEY, ALGORITHM)
         user_id = str(dic_info.get("sub"))
     except JWTError as error:
         raise HTTPException(status_code=401, detail="Access Denied")
 
-    usuario = user_repo.get_by_id(UUID(user_id), session)
+    usuario = repo.get_by_id(UUID(user_id))
 
     if not usuario:
         raise HTTPException(status_code=401, detail="Invalid Access")
