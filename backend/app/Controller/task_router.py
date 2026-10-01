@@ -53,3 +53,8 @@ async def create_subtask(task_id: UUID, task: CreateSubtaskSchema, session: Sess
 async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep):
     service = TaskService(session)
     return service.assign_task_to_user(task_id, user_id)
+
+@task_router.patch("/tasks/{task_id}/status", response_model=TaskResponseSchema)
+async def change_task_status(task_id: UUID, status_id: UUID, session: SessionDep):
+    repo = TaskRepository(session)
+    return repo.change_task_status(task_id, status_id)

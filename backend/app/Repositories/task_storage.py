@@ -4,11 +4,13 @@ from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Task
+from Repositories.status_storage import StatusRepository
 from Schemas.task_schema import CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
 
 class TaskRepository:
     def __init__(self, session: Session):
         self.session = session
+        self.status_repo = StatusRepository(session)
 
     def create_task(self, list_id: UUID, task: CreateTaskSchema):
         new_task = Task(**task.model_dump(), list_id=list_id)
@@ -33,7 +35,7 @@ class TaskRepository:
     def replace_task(self, new_task: CreateTaskSchema, task_id: UUID):
         task = self.get_by_id(task_id)
         if task is None:
-                return None
+            return None
         task.title = new_task.title
         task.description = new_task.description
         task.term = new_task.term
@@ -49,3 +51,17 @@ class TaskRepository:
         self.session.delete(task)
         self.session.commit()
         return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
+
+    def change_task_status(self, task_id: UUID, status_id: UUID):
+        task = self.get_by_id(task_id)
+        if task is None:
+            return None
+        status = self.status_repo.get_by_id(status_id)
+        if status is None:
+            return None
+        task.status_id = status_id
+
+        self.session.commit()
+        self.session.refresh(task)
+
+        return task
