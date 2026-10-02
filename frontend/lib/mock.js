@@ -9,9 +9,3 @@ export const tarefasMock = [
   { id: 2, projetoId: 1, titulo: "Configurar deploy", status: "Em andamento", prioridade: "média" },
   { id: 3, projetoId: 1, titulo: "Revisar textos", status: "Concluída", prioridade: "baixa" },
 ];
-
-const porStatus = tarefasMock.reduce((acc, tarefa) => {
-  acc[tarefa.status] = acc[tarefa.status] || []; 
-  acc[tarefa.status].push(tarefa);               
-  return acc;
-}, {});
