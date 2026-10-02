@@ -43,7 +43,6 @@ class SubtaskResponseSchema(CreateSubtaskSchema):
     description: str | None = None
     priority: TaskPriority | None = None
     term: datetime | None
-    status: TaskStatus
     model_config = {
         "from_attributes": True
     }
