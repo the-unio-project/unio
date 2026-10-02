@@ -129,6 +129,7 @@ class Task(Base):
         "Status",
         back_populates="tasks"
     )
+    comments: Mapped[list["Comment"]] = relationship(back_populates="task")
 
 class TaskAssignee(Base):
     __tablename__ = "task_assignees"
@@ -174,3 +175,11 @@ class Status(Base):
         back_populates="status",
         passive_deletes=True
     )
+      
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
+    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    comment: Mapped[str] = mapped_column(String(300), nullable=False)
+    task: Mapped["Task"] = relationship(back_populates="comments")
