@@ -10,8 +10,7 @@ export default function Sidebar() {
     const [projetosAberto, setProjetosAberto] = useState(true);
 
     const projetos = workspaceAtual
-        ? projetosMock.filter((projeto) => projeto.workspaceId === workspaceAtual.id)
-        : [];
+        ? projetosMock.filter((projeto) => projeto.workspaceId === workspaceAtual.id): [];
 
     return (
         <nav className="w-64 h-screen p-4">
