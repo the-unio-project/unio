@@ -10,8 +10,8 @@ APP_DIR = Path(__file__).resolve().parents[1] / "app"
 if str(APP_DIR) not in sys.path:
     sys.path.insert(0, str(APP_DIR))
 
-from Database.database import Base, URL_DB
-import Models.models
+from Database.database import URL_DB
+from Models.models import Base
 from alembic import context
 
 # this is the Alembic Config object, which provides

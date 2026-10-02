@@ -1,4 +1,4 @@
-from main import SB_URL, SB_KEY
+from config import SB_URL, SB_KEY
 from supabase import create_client, Client
 from supabase.client import ClientOptions
 
