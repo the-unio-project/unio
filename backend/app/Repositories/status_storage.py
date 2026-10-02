@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Status
-from Schemas.status_schemas import CreateStatusSchema, DeleteStatusSchema, EditStatusSchema, StatusResponseSchema
+from Schemas.status_schemas import CreateStatusSchema, DeleteStatusSchema, UpdateStatusSchema, StatusResponseSchema
 
 class StatusRepository:
     def __init__(self, session: Session):
@@ -28,14 +28,14 @@ class StatusRepository:
         if status is None:
                 return None
         status.name = new_status.name
-        status.description = new_status.description
+        # status.description = new_status.description
         status.color = new_status.color
-        status.icon_url = new_status.icon_url
+        # status.icon_url = new_status.icon_url
         self.session.commit()
         self.session.refresh(status)
         return status
     
-    def edit_status(self, new_status: EditStatusSchema, status_id: UUID):
+    def edit_status(self, new_status: UpdateStatusSchema, status_id: UUID):
         status = self.get_by_id(status_id)
         if status is None:
             return None
