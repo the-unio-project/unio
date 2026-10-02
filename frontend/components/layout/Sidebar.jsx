@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { projetosMock } from "@/lib/mock";
+import { ChevronRight } from "lucide-react";
 import Link from 'next/link';
 
 export default function Sidebar() {
@@ -31,7 +32,9 @@ export default function Sidebar() {
                 onClick={() => setProjetosAberto(!projetosAberto)}
                 className="flex items-center gap-2 mt-4 font-semibold"
             >
-                {projetosAberto ? "▼" : "▶"} Projetos
+                Projetos
+                <ChevronRight size={16} className={`transition-transform duration-200 ${projetosAberto ? "rotate-90" : ""}`} />
+                
             </button>
             {projetosAberto && (
                 <ul className="flex flex-col gap-2 list-none mt-2 ml-2">
