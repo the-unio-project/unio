@@ -3,14 +3,17 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from Models.models import TaskAssignee
+from Repositories.list_storage import ListRepository
 from Repositories.task_storage import TaskRepository
 from Repositories.user_repo import UserRepository
+from Schemas.task_schema import CreateTaskSchema
 
 class TaskService:
     def __init__(self, session: Session):
         self.session = session
         self.user_repo = UserRepository(session)
         self.task_repo = TaskRepository(session)
+        self.list_repo = ListRepository(session)
             
     def assign_task_to_user(self, task_id: UUID, user_id: UUID):
         task = self.task_repo.get_by_id(task_id)
@@ -34,3 +37,34 @@ class TaskService:
             return "This user is already assigned to this task"
 
         return self.user_repo.assign_task_to_user(user_id, task_id)
+
+    def create_task_in_list(self,list_id: UUID,task: CreateTaskSchema):
+        list_model = self.list_repository.get_by_id(list_id)
+
+        if list_model is None:
+            raise HTTPException(
+                status_code=404,
+                detail="List not found"
+            )
+
+        # Só valida status caso tenha sido informado
+        if task.status_id is not None:
+            status = self.status_repository.get_by_id(task.status_id)
+
+            if status is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Status not found"
+                )
+
+            if status.project_id != list_model.project_id:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Status does not belong to this project"
+                )
+
+        return self.task_repository.create(
+            project_id=list_model.project_id,
+            list_id=list_model.id,
+            task=task
+        )
