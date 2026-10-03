@@ -5,7 +5,7 @@ export const projetosMock = [
 ];
 
 export const tarefasMock = [
-  { id: 1, projetoId: 1, titulo: "Criar wireframes", status: "A fazer", prioridade: "alta" },
-  { id: 2, projetoId: 1, titulo: "Configurar deploy", status: "Em andamento", prioridade: "média" },
-  { id: 3, projetoId: 1, titulo: "Revisar textos", status: "Concluída", prioridade: "baixa" },
+  { id: 1, projetoId: 1, titulo: "Criar wireframes", status: "A fazer", prioridade: "alta", responsavel: "João", dataVencimento: "2026-10-10" },
+  { id: 2, projetoId: 1, titulo: "Configurar deploy", status: "Em andamento", prioridade: "média", responsavel: "Maria", dataVencimento: "2026-10-12" },
+  { id: 3, projetoId: 1, titulo: "Revisar textos", status: "Concluída", prioridade: "baixa", responsavel: "João", dataVencimento: "2026-10-08" },
 ];
