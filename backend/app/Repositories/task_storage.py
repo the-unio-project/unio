@@ -12,8 +12,15 @@ class TaskRepository:
         self.session = session
         self.status_repo = StatusRepository(session)
 
-    def create_task(self, list_id: UUID, task: CreateTaskSchema):
-        new_task = Task(**task.model_dump(), list_id=list_id)
+    def create_task(self, project_id: UUID, task: CreateTaskSchema):
+        new_task = Task(**task.model_dump(), project_id=project_id)
+        self.session.add(new_task)
+        self.session.commit()
+        self.session.refresh(new_task)
+        return new_task
+
+    def create_task_in_list(self, project_id: UUID, list_id: UUID, task: CreateTaskSchema):
+        new_task = Task(**task.model_dump(), project_id=project_id, list_id=list_id)
         self.session.add(new_task)
         self.session.commit()
         self.session.refresh(new_task)
