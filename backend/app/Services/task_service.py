@@ -4,6 +4,7 @@ from uuid import UUID
 
 from Models.models import TaskAssignee
 from Repositories.list_storage import ListRepository
+from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
 from Repositories.user_repo import UserRepository
 from Schemas.task_schema import CreateTaskSchema
@@ -14,6 +15,7 @@ class TaskService:
         self.user_repo = UserRepository(session)
         self.task_repo = TaskRepository(session)
         self.list_repo = ListRepository(session)
+        self.status_repo = StatusRepository(session)
             
     def assign_task_to_user(self, task_id: UUID, user_id: UUID):
         task = self.task_repo.get_by_id(task_id)
@@ -39,7 +41,7 @@ class TaskService:
         return self.user_repo.assign_task_to_user(user_id, task_id)
 
     def create_task_in_list(self,list_id: UUID,task: CreateTaskSchema):
-        list_model = self.list_repository.get_by_id(list_id)
+        list_model = self.list_repo.get_by_id(list_id)
 
         if list_model is None:
             raise HTTPException(
@@ -49,7 +51,7 @@ class TaskService:
 
         # Só valida status caso tenha sido informado
         if task.status_id is not None:
-            status = self.status_repository.get_by_id(task.status_id)
+            status = self.status_repo.get_by_id(task.status_id)
 
             if status is None:
                 raise HTTPException(
@@ -63,7 +65,7 @@ class TaskService:
                     detail="Status does not belong to this project"
                 )
 
-        return self.task_repository.create(
+        return self.task_repo.create_task_in_list(
             project_id=list_model.project_id,
             list_id=list_model.id,
             task=task
