@@ -118,23 +118,17 @@ class Task(Base):
     __tablename__ = "tasks"
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
     task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=True)
-    list_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("lists.id", ondelete="CASCADE"),nullable=False)
+    list_id: Mapped[UUID | None] = mapped_column(Uuid,ForeignKey("lists.id", ondelete="CASCADE"),nullable=True)
+    project_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
     task_tags: Mapped[list["TaskTag"]] = relationship(back_populates="task")
-    list_: Mapped["ListModel"] = relationship(back_populates="tasks")
+    list_: Mapped["ListModel | None"] = relationship(back_populates="tasks")
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
     term: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
-    status_id: Mapped[UUID | None] = mapped_column(
-        Uuid,
-        ForeignKey("statuses.id", ondelete="SET NULL"),
-        nullable=True
-    )
-    status: Mapped["Status | None"] = relationship(
-        "Status",
-        back_populates="tasks"
-    )
+    status_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("statuses.id", ondelete="SET NULL"), nullable=True)
+    status: Mapped["Status | None"] = relationship("Status", back_populates="tasks")
     comments: Mapped[list["Comment"]] = relationship(back_populates="task")
 
 class TaskAssignee(Base):
