@@ -186,6 +186,7 @@ class Comment(Base):
     __tablename__ = "comments"
 
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
+    sender_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
     task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
     comment: Mapped[str] = mapped_column(String(300), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="comments")
@@ -195,6 +196,7 @@ class Notification(Base):
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     type: Mapped[NotificationType] = mapped_column(Enum(NotificationType, name="notification_type_enum"), nullable=False) # no default, see later if error prone
-    typed_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
+    type_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
+    recipient_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
     sender_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
