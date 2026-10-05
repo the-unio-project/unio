@@ -18,6 +18,12 @@ class WorkspaceRole(enum.Enum):
     OWNER = 2
     ADMIN = 1
     MEMBER = 0
+
+class NotificationType(enum.Enum):
+    WORKSPACE_INVITE = "invited to workspace"
+    TASK_ASSIGNMENT = "assigned to task"
+    COMMENT_MENTION = "mentioned in a comment"
+    ASSIGNEE_COMMENT = "someone commented ur task"
     
 class User(Base):
     __tablename__ = "users"
@@ -183,3 +189,12 @@ class Comment(Base):
     task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
     comment: Mapped[str] = mapped_column(String(300), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="comments")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    type: Mapped[NotificationType] = mapped_column(Enum(NotificationType, name="notification_type_enum"), nullable=False) # no default, see later if error prone
+    typed_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
+    sender_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
