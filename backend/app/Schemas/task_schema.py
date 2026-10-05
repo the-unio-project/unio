@@ -50,3 +50,7 @@ class SubtaskResponseSchema(CreateSubtaskSchema):
 class DeleteTaskSchema(BaseModel):
     id: UUID
     mensagem: str
+
+class MoveTaskStatusSchema(BaseModel):
+    status_id: UUID
+    position: int

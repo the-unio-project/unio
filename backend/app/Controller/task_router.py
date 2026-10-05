@@ -5,7 +5,7 @@ from fastapi import Body, Depends, HTTPException, APIRouter
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 
-from Schemas.task_schema import CreateSubtaskSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
 from Models.models import Task
@@ -63,3 +63,8 @@ async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep)
 async def change_task_status(task_id: UUID, status_id: UUID, session: SessionDep):
     repo = TaskRepository(session)
     return repo.change_task_status(task_id, status_id)
+
+@task_router.patch("/tasks/{task_id}/status", response_model=MoveTaskStatusSchema)
+async def move_task(task_id: UUID, session: SessionDep):
+    service = TaskService(session)
+    return service.move_task(task_id)
