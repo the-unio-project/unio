@@ -26,7 +26,7 @@ class EditTaskSchema(BaseModel):
     
 class TaskResponseSchema(CreateTaskSchema):
     id: UUID
-    list_id: UUID
+    list_id: UUID | None
     title: str
     description: str | None = None
     priority: TaskPriority | None = None
@@ -38,7 +38,7 @@ class TaskResponseSchema(CreateTaskSchema):
 class SubtaskResponseSchema(CreateSubtaskSchema):
     task_id: UUID
     id: UUID
-    list_id: UUID
+    list_id: UUID | None
     title: str
     description: str | None = None
     priority: TaskPriority | None = None

@@ -2,11 +2,13 @@ from logging.config import fileConfig
 from pathlib import Path
 import sys
 
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 # Os pacotes da aplicacao (Database, Models etc.) ficam em backend/app.
 APP_DIR = Path(__file__).resolve().parents[1] / "app"
+load_dotenv(APP_DIR.parents[1] / ".env")
 if str(APP_DIR) not in sys.path:
     sys.path.insert(0, str(APP_DIR))
 
