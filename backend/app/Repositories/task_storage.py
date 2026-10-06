@@ -59,16 +59,5 @@ class TaskRepository:
         self.session.commit()
         return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
 
-    def change_task_status(self, task_id: UUID, status_id: UUID):
-        task = self.get_by_id(task_id)
-        if task is None:
-            return None
-        status = self.status_repo.get_by_id(status_id)
-        if status is None:
-            return None
-        task.status_id = status_id
-
+    def commit(self):
         self.session.commit()
-        self.session.refresh(task)
-
-        return task

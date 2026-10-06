@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import TaskAssignee
+from Models.models import Status, Task, TaskAssignee
 from Repositories.list_storage import ListRepository
 from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
@@ -65,15 +65,36 @@ class TaskService:
                 )
 
         return self.task_repo.create_task_in_list(project_id=list_model.project_id, list_id=list_model.id, task=task)
-    #def move_inside_status
-    #def move_between_statuses
+        
+    def move_inside_status(self, task: Task, status: Status, new_position: UUID):
+        tasks = sorted(status.tasks, key=lambda t: t.position)
+        old_position = task.position
+        if new_position < old_position:
+            for current_task in tasks:
+                if (new_position <= current_task.position < old_position and current_task.id != task.id):
+                    current_task.position += 1
 
-    def move_task(
-            self,
-            task_id: UUID,
-            status_id: UUID,
-            new_position: int
-        ):
+        if old_position < new_position:
+            for current_task in tasks:
+                if (new_position >= current_task.position > old_position and current_task.id != task.id):
+                    current_task.position -= 1
+
+        task.position = new_position
+
+    def move_between_statuses(self, task: Task, old_status: Status, new_status: Status, new_position: int):
+        if old_status is not None:
+            for current_task in old_status.tasks:
+                if (current_task.id != task.id and current_task.position > task.position):
+                    current_task.position -= 1
+
+        for current_task in new_status.tasks:
+            if current_task.position >= new_position:
+                current_task.position += 1
+
+        task.status = new_status
+        task.position = new_position
+
+    def move_task(self, task_id: UUID, status_id: UUID, new_position: int):
         task = self.task_repo.get_by_id(task_id)
 
         if task is None:
@@ -99,19 +120,10 @@ class TaskService:
         old_status = task.status
 
         if old_status is not None and old_status.id == new_status.id:
-            self.move_inside_status(
-                task,
-                new_status,
-                new_position
-            )
+            self.move_inside_status(task, new_status, new_position)
 
         else:
-            self.move_between_statuses(
-                task,
-                old_status,
-                new_status,
-                new_position
-            )
+            self.move_between_statuses(task, old_status, new_status, new_position)
 
         self.task_repo.commit()
 

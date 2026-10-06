@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from Models.models import TaskPriority
 
@@ -53,4 +53,4 @@ class DeleteTaskSchema(BaseModel):
 
 class MoveTaskStatusSchema(BaseModel):
     status_id: UUID
-    position: int
+    position: int = Field(ge=1)
