@@ -19,7 +19,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 @task_router.post("/projects/{project_id}/tasks", response_model=TaskResponseSchema)
 async def create_task(project_id: UUID, task: CreateTaskSchema, session: SessionDep) -> TaskResponseSchema:
     repo = TaskRepository(session)
-    return repo.create_task(project_id, task)
+    return repo.create_task(project_id, task, task.position, task.list_id)
 
 @task_router.post("/lists/{list_id}/tasks", response_model=TaskResponseSchema)
 async def create_task_in_list(list_id: UUID, task: CreateTaskSchema, session: SessionDep) -> TaskResponseSchema:

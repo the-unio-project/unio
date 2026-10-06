@@ -12,7 +12,7 @@ class TaskRepository:
         self.session = session
         self.status_repo = StatusRepository(session)
 
-    def create_task(self, project_id: UUID, task: CreateTaskSchema, position: int | None, list_id: UUID | None):
+    def create_task(self, project_id: UUID, task: CreateTaskSchema, position: int | None, list_id: UUID | None = None):
         new_task = Task(**task.model_dump(), project_id=project_id, position=position, list_id=list_id)
         self.session.add(new_task)
         self.session.commit()

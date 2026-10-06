@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -16,7 +17,26 @@ class TaskService:
         self.task_repo = TaskRepository(session)
         self.list_repo = ListRepository(session)
         self.status_repo = StatusRepository(session)
-            
+
+    def get_position(self, project_id: UUID, status_id: UUID | None) -> int | None:
+        if status_id is None:
+            return None
+
+        status = self.status_repo.get_by_id(status_id)
+
+        if status is None:
+            raise HTTPException(status_code=404, detail="Status not found")
+
+        if status.project_id != project_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Status does not belong to this project",
+            )
+
+        last_position = (self.session.query(func.max(Task.position)).filter(Task.status_id == status_id).scalar())
+
+        return (last_position or 0) + 1
+
     def assign_task_to_user(self, task_id: UUID, user_id: UUID):
         task = self.task_repo.get_by_id(task_id)
         user = self.user_repo.get_by_id(user_id)
@@ -40,31 +60,15 @@ class TaskService:
 
         return self.user_repo.assign_task_to_user(user_id, task_id)
 
-    def create_task_in_list(self,list_id: UUID,task: CreateTaskSchema):
+    def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema):
         list_model = self.list_repo.get_by_id(list_id)
 
         if list_model is None:
-            raise HTTPException(
-                status_code=404,
-                detail="List not found"
-            )
+            raise HTTPException(status_code=404, detail="List not found")
 
-        if task.status_id is not None:
-            status = self.status_repo.get_by_id(task.status_id)
+        position = self.get_position(list_model.project_id,task.status_id)
 
-            if status is None:
-                raise HTTPException(
-                    status_code=404,
-                    detail="Status not found"
-                )
-
-            if status.project_id != list_model.project_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Status does not belong to this project"
-                )
-
-        return self.task_repo.create_task_in_list(project_id=list_model.project_id, list_id=list_model.id, task=task)
+        return self.task_repo.create_task_in_list(project_id=list_model.project_id, list_id=list_model.id, task=task, position=position)
         
     def move_inside_status(self, task: Task, status: Status, new_position: UUID):
         tasks = sorted(status.tasks, key=lambda t: t.position)
