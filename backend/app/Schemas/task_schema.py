@@ -7,10 +7,11 @@ from Models.models import TaskPriority
 
 
 class CreateTaskSchema(BaseModel):
-    title: str
-    description: str | None = None
-    priority: TaskPriority | None = None
-    term: datetime | None = None
+    title: str = Field(min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=100)
+    priority: TaskPriority = TaskPriority.MEDIUM
+    term: datetime | None
+    status_id: UUID | None = None
 
 class CreateSubtaskSchema(BaseModel):
     title: str
@@ -34,6 +35,7 @@ class TaskResponseSchema(CreateTaskSchema):
     model_config = {
         "from_attributes": True
     }
+    position: int | None
 
 class SubtaskResponseSchema(CreateSubtaskSchema):
     task_id: UUID

@@ -23,7 +23,7 @@ async def create_task(project_id: UUID, task: CreateTaskSchema, session: Session
 
 @task_router.post("/lists/{list_id}/tasks", response_model=TaskResponseSchema)
 async def create_task_in_list(list_id: UUID, task: CreateTaskSchema, session: SessionDep) -> TaskResponseSchema:
-    service = TaskRepository(session)
+    service = TaskService(session)
     return service.create_task_in_list(list_id, task)
 
 @task_router.get("/tasks/{task_id}", response_model=TaskResponseSchema)
