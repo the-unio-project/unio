@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { tarefasMock } from "@/lib/mock";
 import SecaoStatus from "@/components/tasks/SecaoStatus";
+import ModalTarefa from "@/components/tasks/ModalTarefa";
 
 export default function TaskList({ projetoId }) {
   const [tarefas, setTarefas] = useState(
@@ -12,6 +13,13 @@ export default function TaskList({ projetoId }) {
   
   const [filtroPrioridade, setFiltroPrioridade] = useState("todas");
   const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
+  const [tarefaSelecionadaId, setTarefaSelecionadaId] = useState(null);
+
+  const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
+
+  function atualizarTarefa(id, mudancas) {
+  setTarefas(tarefas.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
+}
   
   const responsaveis = [...new Set(tarefas.map(t => t.responsavel))];
   const tarefasFiltradas = tarefas.filter((tarefa) => {
@@ -72,8 +80,16 @@ export default function TaskList({ projetoId }) {
           status={status}
           tarefas={tarefasDoStatus}
           aoAdicionar={aoAdicionar}
+          aoSelecionar={setTarefaSelecionadaId}
         />
       ))}
+      {tarefaSelecionada && (
+        <ModalTarefa
+          tarefa={tarefaSelecionada}
+          aoFechar={() => setTarefaSelecionadaId(null)}
+          aoAtualizar={atualizarTarefa}
+        />
+      )}
     </div>
   );
 }

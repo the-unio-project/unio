@@ -16,7 +16,7 @@ const coresPrioridade = {
     baixa: "bg-blue-100 text-blue-700",
 };
 
-export default function SecaoStatus({ status, tarefas, aoAdicionar }) {
+export default function SecaoStatus({ status, tarefas, aoAdicionar, aoSelecionar }) {
     const [novoTitulo, setNovoTitulo] = useState("");
 
 function confirmarNovaTarefa() {
@@ -32,14 +32,23 @@ function confirmarNovaTarefa() {
             </h2>
             <ul className="flex flex-col gap-2">
                 {tarefas.map((tarefa) => (
-                    <li key={tarefa.id} className="flex items-center gap-4 border p-2 rounded">
-                        <span className="flex-1">{tarefa.titulo}</span>
-                        <span className="text-sm text-gray-600">{tarefa.responsavel}</span>
+                    <li 
+                        key={tarefa.id} 
+                        className="flex items-center gap-4 border p-2 rounded" 
+                        onClick={() => aoSelecionar(tarefa.id)}
+                    >
+                        <button type="button" className="flex-1 text-left">
+                            {tarefa.titulo}
+                        </button>
+                        <span className="text-sm text-gray-600">
+                            {tarefa.responsavel}
+                        </span>
                         <span className={`text-xs px-2 py-1 rounded ${coresPrioridade[tarefa.prioridade]}`}>
                             {tarefa.prioridade}
                         </span>
-                        <span className="text-sm text-gray-600">{tarefa.dataVencimento}</span>
-
+                        <span className="text-sm text-gray-600">
+                            {tarefa.dataVencimento}
+                        </span>
                     </li>
                 ))}
             </ul>
