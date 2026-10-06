@@ -3,19 +3,9 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from Models.models import Notification
-from Schemas.notification_schema import NotificationSchema
 
 def list_notifications(user_id: UUID, session:Session):
     return session.query(Notification).filter(Notification.recipient_id == user_id).all()
-
-def create_notification(notification: NotificationSchema, session:Session):
-    new_notification = Notification(**notification.model_dump())
-
-    session.add(new_notification)
-    session.commit()
-    session.refresh(new_notification)
-
-    return new_notification
 
 def read_notification(notif_id: UUID, session:Session):
     notification = session.query(Notification).filter(Notification.id == notif_id).first()
