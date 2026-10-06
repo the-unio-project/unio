@@ -1,6 +1,6 @@
 "use client"
 
-export default function Input({ value, onChange, placeholder, label, type = "text" }) {
+export default function Input({ value, onChange, placeholder, label, type = "text", ...resto }) {
     return (
         <div>
             <label htmlFor={label}>{label}</label>
@@ -10,6 +10,7 @@ export default function Input({ value, onChange, placeholder, label, type = "tex
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
+                {...resto}
             />
         </div>
     )

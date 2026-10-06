@@ -1,36 +1,35 @@
 const API_URL = 'http://localhost:8000';
 
 export async function login(email, senha) {
-let resposta;
+    let resposta;
 
     try {
-        resposta = await fetch(`${API_URL}/login`, {
+        resposta = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
-            headers: {"content-type": "application/json"},
+            headers: { "content-type": "application/json" },
             credentials: 'include',
-            body: JSON.stringify({ email, senha })
+            body: JSON.stringify({ email, password: senha })
         });
     } catch (erroDeRede) {
         throw new Error('Não foi possivel conectar ao servidor.');
     }
 
-    if(!resposta.ok) {
+    if (!resposta.ok) {
         throw new Error('Email ou senha inválidos.');
     }
 
     return resposta.json();
-
 }
 
 export async function cadastro(nome, email, senha) {
     let resposta;
 
     try {
-        resposta = await fetch(`${API_URL}/cadastro`, {
+        resposta = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
-            headers: {"content-type": "application/json"},
+            headers: { "content-type": "application/json" },
             credentials: 'include',
-            body: JSON.stringify({ nome, email, senha })
+            body: JSON.stringify({ name: nome, email, password: senha })
         });
     } catch (erroDeRede) {
         throw new Error('Não foi possível conectar ao servidor.');
