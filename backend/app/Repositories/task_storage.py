@@ -33,7 +33,7 @@ class TaskRepository:
         return self.session.query(Task).filter(Task.id == task_id).first()
     
     def get_all_by_project(self, project_id: UUID) -> List[Task]:
-        return self.session.query(Task).join(Task.list_).filter_by(project_id=project_id).all()
+        return self.session.query(Task).filter(Task.project_id == project_id).order_by(Task.status_id, Task.position, Task.id)
     
     def replace_task(self, new_task: CreateTaskSchema, task_id: UUID):
         task = self.get_by_id(task_id)
@@ -51,6 +51,10 @@ class TaskRepository:
         task = self.get_by_id(task_id)
         if task is None:
             return None
+        if task.status_id is not None:
+            following_tasks = self.session.query(Task).filter(Task.status_id == task.status_id, Task.position > task.position).all()
+            for current_task in following_tasks:
+                current_task.position -= 1
         self.session.delete(task)
         self.session.commit()
         return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
