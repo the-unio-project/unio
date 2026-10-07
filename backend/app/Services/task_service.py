@@ -70,7 +70,7 @@ class TaskService:
 
         return self.task_repo.create_task_in_list(project_id=list_model.project_id, list_id=list_model.id, task=task, position=position)
         
-    def move_inside_status(self, task: Task, status: Status, new_position: UUID):
+    def move_inside_status(self, task: Task, status: Status, new_position: int):
         tasks = sorted(status.tasks, key=lambda t: t.position)
         old_position = task.position
         if new_position < old_position:
@@ -122,6 +122,15 @@ class TaskService:
             )
 
         old_status = task.status
+        same_status = old_status is not None and old_status.id == new_status.id
+
+        max_position = len(new_status.tasks) + (0 if same_status else 1)
+
+        if new_position > max_position:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Position must be at most {max_position}",
+            )
 
         if old_status is not None and old_status.id == new_status.id:
             self.move_inside_status(task, new_status, new_position)

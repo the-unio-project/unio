@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.drop_table('notifications')
     op.drop_constraint(op.f('comments_sender_id_fkey'), 'comments', type_='foreignkey')
     op.drop_column('comments', 'sender_id')
-    op.add_column('tasks', sa.Column('position', sa.Integer(), nullable=False))
+    op.add_column('tasks', sa.Column('position', sa.Integer(), nullable=True))
     # ### end Alembic commands ###
 
 
