@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from Database.database import get_session
 from Schemas.auth_schemas import RegisterSchema, LoginSchema
-from Services.Authentication.auth_methods import auth_user, create_token, verify_token  # pyright: ignore[reportAssignmentType]
+from Services.Authentication.auth_methods import auth_user, create_token  # pyright: ignore[reportAssignmentType]
 
-from Repositories import user_repo
+from Repositories.user_repo import UserRepository
 
 auth_router = APIRouter()
 
@@ -26,7 +26,8 @@ async def verify_token(login_data: LoginSchema, response: Response, session:Sess
 # @auth_router.post("/register")
 @auth_router.post("/register")
 async def register_user(registerSchema:RegisterSchema, response: Response, session:Session = Depends(get_session)):
-    user = user_repo.UserRepository.create_user(registerSchema, session)
+    repo = UserRepository(session)
+    user = repo.create_user(registerSchema, session)
 
     (access_token, timeout) = create_token(user.id)
 
