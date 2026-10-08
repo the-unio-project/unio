@@ -12,19 +12,15 @@ class TaskRepository:
         self.session = session
         self.status_repo = StatusRepository(session)
 
-    def create_task(self, project_id: UUID, task: CreateTaskSchema):
-        new_task = Task(**task.model_dump(), project_id=project_id)
+    def create_task(self, project_id: UUID, task: CreateTaskSchema, position: int | None, list_id: UUID | None = None):
+        new_task = Task(**task.model_dump(), project_id=project_id, position=position, list_id=list_id)
         self.session.add(new_task)
         self.session.commit()
         self.session.refresh(new_task)
         return new_task
 
-    def create_task_in_list(self, project_id: UUID, list_id: UUID, task: CreateTaskSchema):
-        new_task = Task(**task.model_dump(), project_id=project_id, list_id=list_id)
-        self.session.add(new_task)
-        self.session.commit()
-        self.session.refresh(new_task)
-        return new_task
+    def create_task_in_list(self, project_id: UUID, list_id: UUID, task: CreateTaskSchema, position: int | None):
+        return self.create_task(project_id=project_id, task=task, position=position, list_id=list_id)
 
     def create_subtask(self, task_id: UUID, task: CreateTaskSchema):
         new_subtask = Task(**task.model_dump(), task_id=task_id)
@@ -37,7 +33,7 @@ class TaskRepository:
         return self.session.query(Task).filter(Task.id == task_id).first()
     
     def get_all_by_project(self, project_id: UUID) -> List[Task]:
-        return self.session.query(Task).join(Task.list_).filter_by(project_id=project_id).all()
+        return self.session.query(Task).filter(Task.project_id == project_id).order_by(Task.status_id, Task.position, Task.id)
     
     def replace_task(self, new_task: CreateTaskSchema, task_id: UUID):
         task = self.get_by_id(task_id)
@@ -55,20 +51,13 @@ class TaskRepository:
         task = self.get_by_id(task_id)
         if task is None:
             return None
+        if task.status_id is not None:
+            following_tasks = self.session.query(Task).filter(Task.status_id == task.status_id, Task.position > task.position).all()
+            for current_task in following_tasks:
+                current_task.position -= 1
         self.session.delete(task)
         self.session.commit()
         return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
 
-    def change_task_status(self, task_id: UUID, status_id: UUID):
-        task = self.get_by_id(task_id)
-        if task is None:
-            return None
-        status = self.status_repo.get_by_id(status_id)
-        if status is None:
-            return None
-        task.status_id = status_id
-
+    def commit(self):
         self.session.commit()
-        self.session.refresh(task)
-
-        return task

@@ -129,6 +129,7 @@ class Task(Base):
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
     status_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("statuses.id", ondelete="SET NULL"), nullable=True)
     status: Mapped["Status | None"] = relationship("Status", back_populates="tasks")
+    position: Mapped[int | None] = mapped_column(Integer, nullable=True)
     comments: Mapped[list["Comment"]] = relationship(back_populates="task")
 
 class TaskAssignee(Base):

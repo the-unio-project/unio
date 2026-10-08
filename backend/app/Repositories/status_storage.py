@@ -51,7 +51,11 @@ class StatusRepository:
     def delete_status(self, status_id: UUID):
         status = self.get_by_id(status_id)
         if status is None:
-            return None
+            raise HTTPException(status_code=404, detail="Status not found")
+        for task in list(status.tasks):
+            task.status = None
+            task.position = None
+        self.session.flush()
         self.session.delete(status)
         self.session.commit()
         return DeleteStatusSchema(message=f"Status {status.name} deletado com sucesso!", id=status_id)
