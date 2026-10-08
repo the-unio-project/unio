@@ -29,6 +29,10 @@ def create_workspace(schema:CreateWorkspaceSchema, user:User = Depends(verify_to
 def get_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session = Depends(get_session)):
     return workspace_repo.get_workspace_by_id(workspace_id, session)
 
+@workspace_router.get(path="/{workspace_id}/search")
+def query_workspace_tasks(workspace_id:UUID, q:str | None = None, _ = Depends(verify_token), session:Session = Depends(get_session)):
+    return workspace_repo.search_task_by_title(workspace_id, q, session)
+
 # Invites
 
 @workspace_router.get(path="/{workspace_id}/create-invite")

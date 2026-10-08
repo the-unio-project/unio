@@ -2,8 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import User, Workspace, WorkspaceInvite, WorkspaceMember, WorkspaceRole
+from Models.models import Project, Task, User, Workspace, WorkspaceInvite, WorkspaceMember, WorkspaceRole
 from Schemas.workspace_schema import CreateWorkspaceSchema, DeleteWorkspaceSchema, WorkspaceInviteSchema, WorkspaceMemberSchema
+from Services.Tasks.search_methods import search_title
 
 def create_workspace(workspace: CreateWorkspaceSchema, user_id:UUID, session:Session) -> Workspace:
 
@@ -137,3 +138,17 @@ def delete_workspace(workspace_id: UUID, session: Session) -> DeleteWorkspaceSch
     session.delete(workspace)
     session.commit()
     return DeleteWorkspaceSchema(message=f"Workspace {workspace.name} deletado com sucesso!", id=workspace_id)
+
+# GLOBAL TASK SEARCH
+
+def search_task_by_title(workspace_id:UUID, query:str, session:Session) -> list[Task]:
+    projects = session.query(Project).filter(Project.workspace_id == workspace_id).all()
+    
+    final_tasks:list[Task] = []
+
+    for project in projects:
+        tasks = session.query(Task).filter(Task.project_id == project.id).all()
+
+        final_tasks.extend(search_title(query, tasks))
+
+    return final_tasks
