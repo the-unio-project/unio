@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 
-from Models.models import Task
+from Models.models import Task, TaskAssignee
 from Repositories.status_storage import StatusRepository
 from Schemas.task_schema import CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
 
@@ -58,6 +60,19 @@ class TaskRepository:
         self.session.delete(task)
         self.session.commit()
         return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
+
+    def get_user_tasks(self, user_id: UUID):
+        return self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id).all()
+
+    def get_tasks_due_today(self, user_id: UUID):
+        today = datetime.now().date
+        start = datetime.combine(today, datetime.min.time())
+        end = start + timedelta(days=1)
+        return self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id, Task.term >= start, Task.term < end)
+
+    def get_overdue_tasks(self, user_id: UUID):
+        now = datetime.now()
+        return self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id, Task.term < now).all()
 
     def commit(self):
         self.session.commit()

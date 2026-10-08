@@ -5,10 +5,11 @@ from fastapi import Body, Depends, HTTPException, APIRouter
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 
-from Schemas.task_schema import CreateSubtaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
+from Controller.auth_routes import verify_token
+from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
-from Models.models import NotificationType, Task, TaskAssignee
+from Models.models import NotificationType, Task, TaskAssignee, User
 from Repositories.task_storage import TaskRepository
 from Services.Notifications.notification_methods import notify
 from Services.task_service import TaskService
@@ -16,6 +17,7 @@ from Services.task_service import TaskService
 task_router = APIRouter()
 
 SessionDep = Annotated[Session, Depends(get_session)]
+CurrentUserDep = Annotated[User, Depends(verify_token)]
 
 @task_router.post("/projects/{project_id}/tasks", response_model=TaskResponseSchema)
 async def create_task(project_id: UUID, task: CreateTaskSchema, session: SessionDep) -> TaskResponseSchema:
@@ -69,3 +71,18 @@ async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep)
 async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionDep):
     service = TaskService(session)
     return service.move_task(task_id=task_id, status_id=task.status_id, new_position=task.position)
+
+@task_router.get("/me/tasks", response_model=List[DashboardTaskSchema])
+async def get_user_tasks(session: SessionDep, current_user: CurrentUserDep):
+    repo = TaskRepository(session)
+    return repo.get_user_tasks(current_user.id)
+
+@task_router.get("/me/tasks/due-today", response_model=List[DashboardTaskSchema])
+async def get_tasks_due_today(session: SessionDep, current_user: CurrentUserDep):
+    repo = TaskRepository(session)
+    return repo.get_tasks_due_today(current_user.id)
+
+@task_router.get("/me/tasks/overdue", response_model=List[DashboardTaskSchema])
+async def get_tasks_overdue(session: SessionDep, current_user: CurrentUserDep):
+    repo = TaskRepository(session)
+    return repo.get_overdue_tasks(current_user.id)
