@@ -7,11 +7,11 @@ export default function AppLayout({ children }) {
   return (
     <AuthProvider>
     <WorkspaceProvider>
-      <div className="flex">
-        <Sidebar />
-        <div className="flex flex-col flex-1">
-          <Header />
-          <main className="p-4">
+      <div className="flex h-screen flex-col">
+        <Header />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 overflow-y-auto">
             {children}
           </main>
         </div>
