@@ -56,3 +56,13 @@ class DeleteTaskSchema(BaseModel):
 class MoveTaskStatusSchema(BaseModel):
     status_id: UUID
     position: int = Field(ge=1)
+
+class DashboardTaskSchema(BaseModel):
+    id: UUID
+    title: str
+    description: str | None
+    due_date: datetime | None
+    project_id: UUID
+    status_id: UUID | None
+    position: int | None
+    model_config = ConfigDict(from_attributes=True)
