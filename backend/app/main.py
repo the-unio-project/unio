@@ -8,7 +8,7 @@ from config import (
     S3_URL, S3_ACCESS_KEY, S3_SECRET_KEY, S3_REGION,
 )
 
-from Controller import list_router, project_router, auth_routes, status_router, task_router, tag_router, workspace_router, profile_router, comment_router
+from Controller import list_router, project_router, auth_routes, status_router, task_router, tag_router, workspace_router, profile_router, comment_router, notification_router
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
@@ -67,5 +67,12 @@ app.include_router(
 app.include_router(
     router=status_router.status_router,
     tags=["Status"],
+    dependencies=[Depends(verify_token)]
+)
+
+app.include_router(
+    router=notification_router.notification_router,
+    prefix="/notifications",
+    tags=["Notifications"],
     dependencies=[Depends(verify_token)]
 )

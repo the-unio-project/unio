@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 from Schemas.task_schema import CreateSubtaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
-from Models.models import Task
+from Models.models import NotificationType, Task, TaskAssignee
 from Repositories.task_storage import TaskRepository
+from Services.Notifications.notification_methods import notify
 from Services.task_service import TaskService
 
 task_router = APIRouter()
@@ -57,7 +58,12 @@ async def create_subtask(task_id: UUID, task: CreateSubtaskSchema, session: Sess
 @task_router.post("/tasks/{task_id}/user/{user_id}")
 async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep):
     service = TaskService(session)
-    return service.assign_task_to_user(task_id, user_id)
+    task_asignee = service.assign_task_to_user(task_id, user_id)
+
+    if task_asignee is TaskAssignee:
+        notify(NotificationType.COMMENT_MENTION, task_asignee.task_id, user_id, task_asignee.user_id, session)
+
+    return task_asignee 
 
 @task_router.patch("/tasks/{task_id}/status", response_model=TaskResponseSchema)
 async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionDep):
