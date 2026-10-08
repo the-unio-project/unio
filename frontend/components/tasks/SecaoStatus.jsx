@@ -34,7 +34,7 @@ function confirmarNovaTarefa() {
                 {tarefas.map((tarefa) => (
                     <li 
                         key={tarefa.id} 
-                        className="flex items-center gap-4 border p-2 rounded" 
+                        className="flex items-center hover:bg-gray-700 transition gap-4 border p-2 rounded" 
                         onClick={() => aoSelecionar(tarefa.id)}
                     >
                         <button type="button" className="flex-1 text-left">

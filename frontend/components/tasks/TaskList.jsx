@@ -5,6 +5,8 @@ import { tarefasMock } from "@/lib/mock";
 import SecaoStatus from "@/components/tasks/SecaoStatus";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
 
+const STATUS = ["A fazer", "Em andamento", "Concluída"];
+
 export default function TaskList({ projetoId }) {
   const [tarefas, setTarefas] = useState(
     tarefasMock.filter((t) => t.projetoId === projetoId)
@@ -18,8 +20,8 @@ export default function TaskList({ projetoId }) {
   const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
   function atualizarTarefa(id, mudancas) {
-  setTarefas(tarefas.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
-}
+    setTarefas(tarefas.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
+  }
   
   const responsaveis = [...new Set(tarefas.map(t => t.responsavel))];
   const tarefasFiltradas = tarefas.filter((tarefa) => {
@@ -74,15 +76,23 @@ export default function TaskList({ projetoId }) {
           ))}
         </select>
       </div>
-      {Object.entries(porStatus).map(([status, tarefasDoStatus]) => (
-        <SecaoStatus
-          key={status}
-          status={status}
-          tarefas={tarefasDoStatus}
-          aoAdicionar={aoAdicionar}
-          aoSelecionar={setTarefaSelecionadaId}
-        />
-      ))}
+        {tarefas.length === 0 && (
+          <p className="text-gray-500">Esse projeto ainda nao possui tarefas.</p>
+        )}
+
+        {tarefas.length > 0 && tarefasFiltradas.length === 0 && (
+          <p className="text-gray-500">Nenhuma tarefa corresponde aos filtros aplicados.</p>
+        )}
+
+        {STATUS.map((status) => (
+          <SecaoStatus
+            key={status}
+            status={status}
+            tarefas={porStatus[status] || []}
+            aoAdicionar={aoAdicionar}
+            aoSelecionar={setTarefaSelecionadaId}
+          />
+        ))}
       {tarefaSelecionada && (
         <ModalTarefa
           tarefa={tarefaSelecionada}
