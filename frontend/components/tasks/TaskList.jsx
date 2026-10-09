@@ -20,7 +20,9 @@ export default function TaskList({ projetoId }) {
   const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
   function atualizarTarefa(id, mudancas) {
-    setTarefas(tarefas.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
+    setTarefas((anteriores) =>
+      anteriores.map((t) => (t.id === id ? { ...t, ...mudancas } : t))
+    );
   }
   
   const responsaveis = [...new Set(tarefas.map(t => t.responsavel))];
@@ -46,7 +48,7 @@ export default function TaskList({ projetoId }) {
       dataVencimento: "",
       projetoId,
     }
-    setTarefas([...tarefas, novaTarefa]);
+    setTarefas((anteriores) => [...anteriores, novaTarefa]);
   }
 
   return (
@@ -77,11 +79,11 @@ export default function TaskList({ projetoId }) {
         </select>
       </div>
         {tarefas.length === 0 && (
-          <p className="text-gray-500">Esse projeto ainda nao possui tarefas.</p>
+          <p className="text-gray-500 mb-4">Esse projeto ainda não possui tarefas, crie a primeira abaixo.</p>
         )}
 
         {tarefas.length > 0 && tarefasFiltradas.length === 0 && (
-          <p className="text-gray-500">Nenhuma tarefa corresponde aos filtros aplicados.</p>
+          <p className="text-gray-500 mb-4">Nenhuma tarefa corresponde aos filtros aplicados.</p>
         )}
 
         {STATUS.map((status) => (
