@@ -61,8 +61,12 @@ class TaskRepository:
         self.session.commit()
         return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
 
-    def get_user_tasks(self, user_id: UUID):
-        return self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id).all()
+    def get_user_tasks(self, user_id: UUID, order: str = "asc"):
+        query = self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id)
+        if order == "desc":
+            return query.order_by(Task.term.desc().nulls_last()).all()
+        else:
+            return query.order_by(Task.term.asc().nulls_last()).all()
 
     def get_tasks_due_today(self, user_id: UUID):
         today = datetime.now().date

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, List
+from typing import Annotated, List, Literal
 import typing
 from fastapi import Body, Depends, HTTPException, APIRouter
 from uuid import UUID, uuid4
@@ -73,9 +73,9 @@ async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionD
     return service.move_task(task_id=task_id, status_id=task.status_id, new_position=task.position)
 
 @task_router.get("/me/tasks", response_model=List[DashboardTaskSchema])
-async def get_user_tasks(session: SessionDep, current_user: CurrentUserDep):
+async def get_user_tasks(session: SessionDep, current_user: CurrentUserDep, order: Literal["asc", "desc"] = "asc"):
     repo = TaskRepository(session)
-    return repo.get_user_tasks(current_user.id)
+    return repo.get_user_tasks(current_user.id, order)
 
 @task_router.get("/me/tasks/due-today", response_model=List[DashboardTaskSchema])
 async def get_tasks_due_today(session: SessionDep, current_user: CurrentUserDep):
