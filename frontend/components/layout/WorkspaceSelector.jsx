@@ -19,7 +19,7 @@ export default function WorkspaceSelector() {
         router.push(
             primeiroProjeto
                 ? `/${workspace.id}/projetos/${primeiroProjeto.id}`
-                : `/${workspace.id}/membros`
+                : "/dashboard"
         );
         setAberto(false);
     }

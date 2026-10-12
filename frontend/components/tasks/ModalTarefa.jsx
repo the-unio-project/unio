@@ -4,6 +4,7 @@ import { useState } from "react";
 import Input from '@/components/ui/Input';
 import { X } from "lucide-react";
 import { PRIORIDADES } from "@/lib/prioridades";
+import { tagsMock } from "@/lib/mock";
 
 export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
@@ -30,6 +31,19 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
         const nova = { id: Date.now(), titulo: novaSubtarefa.trim() };
         aoAtualizar(tarefa.id, { subtarefas: [...subtarefas, nova] });
         setNovaSubtarefa("");
+    }
+
+    const idsAplicados = tarefa.tags ?? [];
+    const tagsProjeto = tagsMock.filter((tag) => tag.projetoId === tarefa.projetoId);
+    const tagsAplicadas = tagsProjeto.filter((tag) => idsAplicados.includes(tag.id));
+    const tagsDisponiveis = tagsProjeto.filter((tag) => !idsAplicados.includes(tag.id));
+
+    function aplicarTag(tagId) {
+        aoAtualizar(tarefa.id, { tags: [...idsAplicados, tagId] });
+    }
+
+    function removerTag(tagId) {
+        aoAtualizar(tarefa.id, { tags: idsAplicados.filter((id) => id !== tagId) });
     }
 
     return (
@@ -88,6 +102,30 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
                     onChange={(e) => aoAtualizar(tarefa.id, { dataVencimento: e.target.value })}
                     className="border p-2 rounded mb-4 block"
                 />
+                <p className="block text-gray-700 dark:text-gray-300 mb-2">Tags</p>
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    {tagsAplicadas.map((tag) => (
+                        <span key={tag.id} className={`flex items-center gap-1 rounded px-2 py-1 text-xs ${tag.cor}`}>
+                            {tag.nome}
+                            <button type="button" onClick={() => removerTag(tag.id)} aria-label={`Remover tag ${tag.nome}`}>
+                                <X size={12} />
+                            </button>
+                        </span>
+                    ))}
+                    {tagsDisponiveis.length > 0 && (
+                        <select
+                            value=""
+                            onChange={(e) => aplicarTag(Number(e.target.value))}
+                            aria-label="Adicionar tag"
+                            className="border p-1 rounded text-xs"
+                        >
+                            <option value="" disabled>+ Adicionar tag</option>
+                            {tagsDisponiveis.map((tag) => (
+                                <option key={tag.id} value={tag.id}>{tag.nome}</option>
+                            ))}
+                        </select>
+                    )}
+                </div>
                 <label htmlFor="descricao" className="block text-gray-700 dark:text-gray-300 mb-2">Descrição</label>
                 <textarea
                     id="descricao"
