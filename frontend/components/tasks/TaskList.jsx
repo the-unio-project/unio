@@ -4,6 +4,7 @@ import { useState } from "react";
 import { tarefasMock } from "@/lib/mock";
 import SecaoStatus from "@/components/tasks/SecaoStatus";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
+import { PRIORIDADES } from "@/lib/prioridades";
 
 const STATUS = ["A fazer", "Em andamento", "Concluída"];
 
@@ -60,9 +61,9 @@ export default function TaskList({ projetoId }) {
           className="border p-2 rounded text-sm"
         >
           <option value="todas">Prioridade</option>
-          <option value="alta">Alta</option>
-          <option value="média">Média</option>
-          <option value="baixa">Baixa</option>
+        {Object.entries(PRIORIDADES).map(([valor, { rotulo }]) => (
+          <option key={valor} value={valor}>{rotulo}</option>
+        ))}
         </select>
 
         <select

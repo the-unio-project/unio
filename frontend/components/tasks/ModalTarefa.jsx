@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Input from '@/components/ui/Input';
 import { X } from "lucide-react";
+import { PRIORIDADES } from "@/lib/prioridades";
 
 export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
@@ -66,9 +67,9 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
                     onChange={(e) => aoAtualizar(tarefa.id, { prioridade: e.target.value })}
                     className="border p-2 rounded mb-4"
                 >
-                    <option value="alta">Alta</option>
-                    <option value="média">Média</option>
-                    <option value="baixa">Baixa</option>
+                    {Object.entries(PRIORIDADES).map(([valor, { rotulo }]) => (
+                        <option key={valor} value={valor}>{rotulo}</option>
+                    ))}
                 </select>
                 
                 <Input 

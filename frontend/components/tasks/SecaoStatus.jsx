@@ -3,17 +3,12 @@
 import { useState } from "react";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import { PRIORIDADES } from "@/lib/prioridades";
 
 const coresStatus = {
     "A fazer": "bg-gray-200 text-gray-700",
     "Em andamento": "bg-yellow-100 text-yellow-700",
     "Concluída": "bg-green-100 text-green-700",
-};
-
-const coresPrioridade = {
-    alta: "bg-red-100 text-red-700",
-    média: "bg-yellow-100 text-yellow-700",
-    baixa: "bg-blue-100 text-blue-700",
 };
 
 export default function SecaoStatus({ status, tarefas, aoAdicionar, aoSelecionar }) {
@@ -34,7 +29,7 @@ function confirmarNovaTarefa() {
                 {tarefas.map((tarefa) => (
                     <li 
                         key={tarefa.id} 
-                        className="flex items-center hover:bg-gray-700 transition gap-4 border p-2 rounded" 
+                        className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition gap-4 border p-2 rounded cursor-pointer" 
                         onClick={() => aoSelecionar(tarefa.id)}
                     >
                         <button type="button" className="flex-1 text-left">
@@ -43,8 +38,8 @@ function confirmarNovaTarefa() {
                         <span className="text-sm text-gray-600">
                             {tarefa.responsavel}
                         </span>
-                        <span className={`text-xs px-2 py-1 rounded ${coresPrioridade[tarefa.prioridade]}`}>
-                            {tarefa.prioridade}
+                        <span className={`text-xs px-2 py-1 rounded ${PRIORIDADES[tarefa.prioridade]?.cor}`}>
+                            {PRIORIDADES[tarefa.prioridade]?.rotulo}
                         </span>
                         <span className="text-sm text-gray-600">
                             {tarefa.dataVencimento}
