@@ -8,6 +8,7 @@ import { PRIORIDADES } from "@/lib/prioridades";
 export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
+    const [novaSubtarefa, setNovaSubtarefa] = useState("");
 
     function salvarTitulo() {
         if(titulo.trim() === "") {
@@ -22,6 +23,14 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
         aoAtualizar(tarefa.id, { titulo: tituloFinal, descricao });
         aoFechar();
 }
+    const subtarefas = tarefa.subtarefas ?? [];
+
+    function adicionarSubtarefa() {
+        if(novaSubtarefa.trim() === "") return;
+        const nova = { id: Date.now(), titulo: novaSubtarefa.trim() };
+        aoAtualizar(tarefa.id, { subtarefas: [...subtarefas, nova] });
+        setNovaSubtarefa("");
+    }
 
     return (
         <div
@@ -87,6 +96,26 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
                     onBlur={() => aoAtualizar(tarefa.id, { descricao })}
                     className="border p-2 rounded mb-4 block w-full"
                 />
+                <p className="block text-gray-700 dark:text-gray-300">Subtarefas</p>
+                {subtarefas.length === 0 ? (
+                    <p className="mb-2 ml-2 text-sm text-gray-500"> Nenhuma subtarefa adicionada ainda</p>
+                ) : (
+                    <ul className="mb-2 flex flex-col gap-1 ml-2">
+                        {subtarefas.map((sub) => (
+                            <li key={sub.id} className="text-sm">{sub.titulo}</li>
+                        ))}
+                    </ul>
+                )}
+                <Input 
+                    value={novaSubtarefa}
+                    onChange={(e) => setNovaSubtarefa(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") adicionarSubtarefa();
+                    }}
+                    placeholder="+ Adicionar subtarefa"
+                    className="border p-2 rounded w-full text-sm"
+                />
+
             </div>
         </div>
     )

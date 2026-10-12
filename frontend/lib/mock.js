@@ -6,6 +6,11 @@ export const projetosMock = [
 
 export const tarefasMock = [
   { id: 1, projetoId: 3, titulo: "Criar wireframes", status: "A fazer", prioridade: "alta", responsavel: "João", dataVencimento: "2026-10-10" },
-  { id: 2, projetoId: 1, titulo: "Configurar deploy", status: "Em andamento", prioridade: "normal", responsavel: "Maria", dataVencimento: "2026-10-12" },
+  { id: 2, projetoId: 1, titulo: "Configurar deploy", status: "Em andamento", prioridade: "normal", responsavel: "Maria", dataVencimento: "2026-10-12",
+    subtarefas: [
+  { id: 101, titulo: "Criar conta na Vercel" },
+  { id: 102, titulo: "Configurar variáveis de ambiente" },
+],
+  },
   { id: 3, projetoId: 1, titulo: "Revisar textos", status: "Concluída", prioridade: "baixa", responsavel: "João", dataVencimento: "2026-10-08" },
 ];
