@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 import { useWorkspace } from "@/context/WorkspaceContext";
-import { projetosMock } from "@/lib/mock";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function Sidebar() {
-    const { workspaceAtual } = useWorkspace();
+    const { workspaceAtual, projetos: todosProjetos } = useWorkspace();
     const [projetosAberto, setProjetosAberto] = useState(true);
 
-    const projetos = workspaceAtual ? projetosMock.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
+    const projetos = workspaceAtual ? todosProjetos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
 
     return (
         <nav className="w-64 h-full shrink-0 overflow-y-auto p-4">

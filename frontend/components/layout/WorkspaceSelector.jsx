@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Check } from "lucide-react";
 import { useWorkspace } from "@/context/WorkspaceContext";
-import { projetosMock } from "@/lib/mock";
 
 export default function WorkspaceSelector() {
-    const { workspaceAtual, setWorkspaceAtual, workspaces } = useWorkspace();
+    const { workspaceAtual, setWorkspaceAtual, workspaces, projetos } = useWorkspace();
     const [aberto, setAberto] = useState(false);
     const router = useRouter();
 
@@ -15,7 +14,7 @@ export default function WorkspaceSelector() {
 
     function trocarWorkspace(workspace) {
         setWorkspaceAtual(workspace);
-        const primeiroProjeto = projetosMock.find((p) => p.workspaceId === workspace.id);
+        const primeiroProjeto = projetos.find((p) => p.workspaceId === workspace.id);
         router.push(
             primeiroProjeto
                 ? `/${workspace.id}/projetos/${primeiroProjeto.id}`
