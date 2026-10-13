@@ -13,10 +13,10 @@ export default function Modal({ aoFechar, largura = "max-w-2xl", children }) {
         >
             <div className={`relative w-full ${largura} rounded-lg bg-white p-6 dark:bg-gray-900`}>
                 <Button
-                    type="button"
+                    variant="icone"
                     onClick={aoFechar}
                     aria-label="Fechar"
-                    className="absolute top-4 right-4 p-1 rounded text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="absolute top-4 right-4"
                 >
                     <X size={20} />
                 </Button>
