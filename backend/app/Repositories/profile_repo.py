@@ -36,7 +36,7 @@ def update_profile(user_id:UUID, profile_schema:SetProfileSchema, profile_pictur
     upload_resposta = supabase_client.storage.from_("profilepictures").upload(
                 file=pfp_bytes,
                 path=f"{user_id}.{extension}",
-                file_options={"cache-control": "3600", "upsert": "false"}
+                file_options={"cache-control": "3600", "upsert": "true"}
                 )
 
     url_resposta = f"{SB_URL}/storage/v1/object/public/profilepictures/{upload_resposta.path}"
