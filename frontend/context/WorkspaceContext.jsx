@@ -14,7 +14,7 @@ export function WorkspaceProvider({ children }) {
         { id: 3, nome: "Equipe de Marketing" },
     ]);
     const [projetos, setProjetos] = useState(projetosMock);
-    const [workspaceLembrado, setWorkspaceAtual] = useState(null);
+    const [workspaceLembrado, setWorkspaceLembrado] = useState(null);
 
     const workspaceUrl = workspaces.find((w) => String(w.id) === params.workspaceId);
     const workspaceAtual = workspaceUrl ?? workspaceLembrado ?? workspaces[0];
@@ -31,8 +31,14 @@ export function WorkspaceProvider({ children }) {
         );
     }
 
+    function criarWorkspace(nome) {
+        const novo = { id: Date.now(), nome };
+        setWorkspaces((anteriores) => [...anteriores, novo]);
+        return novo;
+    }
+
     return (
-        <WorkspaceContext.Provider value={{ workspaceAtual, setWorkspaceAtual, workspaces, setWorkspaces, projetos, criarProjeto, editarProjeto }}>
+        <WorkspaceContext.Provider value={{ workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto, editarProjeto, criarWorkspace }}>
             {children}
         </WorkspaceContext.Provider>
     );

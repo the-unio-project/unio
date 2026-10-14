@@ -6,14 +6,14 @@ import { ChevronDown, Check } from "lucide-react";
 import { useWorkspace } from "@/context/WorkspaceContext";
 
 export default function WorkspaceSelector() {
-    const { workspaceAtual, setWorkspaceAtual, workspaces, projetos } = useWorkspace();
+    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetos } = useWorkspace();
     const [aberto, setAberto] = useState(false);
     const router = useRouter();
 
     if (!workspaceAtual) return null;
 
     function trocarWorkspace(workspace) {
-        setWorkspaceAtual(workspace);
+        setWorkspaceLembrado(workspace);
         const primeiroProjeto = projetos.find((p) => p.workspaceId === workspace.id);
         router.push(
             primeiroProjeto
