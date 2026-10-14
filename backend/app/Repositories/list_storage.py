@@ -42,4 +42,4 @@ class ListRepository:
             return None
         self.session.delete(list_model)
         self.session.commit()
-        return DeleteListSchema(mensagem=f"list {list_model.name} deletada com sucesso!", uuid=list_id)
+        return DeleteListSchema(mensagem=f"list {list_model.name} deletada com sucesso!", id=list_id)
