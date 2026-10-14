@@ -6,6 +6,8 @@ from Models.models import Task, TaskAssignee, User
 from Schemas.auth_schemas import RegisterSchema
 from Services.Authentication import pwd_handler
 
+from config import DEFAULT_PFP
+
 class UserRepository:
     def __init__(self, session: Session):
         self.session = session
@@ -18,6 +20,10 @@ class UserRepository:
             raise HTTPException(status_code=400, detail="E-mail already registered")
 
         new_user = User(**user.model_dump())
+
+        new_user.nickname = new_user.name
+        new_user.bio = ""
+        new_user.profile_picture = DEFAULT_PFP
 
         new_user.password = pwd_handler.hash_password(new_user.password)
 
