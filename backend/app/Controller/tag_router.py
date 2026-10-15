@@ -34,10 +34,10 @@ async def delete_tag(tag_id: UUID, session: SessionDep):
     repo = TagRepository(session)
     return repo.delete_tag(tag_id)
 
-@tag_router.patch("/tags/{tag_id}", response_model=EditTagSchema)
-async def edit_tag(tag_id: UUID, session: SessionDep):
+@tag_router.patch("/tags/{tag_id}")
+async def edit_tag(tag_id: UUID, session: SessionDep, schema: EditTagSchema):
     repo = TagRepository(session)
-    return repo.edit_tag(tag_id)
+    return repo.edit_tag(schema, tag_id)
 
 @tag_router.post("/tasks/{task_id}/tags/{tag_id}", status_code=204)
 async def apply_tag(task_id: UUID, tag_id: UUID, session: SessionDep):
