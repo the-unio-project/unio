@@ -20,7 +20,7 @@ def read_notification(notification_id:UUID, _ = Depends(verify_token), session:S
 
     return {"message": "notification successfully read"}
 
-@notification_router.post("/read/all")
+@notification_router.post("/read-all")
 def read_all_notifications(user:User = Depends(verify_token), session:Session = Depends(get_session)):
     _ = notification_repo.read_all_notifications(user.id, session)
 

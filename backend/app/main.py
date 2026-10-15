@@ -47,6 +47,12 @@ app.include_router(
         )
 
 app.include_router(
+    router=status_router.status_router,
+    tags=["Status"],
+    dependencies=[Depends(verify_token)]
+)
+
+app.include_router(
         router=task_router.task_router,
         tags=["Task"],
         dependencies=[Depends(verify_token)]
@@ -63,12 +69,6 @@ app.include_router(
         tags=["Tag"],
         dependencies=[Depends(verify_token)]
         )
-
-app.include_router(
-    router=status_router.status_router,
-    tags=["Status"],
-    dependencies=[Depends(verify_token)]
-)
 
 app.include_router(
     router=notification_router.notification_router,

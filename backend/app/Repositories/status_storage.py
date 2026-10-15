@@ -1,26 +1,26 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Status
-from Schemas.status_schemas import CreateStatusSchema, DeleteStatusSchema, UpdateStatusSchema, StatusResponseSchema
+from Schemas.status_schemas import CreateStatusSchema, DeleteStatusSchema, UpdateStatusSchema
 
 class StatusRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def create_status(self, project_id:UUID, status: CreateStatusSchema):
-        new_status = Status(**status.model_dump(), project_id=project_id)
+    def create_status(self, project_id:UUID, position:int, status: CreateStatusSchema):
+        new_status = Status(**status.model_dump(), project_id=project_id, position=position)
+        
         self.session.add(new_status)
         self.session.commit()
         self.session.refresh(new_status)
         return new_status
 
-    def get_by_id(self, status_id: UUID) -> Optional[StatusResponseSchema]:
+    def get_by_id(self, status_id: UUID) -> Status | None:
         return self.session.query(Status).filter(Status.id == status_id).first()
     
-    def get_all(self) -> List[StatusResponseSchema]:
+    def get_all(self) -> list[Status] | None:
         return self.session.query(Status).all()
 
     def replace_status(self, new_status: CreateStatusSchema, status_id: UUID):
