@@ -55,14 +55,14 @@ async def create_subtask(task_id: UUID, task: CreateSubtaskSchema, session: Sess
     return repo.create_subtask(task_id, task)
 
 @task_router.post("/tasks/{task_id}/user/{user_id}")
-async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep):
+async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     service = TaskService(session)
-    task_asignee = service.assign_task_to_user(task_id, user_id)
+    service.assign_task_to_user(task_id, user_id, current_user.id)
 
-    if task_asignee is TaskAssignee:
-        notify(NotificationType.COMMENT_MENTION, task_asignee.task_id, user_id, task_asignee.user_id, session)
-
-    return task_asignee 
+@task_router.delete("/tasks/{task_id}/user/{user_id}")
+async def unassign_task_from_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep)
+    service = TaskService(session)
+    service.unassign_task_from_user(task_id, user_id, current_user.id)
 
 @task_router.patch("/tasks/{task_id}/status", response_model=TaskResponseSchema)
 async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionDep):

@@ -8,11 +8,19 @@ from uuid import UUID
 from Models.models import Task, TaskAssignee
 from Repositories.status_storage import StatusRepository
 from Schemas.task_schema import CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
+from sqlalchemy.dialects.postgresql import insert
 
 class TaskRepository:
     def __init__(self, session: Session):
         self.session = session
         self.status_repo = StatusRepository(session)
+
+    def add_assignee(self, task_id: UUID, user_id: UUID) -> bool:
+        statement = insert(TaskAssignee).values(task_id=task_id, user_id=user_id).on_conflict_do_nothing(constraint="uq_task_assignee").returning(TaskAssignee.id)
+        return self.session.execute(statement).scalar_one_or_none() is not None
+
+    def remove_assignee(self, task_id: UUID, user_id: UUID) -> None:
+        self.session.query(TaskAssignee).filter(TaskAssignee.task_id == task_id,TaskAssignee.user_id == user_id).delete(synchronize_session=False)
 
     def create_task(self, project_id: UUID, task: CreateTaskSchema, position: int | None, list_id: UUID | None = None):
         new_task = Task(**task.model_dump(), project_id=project_id, position=position, list_id=list_id)

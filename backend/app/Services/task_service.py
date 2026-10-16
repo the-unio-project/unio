@@ -12,6 +12,8 @@ from Schemas.task_schema import CreateTaskSchema
 from Repositories.project_storage import ProjectRepository
 from Services.project_service import ProjectService
 
+from Models.models import Notification, NotificationType
+
 class TaskService:
     def __init__(self, session: Session):
         self.session = session
@@ -82,28 +84,53 @@ class TaskService:
 
         return (last_position or 0) + 1
 
-    def assign_task_to_user(self, task_id: UUID, user_id: UUID):
-        task = self.task_repo.get_by_id(task_id)
+    def assign_task_to_user(self, task_id: UUID, user_id: UUID, actor_id: UUID):
+        task = self.get_accessible_task(task_id, actor_id)
+        project = self.get_accessible_project(task.project_id, actor_id)
+        self.verify_project_active(project)
         user = self.user_repo.get_by_id(user_id)
-        if task is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Task not found"
-            )
-
         if user is None:
             raise HTTPException(
                 status_code=404,
-                detail="User not found"
+                detail="User not found",
             )
 
-        if self.user_repo.is_member_of_workspace(user, task) is False:
-            return "This user is not member of this workspace"
+        workspace = project.workspace
+        can_be_assigned = (
+            workspace.owner_id == user.id
+            or any(
+                member.user_id == user.id
+                for member in workspace.members
+            )
+        )
 
-        if self.user_repo.is_already_assigned(user, task):
-            return "This user is already assigned to this task"
+        if not can_be_assigned:
+            raise HTTPException(
+                status_code=403,
+                detail="User does not belong to this workspace",
+            )
 
-        return self.user_repo.assign_task_to_user(user_id, task_id)
+        try:
+            created = self.task_repo.add_assignee(task.id, user.id)
+            if created:
+                self.session.add(Notification(NotificationType.TASK_ASSIGNMENT, task.id, actor_id, user.id))
+
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
+
+    def unassign_task_from_user(self, task_id: UUID, user_id: UUID, actor_id: UUID) -> None:
+        task = self.get_accessible_task(task_id, actor_id)
+        project = self.get_accessible_project(task.project_id, actor_id)
+        self.verify_project_active(project)
+
+        try:
+            self.task_repo.remove_assignee(task.id, user_id)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
 
     def create_task(self, project_id: UUID, task: CreateTaskSchema, user_id: UUID):
 
