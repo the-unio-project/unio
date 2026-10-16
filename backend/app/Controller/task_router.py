@@ -5,7 +5,6 @@ from fastapi import Body, Depends, HTTPException, APIRouter
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 
-from Controller.auth_routes import verify_token
 from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
@@ -13,6 +12,7 @@ from Models.models import NotificationType, Task, TaskAssignee, User
 from Repositories.task_storage import TaskRepository
 from Services.Notifications.notification_methods import notify
 from Services.task_service import TaskService
+from Services.Authentication.auth_methods import verify_token
 
 task_router = APIRouter()
 
@@ -20,14 +20,14 @@ SessionDep = Annotated[Session, Depends(get_session)]
 CurrentUserDep = Annotated[User, Depends(verify_token)]
 
 @task_router.post("/projects/{project_id}/tasks", response_model=TaskResponseSchema)
-async def create_task(project_id: UUID, task: CreateTaskSchema, session: SessionDep) -> TaskResponseSchema:
+async def create_task(project_id: UUID, task: CreateTaskSchema, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
     service = TaskService(session)
-    return service.create_task(project_id, task)
+    return service.create_task(project_id, task, current_user.id)
 
 @task_router.post("/lists/{list_id}/tasks", response_model=TaskResponseSchema)
-async def create_task_in_list(list_id: UUID, task: CreateTaskSchema, session: SessionDep) -> TaskResponseSchema:
+async def create_task_in_list(list_id: UUID, task: CreateTaskSchema, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
     service = TaskService(session)
-    return service.create_task_in_list(list_id, task)
+    return service.create_task_in_list(list_id, task, current_user.id)
 
 @task_router.get("/tasks/{task_id}", response_model=TaskResponseSchema)
 async def read_single_task(task_id: UUID, session: SessionDep) -> TaskResponseSchema:

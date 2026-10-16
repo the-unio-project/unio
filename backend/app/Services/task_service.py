@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import Status, Task, TaskAssignee
+from Models.models import Status, Task, TaskAssignee, Workspace
 from Repositories.list_storage import ListRepository
 from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
@@ -19,6 +19,21 @@ class TaskService:
         self.list_repo = ListRepository(session)
         self.status_repo = StatusRepository(session)
         self.project_repo = ProjectRepository(session)
+
+    def verify_access(self, workspace: Workspace, user_id: UUID):
+        has_access = (
+            workspace.owner_id == user_id
+            or any(
+                member.user_id == user_id
+                for member in workspace.members
+            )
+        )
+
+        if not has_access:
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this project",
+            )
 
     def get_position(self, project_id: UUID, status_id: UUID | None) -> int | None:
         if status_id is None:
@@ -62,7 +77,7 @@ class TaskService:
 
         return self.user_repo.assign_task_to_user(user_id, task_id)
 
-    def create_task(self, project_id: UUID, task: CreateTaskSchema):
+    def create_task(self, project_id: UUID, task: CreateTaskSchema, user_id: UUID):
 
         project = self.project_repo.get_by_id(project_id)
 
@@ -72,19 +87,23 @@ class TaskService:
                 detail="Project not found",
             )
 
+        self.verify_access(project.workspace, user_id)
+
         position = self.get_position(project_id, task.status_id)
 
         return self.task_repo.create_task(project_id, task, position)
 
-    def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema):
-        list_model = self.list_repo.get_by_id(list_id)
+    def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema, user_id: UUID):
+        list_model = self.list_repo.get_by_id_only(list_id)
 
         if list_model is None:
             raise HTTPException(status_code=404, detail="List not found")
 
+        self.verify_access(list_model.project.workspace, user_id)
+
         position = self.get_position(list_model.project_id,task.status_id)
 
-        return self.task_repo.create_task_in_list(project_id=list_model.project_id, list_id=list_model.id, task=task, position=position)
+        return self.task_repo.create_task_in_list(list_model.project_id, list_model.id, task, position)
         
     def move_inside_status(self, task: Task, status: Status, new_position: int):
         tasks = sorted(status.tasks, key=lambda t: t.position)
