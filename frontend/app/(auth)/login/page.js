@@ -28,7 +28,7 @@ export default function LoginPage() {
         }
 
         if (senha.length < 6) {
-            setErro('Senha deve ter pelo menos 6 caracteres');
+            setErro('A senha deve ter pelo menos 6 caracteres');
             return;
         }
 
@@ -42,36 +42,43 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex items-center justify-center h-screen">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 border rounded p-4 max-w-sm w-full">
+        <div className="flex items-center justify-center h-screen px-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-xs w-full">
+                
                 <Input 
-                    label="Email"
+                    variant="filled"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Digite seu email"
+                    placeholder="E-mail"
                 />
 
                 <Input 
-                    label="Senha"
+                    variant="filled"
                     type="password"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
-                    placeholder="Digite sua senha"
+                    placeholder="Senha"
                 />
-                
-                {erro && <p className="text-red-500 text-sm font-medium">{erro}</p>}
-                
-                <Button type="submit">
-                    Entrar
-                </Button>
 
-                <div className="text-center text-sm text-gray-600 mt-4">
-                    Não tem uma conta?{' '}
-                    <Link href="/cadastro" className="text-blue-600 hover:underline font-medium">
-                        Cadastre-se
+                <div className="text-center -mt-1">
+                    <Link href="/esqueci-senha" className="text-sm text-gray-700 underline hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">
+                        Esqueceu a senha?
                     </Link>
                 </div>
+                
+                {erro && <p className="text-red-500 text-sm font-medium text-center">{erro}</p>}
+                
+                <div className="text-center text-sm text-gray-800 mt-4 dark:text-gray-300">
+                    Não tem uma conta?{' '}
+                    <Link href="/cadastro" className="underline font-medium hover:text-black dark:hover:text-white transition-colors">
+                        Criar uma conta
+                    </Link>
+                </div>
+
+                <Button type="submit" variant="primary">
+                    Entrar
+                </Button>
             </form>
         </div>
     )
