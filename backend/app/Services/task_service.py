@@ -10,6 +10,7 @@ from Repositories.task_storage import TaskRepository
 from Repositories.user_repo import UserRepository
 from Schemas.task_schema import CreateTaskSchema
 from Repositories.project_storage import ProjectRepository
+from Services.project_service import ProjectService
 
 class TaskService:
     def __init__(self, session: Session):
@@ -33,6 +34,13 @@ class TaskService:
             raise HTTPException(
                 status_code=403,
                 detail="You do not have access to this project",
+            )
+
+    def verify_project_active(self, project):
+        if project.is_archived:
+            raise HTTPException(
+                status_code=409,
+                detail="Unarchive the project before creating tasks",
             )
 
     def get_position(self, project_id: UUID, status_id: UUID | None) -> int | None:
@@ -88,6 +96,7 @@ class TaskService:
             )
 
         self.verify_access(project.workspace, user_id)
+        self.verify_project_active(project)
 
         position = self.get_position(project_id, task.status_id)
 
@@ -100,6 +109,7 @@ class TaskService:
             raise HTTPException(status_code=404, detail="List not found")
 
         self.verify_access(list_model.project.workspace, user_id)
+        self.verify_project_active(list_model.project)
 
         position = self.get_position(list_model.project_id,task.status_id)
 
