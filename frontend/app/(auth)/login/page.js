@@ -44,6 +44,10 @@ export default function LoginPage() {
     return (
         <div className="flex items-center justify-center h-screen px-4">
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-xs w-full">
+
+                <div className="text-center mb-4">
+                    <h1 className="text-2xl font-bold dark:text-white">Faça login</h1>
+                </div>
                 
                 <Input 
                     variant="filled"
