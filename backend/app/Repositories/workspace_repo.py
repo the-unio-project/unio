@@ -122,6 +122,11 @@ def accept_invite(invite_id: UUID, user:User, session:Session) -> WorkspaceMembe
     if not workspaceInvite:
         raise HTTPException(status_code=400, detail="invalid invite")
 
+    workspaceMember = session.query(WorkspaceMember).filter(WorkspaceMember.user_id == user.id).first()
+
+    if workspaceMember:
+        raise HTTPException(status_code=400, detail="member already in this workspace")
+
     memberSchema = WorkspaceMemberSchema(workspace_id=workspaceInvite.workspace_id, user_id=user.id, role=WorkspaceRole.MEMBER)
     member = WorkspaceMember(**memberSchema.model_dump())
 
