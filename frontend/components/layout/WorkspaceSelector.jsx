@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Plus } from "lucide-react";
 import { useWorkspace } from "@/context/WorkspaceContext";
+import ModalWorkspace from "@/components/workspaces/ModalWorkspace";
+import Button from "@/components/ui/Button";
 
 export default function WorkspaceSelector() {
-    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetos } = useWorkspace();
+    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetos, criarWorkspace } = useWorkspace();
     const [aberto, setAberto] = useState(false);
+    const [modalAberto, setModalAberto] = useState(false);
     const router = useRouter();
 
     if (!workspaceAtual) return null;
@@ -21,6 +24,12 @@ export default function WorkspaceSelector() {
                 : "/dashboard"
         );
         setAberto(false);
+    }
+
+    function salvarNovoWorkspace(nome) {
+        const novo = criarWorkspace(nome);
+        setModalAberto(false);
+        trocarWorkspace(novo);
     }
 
     return (
@@ -51,8 +60,27 @@ export default function WorkspaceSelector() {
                                 </button>
                             </li>
                         ))}
+                        <li className="mt-1 pt-1">
+                            <Button
+                                variant="contorno"
+                                onClick={() => {
+                                    setModalAberto(true);
+                                    setAberto(false);
+                                }}
+                                className="flex w-full items-center justify-center gap-2 text-sm"
+                            >
+                                <Plus size={16} />
+                                Criar Workspace
+                            </Button>
+                        </li>
                     </ul>
                 </>
+            )}
+            {modalAberto && (
+                <ModalWorkspace
+                    aoSalvar={salvarNovoWorkspace}
+                    aoFechar={() => setModalAberto(false)}
+                />
             )}
         </div>
     );
