@@ -9,6 +9,7 @@ from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
 from Repositories.user_repo import UserRepository
 from Schemas.task_schema import CreateTaskSchema
+from Repositories.project_storage import ProjectRepository
 
 class TaskService:
     def __init__(self, session: Session):
@@ -17,6 +18,7 @@ class TaskService:
         self.task_repo = TaskRepository(session)
         self.list_repo = ListRepository(session)
         self.status_repo = StatusRepository(session)
+        self.project_repo = ProjectRepository(session)
 
     def get_position(self, project_id: UUID, status_id: UUID | None) -> int | None:
         if status_id is None:
@@ -59,6 +61,20 @@ class TaskService:
             return "This user is already assigned to this task"
 
         return self.user_repo.assign_task_to_user(user_id, task_id)
+
+    def create_task(self, project_id: UUID, task: CreateTaskSchema):
+
+        project = self.project_repo.get_by_id(project_id)
+
+        if project is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Project not found",
+            )
+
+        position = self.get_position(project_id, task.status_id)
+
+        return self.task_repo.create_task(project_id, task, position)
 
     def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema):
         list_model = self.list_repo.get_by_id(list_id)
