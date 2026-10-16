@@ -1,9 +1,10 @@
 "use client";
 
-import {useState} from 'react';
+import { useState } from 'react';
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/api";
-import Input from '@/components//ui/Input';
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
 export default function LoginPage() {
@@ -11,6 +12,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
+    const { fazerLogin } = useAuth(); 
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -31,9 +33,8 @@ export default function LoginPage() {
         }
 
         try {
-            await login(email, senha);
+            await fazerLogin(email, senha);
             router.push('/dashboard');
-
         } catch (err) {
             setErro(err.message);
             return;
@@ -42,26 +43,35 @@ export default function LoginPage() {
 
     return (
         <div className="flex items-center justify-center h-screen">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 border rounded p-4">
-                    <Input 
-                        label="Email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Digite seu email"
-                    />
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 border rounded p-4 max-w-sm w-full">
+                <Input 
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Digite seu email"
+                />
 
-                    <Input 
-                        label="Senha"
-                        type="password"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        placeholder="Digite sua senha"
-                    />
-                {erro && <p className="text-red-500">{erro}</p>}
-                <Button type="submit" >
+                <Input 
+                    label="Senha"
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    placeholder="Digite sua senha"
+                />
+                
+                {erro && <p className="text-red-500 text-sm font-medium">{erro}</p>}
+                
+                <Button type="submit">
                     Entrar
                 </Button>
+
+                <div className="text-center text-sm text-gray-600 mt-4">
+                    Não tem uma conta?{' '}
+                    <Link href="/cadastro" className="text-blue-600 hover:underline font-medium">
+                        Cadastre-se
+                    </Link>
+                </div>
             </form>
         </div>
     )
