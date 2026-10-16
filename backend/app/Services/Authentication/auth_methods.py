@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException
 from datetime import datetime, timedelta, timezone
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt, JWTError
+from jose.exceptions import ExpiredSignatureError
 from sqlalchemy.orm import Session
 
 from Database.database import get_session
@@ -38,6 +39,8 @@ def verify_token(creds:HTTPAuthorizationCredentials = Depends(http_bearer), sess
     try:
         dic_info = jwt.decode(creds.credentials, SECRET_KEY, ALGORITHM)
         user_id = str(dic_info.get("sub"))
+    except ExpiredSignatureError as ese_error:
+        raise HTTPException(status_code=403, detail="Token Expired")
     except JWTError as error:
         raise HTTPException(status_code=401, detail="Access Denied")
 
