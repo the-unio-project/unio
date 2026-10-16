@@ -23,7 +23,7 @@ class ProjectService:
                 detail="Project already archived"
             )
 
-        return self.project_repo.archive(session, id)
+        return self.project_repo.archive(project)
 
     def unarchive_project(self, session: Session, id: UUID):
         project = self.project_repo.get_by_id(id)
@@ -33,10 +33,10 @@ class ProjectService:
                 detail="Project not found"
             )
 
-        if project.is_archived:
+        if not project.is_archived:
             raise HTTPException(
                 status_code=400,
-                detail="Project already archived"
+                detail="Project is not archived",
             )
 
-        return self.project_repo.unarchive(session, id)
+        return self.project_repo.unarchive(project)

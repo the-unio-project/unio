@@ -5,9 +5,10 @@ from uuid import UUID
 from Models.models import Comment
 from Schemas.comment_schema import CreateCommentSchema
 
-def create_comment(comment: CreateCommentSchema, task_id:UUID, session:Session) -> Comment:
+def create_comment(comment: CreateCommentSchema, task_id:UUID, sender_id:UUID, session:Session) -> Comment:
     new_comment = Comment(**comment.model_dump())
     new_comment.task_id = task_id
+    new_comment.sender_id = sender_id
 
     session.add(new_comment)
     session.commit()

@@ -27,3 +27,5 @@ S3_URL = os.getenv("s3_endpoint_url")
 S3_ACCESS_KEY = os.getenv("s3_access_key")
 S3_SECRET_KEY = os.getenv("s3_secret_access_key")
 S3_REGION = os.getenv("s3_region_name")
+
+DEFAULT_PFP = f"{SB_URL}/storage/v1/object/public/profilepictures/default.jpg"

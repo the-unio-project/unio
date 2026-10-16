@@ -7,6 +7,7 @@ from Schemas.status_schemas import StatusResponseSchema, CreateStatusSchema, Del
 from Database.database import get_session
 
 from Repositories.status_storage import StatusRepository
+from Services.Statuses.status_service import StatusService
 
 status_router = APIRouter()
 
@@ -15,7 +16,11 @@ SessionDep = Annotated[Session, Depends(get_session)]
 @status_router.post("/projects/{project_id}/statuses", response_model=StatusResponseSchema)
 async def create_status(project_id:UUID, status: CreateStatusSchema, session: SessionDep) -> StatusResponseSchema:
     repo = StatusRepository(session)
-    return repo.create_status(project_id, status)
+    service = StatusService(session)
+
+    position = service.get_position(project_id)
+        
+    return repo.create_status(project_id, position, status)
 
 @status_router.get("/statuses/{status_id}", response_model=StatusResponseSchema)
 async def read_single_status(status_id: UUID, session: SessionDep) -> StatusResponseSchema:

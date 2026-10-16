@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
-from Models.models import User, WorkspaceRole
+from Models.models import User, Workspace, WorkspaceRole
 from Services.Authentication.auth_methods import verify_token
 from Services.Permissions.perm_methods import assert_workspace_permission, assert_workspace_member
 from Database.database import get_session
@@ -18,7 +18,9 @@ def get_user_workspaces(user:User = Depends(verify_token), session:Session = Dep
 
 @workspace_router.post(path="/")
 def create_workspace(schema:CreateWorkspaceSchema, user:User = Depends(verify_token), session:Session = Depends(get_session)):
-    workspace = workspace_repo.create_workspace(schema, user.id, session)
+    workspace:Workspace = workspace_repo.create_workspace(schema, user.id, session)
+
+    _ = workspace.id
 
     return {
             "Message": "Successfully created workspace!",
@@ -28,6 +30,10 @@ def create_workspace(schema:CreateWorkspaceSchema, user:User = Depends(verify_to
 @workspace_router.get(path="/{workspace_id}")
 def get_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session = Depends(get_session)):
     return workspace_repo.get_workspace_by_id(workspace_id, session)
+
+@workspace_router.get(path="/{workspace_id}/search")
+def query_workspace_tasks(workspace_id:UUID, q:str | None = None, _ = Depends(verify_token), session:Session = Depends(get_session)):
+    return workspace_repo.search_task_by_title(workspace_id, q, session)
 
 # Invites
 
