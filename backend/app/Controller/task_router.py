@@ -30,17 +30,14 @@ async def create_task_in_list(list_id: UUID, task: CreateTaskSchema, session: Se
     return service.create_task_in_list(list_id, task, current_user.id)
 
 @task_router.get("/tasks/{task_id}", response_model=TaskResponseSchema)
-async def read_single_task(task_id: UUID, session: SessionDep) -> TaskResponseSchema:
-    repo = TaskRepository(session)
-    task_model = repo.get_by_id(task_id)
-    if task_model is None:
-        raise HTTPException(status_code=404, detail="no Task found for id provided")
-    return task_model
+async def read_single_task(task_id: UUID, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
+    service = TaskService(session)
+    return service.get_accessible_task(task_id, current_user.id)
 
 @task_router.get("/projects/{project_id}/tasks", response_model=List[TaskResponseSchema])
-async def list_tasks(session: SessionDep, project_id: UUID) -> List[TaskResponseSchema]:
-    repo = TaskRepository(session)
-    return repo.get_all_by_project(project_id)
+async def list_tasks(session: SessionDep, project_id: UUID, current_user: CurrentUserDep) -> List[TaskResponseSchema]:
+    service = TaskService(session)
+    return service.get_tasks_by_project(project_id, current_user.id)
 
 @task_router.put("/tasks/{task_id}", response_model=TaskResponseSchema)
 async def replace_task(task: CreateTaskSchema, task_id: UUID, session: SessionDep) -> TaskResponseSchema:

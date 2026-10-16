@@ -61,7 +61,7 @@ class DashboardTaskSchema(BaseModel):
     id: UUID
     title: str
     description: str | None
-    due_date: datetime | None
+    term: datetime | None
     project_id: UUID
     status_id: UUID | None
     position: int | None

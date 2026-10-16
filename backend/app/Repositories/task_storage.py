@@ -69,7 +69,7 @@ class TaskRepository:
             return query.order_by(Task.term.asc().nulls_last()).all()
 
     def get_tasks_due_today(self, user_id: UUID):
-        today = datetime.now().date
+        today = datetime.now().date()
         start = datetime.combine(today, datetime.min.time())
         end = start + timedelta(days=1)
         return self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id, Task.term >= start, Task.term < end)

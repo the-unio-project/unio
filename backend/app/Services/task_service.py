@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import Status, Task, TaskAssignee, Workspace
+from Models.models import Project, Status, Task, TaskAssignee, Workspace
 from Repositories.list_storage import ListRepository
 from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
@@ -35,6 +35,26 @@ class TaskService:
                 status_code=403,
                 detail="You do not have access to this project",
             )
+
+    def get_accessible_project(self, project_id: UUID, user_id: UUID) -> Project:
+        project = self.project_repo.get_by_id(project_id)
+        if project is None:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        self.verify_access(project.workspace, user_id)
+        return project
+
+    def get_accessible_task(self, task_id: UUID, user_id: UUID) -> Task:
+        task = self.task_repo.get_by_id(task_id)
+        if task is None:
+            raise HTTPException(status_code=404, detail="Task not found")
+
+        self.get_accessible_project(task.project_id, user_id)
+        return task
+
+    def get_tasks_by_project(self, project_id: UUID, user_id: UUID):
+        self.get_accessible_project(project_id, user_id)
+        return self.task_repo.get_all_by_project(project_id)
 
     def verify_project_active(self, project):
         if project.is_archived:
