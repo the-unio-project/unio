@@ -2,9 +2,13 @@ const API_URL = 'http://localhost:8000';
 
 export function getAuthToken() {
     if (typeof document === 'undefined') return null;
-    
+
     const match = document.cookie.match(/(^| )access_token=([^;]+)/);
-    return match ? match[2] : null;
+    if (!match) return null;
+
+    return decodeURIComponent(match[2])
+        .replace(/^"|"$/g, '')
+        .replace(/^Bearer\s+/, '');
 }
 
 export async function login(email, senha) {
@@ -22,10 +26,14 @@ export async function login(email, senha) {
     }
 
     if (!resposta.ok) {
-        throw new Error('Email ou palavra-passe inválidos.');
+        throw new Error(
+            resposta.status === 401
+                ? 'Email ou senha inválidos.'
+                : 'Não foi possível entrar. Tente novamente.'
+        );
     }
 
-    return resposta.json();
+    return resposta.json().catch(() => null);
 }
 
 export async function cadastro(nome, email, senha) {
@@ -46,7 +54,7 @@ export async function cadastro(nome, email, senha) {
         throw new Error('Falha ao fazer cadastro.');
     }
 
-    return resposta.json();
+    return resposta.json().catch(() => null);
 }
 
 export async function fetchComAutenticacao(endpoint, opcoes = {}) {
