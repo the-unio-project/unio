@@ -27,7 +27,7 @@ export async function login(email, senha) {
 
     if (!resposta.ok) {
         throw new Error(
-            resposta.status === 401
+            resposta.status === 400
                 ? 'Email ou senha inválidos.'
                 : 'Não foi possível entrar. Tente novamente.'
         );
@@ -51,7 +51,11 @@ export async function cadastro(nome, email, senha) {
     }
 
     if (!resposta.ok) {
-        throw new Error('Falha ao fazer cadastro.');
+        throw new Error(
+            resposta.status === 400
+                ? 'Este e-mail já está cadastrado.'
+                : 'Falha ao fazer cadastro. Tente novamente.'
+        );
     }
 
     return resposta.json().catch(() => null);

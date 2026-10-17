@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from 'react';
-import { login } from '@/lib/api';
+import { login, cadastro } from '@/lib/api';
 
 const AuthContext = createContext();
 
@@ -13,8 +13,13 @@ export function AuthProvider({ children }) {
         setUsuarioAtual(dados?.user ?? { email });
     }
 
+    async function fazerCadastro(nome, email, senha) {
+        await cadastro(nome, email, senha);
+        setUsuarioAtual({ name: nome, email });
+    }
+
     return (
-        <AuthContext.Provider value={{ usuarioAtual, fazerLogin }}>
+        <AuthContext.Provider value={{ usuarioAtual, fazerLogin, fazerCadastro }}>
             {children}
         </AuthContext.Provider>
     );

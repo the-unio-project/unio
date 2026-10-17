@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { cadastro } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -14,6 +14,8 @@ export default function CadastroPage() {
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
     const [erro, setErro] = useState('');
+    const { fazerCadastro } = useAuth();
+    const [carregando, setCarregando] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -43,24 +45,27 @@ export default function CadastroPage() {
             return;
         }
 
+        setErro('');
+        setCarregando(true);
         try {
-            await cadastro(nome, email, senha);
-            router.push('/login');
+            await fazerCadastro(nome, email, senha);
+            router.push('/dashboard');
         } catch (err) {
             setErro(err.message);
-            return;
+        } finally {
+            setCarregando(false);
         }
     }
 
     return (
         <div className="flex items-center justify-center h-screen px-4">
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-xs w-full">
-                
+
                 <div className="text-center mb-4">
                     <h1 className="text-2xl font-bold dark:text-white">Criar Conta</h1>
                 </div>
 
-                <Input 
+                <Input
                     variant="filled"
                     type="text"
                     value={nome}
@@ -68,7 +73,7 @@ export default function CadastroPage() {
                     placeholder="Nome Completo"
                 />
 
-                <Input 
+                <Input
                     variant="filled"
                     type="email"
                     value={email}
@@ -76,7 +81,7 @@ export default function CadastroPage() {
                     placeholder="E-mail"
                 />
 
-                <Input 
+                <Input
                     variant="filled"
                     type="password"
                     value={senha}
@@ -84,14 +89,14 @@ export default function CadastroPage() {
                     placeholder="Senha"
                 />
 
-                <Input 
+                <Input
                     variant="filled"
                     type="password"
                     value={confirmarSenha}
                     onChange={(e) => setConfirmarSenha(e.target.value)}
                     placeholder="Confirmar Senha"
                 />
-                
+
                 {confirmarSenha !== '' && confirmarSenha !== senha && (
                     <p className="text-orange-500 text-sm text-center">As senhas ainda não coincidem</p>
                 )}
@@ -105,7 +110,7 @@ export default function CadastroPage() {
                     </Link>
                 </div>
 
-                <Button type="submit" variant="primary">
+                <Button type="submit" variant="primary" disabled={carregando}>
                     Cadastrar
                 </Button>
             </form>
