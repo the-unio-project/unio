@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
 
     async function fazerLogin(email, senha) {
         const dados = await login(email, senha);
-        setUsuarioAtual(dados.user || { email });
+        setUsuarioAtual(dados?.user ?? { email });
     }
 
     return (
