@@ -1,5 +1,7 @@
 from fastapi import Depends, FastAPI
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
+
 # Routing & App
 from config import (
     SECRET_KEY, ALGORITHM, AT_TIMEOUT,
@@ -12,6 +14,20 @@ from Controller import list_router, project_router, auth_routes, status_router, 
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
+
+# CORS SETUP
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"]
+        )
 
 app.include_router(
         router=auth_routes.auth_router,
