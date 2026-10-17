@@ -50,9 +50,9 @@ async def delete_task(task_id: UUID, session: SessionDep):
     return repo.delete_task(task_id)
 
 @task_router.post("/tasks/{task_id}/subtasks", response_model=SubtaskResponseSchema)
-async def create_subtask(task_id: UUID, task: CreateSubtaskSchema, session: SessionDep) -> SubtaskResponseSchema:
-    repo = TaskRepository(session)
-    return repo.create_subtask(task_id, task)
+async def create_subtask(task_id: UUID, subtask: CreateSubtaskSchema,session: SessionDep, current_user: CurrentUserDep) -> SubtaskResponseSchema:
+    service = TaskService(session)
+    return service.create_subtask(task_id=task_id, subtask=subtask, user_id=current_user.id)
 
 @task_router.post("/tasks/{task_id}/user/{user_id}")
 async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep):
@@ -60,7 +60,7 @@ async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep,
     service.assign_task_to_user(task_id, user_id, current_user.id)
 
 @task_router.delete("/tasks/{task_id}/user/{user_id}")
-async def unassign_task_from_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep)
+async def unassign_task_from_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     service = TaskService(session)
     service.unassign_task_from_user(task_id, user_id, current_user.id)
 

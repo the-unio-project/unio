@@ -8,7 +8,7 @@ from Repositories.list_storage import ListRepository
 from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
 from Repositories.user_repo import UserRepository
-from Schemas.task_schema import CreateTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema
 from Repositories.project_storage import ProjectRepository
 from Services.project_service import ProjectService
 
@@ -113,7 +113,7 @@ class TaskService:
         try:
             created = self.task_repo.add_assignee(task.id, user.id)
             if created:
-                self.session.add(Notification(NotificationType.TASK_ASSIGNMENT, task.id, actor_id, user.id))
+                self.session.add(Notification(type=NotificationType.TASK_ASSIGNMENT,type_id=task.id,sender_id=actor_id,recipient_id=user.id))
 
             self.session.commit()
         except Exception:
@@ -148,7 +148,22 @@ class TaskService:
         position = self.get_position(project_id, task.status_id)
 
         return self.task_repo.create_task(project_id, task, position)
+    
+    def create_subtask(self,task_id: UUID, subtask: CreateSubtaskSchema,user_id: UUID):
+        parent_task = self.get_accessible_task(task_id, user_id)
 
+        project = self.get_accessible_project(
+            parent_task.project_id,
+            user_id,
+        )
+        self.verify_project_active(project)
+
+        subtask_data = subtask.model_dump()
+        if subtask_data["term"] is None:
+            subtask_data["term"] = parent_task.term
+
+        return self.task_repo.create_subtask(parent_task=parent_task, subtask=CreateSubtaskSchema(**subtask_data))
+            
     def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema, user_id: UUID):
         list_model = self.list_repo.get_by_id_only(list_id)
 

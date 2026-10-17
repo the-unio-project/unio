@@ -14,9 +14,9 @@ class CreateTaskSchema(BaseModel):
     status_id: UUID | None = None
 
 class CreateSubtaskSchema(BaseModel):
-    title: str
-    description: str | None = None
-    priority: TaskPriority | None = None
+    title: str = Field(min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=100)
+    priority: TaskPriority = TaskPriority.MEDIUM
     term: datetime | None = None
 
 class EditTaskSchema(BaseModel):

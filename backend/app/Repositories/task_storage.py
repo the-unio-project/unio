@@ -7,7 +7,7 @@ from uuid import UUID
 
 from Models.models import Task, TaskAssignee
 from Repositories.status_storage import StatusRepository
-from Schemas.task_schema import CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
 from sqlalchemy.dialects.postgresql import insert
 
 class TaskRepository:
@@ -32,11 +32,24 @@ class TaskRepository:
     def create_task_in_list(self, project_id: UUID, list_id: UUID, task: CreateTaskSchema, position: int | None):
         return self.create_task(project_id=project_id, task=task, position=position, list_id=list_id)
 
-    def create_subtask(self, task_id: UUID, task: CreateTaskSchema):
-        new_subtask = Task(**task.model_dump(), task_id=task_id)
-        self.session.add(new_subtask)
-        self.session.commit()
-        self.session.refresh(new_subtask)
+    def create_subtask(self, parent_task: Task, subtask: CreateSubtaskSchema) -> Task:
+        new_subtask = Task(
+            **subtask.model_dump(),
+            task_id=parent_task.id,
+            project_id=parent_task.project_id,
+            list_id=parent_task.list_id,
+            status_id=None,
+            position=None,
+        )
+
+        try:
+            self.session.add(new_subtask)
+            self.session.commit()
+            self.session.refresh(new_subtask)
+        except Exception:
+            self.session.rollback()
+            raise
+
         return new_subtask
 
     def get_by_id(self, task_id: UUID) -> Optional[Task]:
