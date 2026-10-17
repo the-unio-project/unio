@@ -12,6 +12,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
+    const [carregando, setCarregando] = useState(false);
     const { fazerLogin } = useAuth(); 
 
     async function handleSubmit(e) {
@@ -26,19 +27,17 @@ export default function LoginPage() {
             setErro('Senha não pode ser vazia');
             return;
         }
-
-        if (senha.length < 6) {
-            setErro('A senha deve ter pelo menos 6 caracteres');
-            return;
-        }
+        setCarregando(true);
 
         try {
             await fazerLogin(email, senha);
             router.push('/dashboard');
         } catch (err) {
             setErro(err.message);
-            return;
+        } finally {
+            setCarregando(false);
         }
+
     }
 
     return (
