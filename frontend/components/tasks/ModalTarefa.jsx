@@ -13,7 +13,7 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
 
     function salvarTitulo() {
-        if(titulo.trim() === "") {
+        if (titulo.trim() === "") {
             setTitulo(tarefa.titulo);
             return;
         }
@@ -24,11 +24,11 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
         const tituloFinal = titulo.trim() === "" ? tarefa.titulo : titulo.trim();
         aoAtualizar(tarefa.id, { titulo: tituloFinal, descricao });
         aoFechar();
-}
+    }
     const subtarefas = tarefa.subtarefas ?? [];
 
     function adicionarSubtarefa() {
-        if(novaSubtarefa.trim() === "") return;
+        if (novaSubtarefa.trim() === "") return;
         const nova = { id: Date.now(), titulo: novaSubtarefa.trim() };
         aoAtualizar(tarefa.id, { subtarefas: [...subtarefas, nova] });
         setNovaSubtarefa("");
@@ -80,13 +80,13 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
                     <option key={valor} value={valor}>{rotulo}</option>
                 ))}
             </select>
-            
-            <Input 
+
+            <Input
                 label="Data de vencimento"
                 type="date"
                 value={tarefa.dataVencimento}
                 onChange={(e) => aoAtualizar(tarefa.id, { dataVencimento: e.target.value })}
-                className="border p-2 rounded mb-4 block"
+                onClick={(e) => e.currentTarget.showPicker?.()}
             />
             <p className="block text-gray-700 dark:text-gray-300 mb-2">Tags</p>
             <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -130,7 +130,7 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
                     ))}
                 </ul>
             )}
-            <Input 
+            <Input
                 value={novaSubtarefa}
                 onChange={(e) => setNovaSubtarefa(e.target.value)}
                 onKeyDown={(e) => {
