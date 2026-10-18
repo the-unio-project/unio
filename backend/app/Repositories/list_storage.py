@@ -19,6 +19,9 @@ class ListRepository:
 
     def get_by_id(self, list_id: UUID, project_id: UUID) -> Optional[ListModel]:
         return self.session.query(ListModel).filter(ListModel.id == list_id, ListModel.project_id == project_id).first()
+
+    def get_by_id_only(self, list_id: UUID) -> Optional[ListModel]:
+        return self.session.query(ListModel).filter(ListModel.id == list_id).first()
     
     def get_all_by_project(self, project_id: UUID) -> List[ListModel]:
         return self.session.query(ListModel).filter(ListModel.project_id == project_id).all()

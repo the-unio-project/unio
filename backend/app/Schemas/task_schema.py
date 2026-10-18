@@ -10,13 +10,13 @@ class CreateTaskSchema(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=100)
     priority: TaskPriority = TaskPriority.MEDIUM
-    term: datetime | None
+    term: datetime
     status_id: UUID | None = None
 
 class CreateSubtaskSchema(BaseModel):
-    title: str
-    description: str | None = None
-    priority: TaskPriority | None = None
+    title: str = Field(min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=100)
+    priority: TaskPriority = TaskPriority.MEDIUM
     term: datetime | None = None
 
 class EditTaskSchema(BaseModel):
@@ -61,7 +61,7 @@ class DashboardTaskSchema(BaseModel):
     id: UUID
     title: str
     description: str | None
-    due_date: datetime | None
+    term: datetime | None
     project_id: UUID
     status_id: UUID | None
     position: int | None

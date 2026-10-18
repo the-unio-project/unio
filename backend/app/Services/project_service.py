@@ -8,7 +8,7 @@ class ProjectService:
     def __init__(self, session: Session):
         self.session = session
         self.project_repo = ProjectRepository(session)
-            
+                
     def archive_project(self, session: Session, id: UUID):
         project = self.project_repo.get_by_id(id)
         if not project:
@@ -20,7 +20,7 @@ class ProjectService:
         if project.is_archived:
             raise HTTPException(
                 status_code=400,
-                detail="Project already archived"
+                detail="Project already archived",
             )
 
         return self.project_repo.archive(project)

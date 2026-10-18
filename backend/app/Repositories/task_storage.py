@@ -7,12 +7,20 @@ from uuid import UUID
 
 from Models.models import Task, TaskAssignee
 from Repositories.status_storage import StatusRepository
-from Schemas.task_schema import CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
+from sqlalchemy.dialects.postgresql import insert
 
 class TaskRepository:
     def __init__(self, session: Session):
         self.session = session
         self.status_repo = StatusRepository(session)
+
+    def add_assignee(self, task_id: UUID, user_id: UUID) -> bool:
+        statement = insert(TaskAssignee).values(task_id=task_id, user_id=user_id).on_conflict_do_nothing(constraint="uq_task_assignee").returning(TaskAssignee.id)
+        return self.session.execute(statement).scalar_one_or_none() is not None
+
+    def remove_assignee(self, task_id: UUID, user_id: UUID) -> None:
+        self.session.query(TaskAssignee).filter(TaskAssignee.task_id == task_id,TaskAssignee.user_id == user_id).delete(synchronize_session=False)
 
     def create_task(self, project_id: UUID, task: CreateTaskSchema, position: int | None, list_id: UUID | None = None):
         new_task = Task(**task.model_dump(), project_id=project_id, position=position, list_id=list_id)
@@ -24,11 +32,24 @@ class TaskRepository:
     def create_task_in_list(self, project_id: UUID, list_id: UUID, task: CreateTaskSchema, position: int | None):
         return self.create_task(project_id=project_id, task=task, position=position, list_id=list_id)
 
-    def create_subtask(self, task_id: UUID, task: CreateTaskSchema):
-        new_subtask = Task(**task.model_dump(), task_id=task_id)
-        self.session.add(new_subtask)
-        self.session.commit()
-        self.session.refresh(new_subtask)
+    def create_subtask(self, parent_task: Task, subtask: CreateSubtaskSchema) -> Task:
+        new_subtask = Task(
+            **subtask.model_dump(),
+            task_id=parent_task.id,
+            project_id=parent_task.project_id,
+            list_id=parent_task.list_id,
+            status_id=None,
+            position=None,
+        )
+
+        try:
+            self.session.add(new_subtask)
+            self.session.commit()
+            self.session.refresh(new_subtask)
+        except Exception:
+            self.session.rollback()
+            raise
+
         return new_subtask
 
     def get_by_id(self, task_id: UUID) -> Optional[Task]:
@@ -69,7 +90,7 @@ class TaskRepository:
             return query.order_by(Task.term.asc().nulls_last()).all()
 
     def get_tasks_due_today(self, user_id: UUID):
-        today = datetime.now().date
+        today = datetime.now().date()
         start = datetime.combine(today, datetime.min.time())
         end = start + timedelta(days=1)
         return self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id, Task.term >= start, Task.term < end)

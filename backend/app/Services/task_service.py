@@ -3,12 +3,16 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import Status, Task, TaskAssignee
+from Models.models import Project, Status, Task, TaskAssignee, Workspace
 from Repositories.list_storage import ListRepository
 from Repositories.status_storage import StatusRepository
 from Repositories.task_storage import TaskRepository
 from Repositories.user_repo import UserRepository
-from Schemas.task_schema import CreateTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema
+from Repositories.project_storage import ProjectRepository
+from Services.project_service import ProjectService
+
+from Models.models import Notification, NotificationType
 
 class TaskService:
     def __init__(self, session: Session):
@@ -17,6 +21,49 @@ class TaskService:
         self.task_repo = TaskRepository(session)
         self.list_repo = ListRepository(session)
         self.status_repo = StatusRepository(session)
+        self.project_repo = ProjectRepository(session)
+
+    def verify_access(self, workspace: Workspace, user_id: UUID):
+        has_access = (
+            workspace.owner_id == user_id
+            or any(
+                member.user_id == user_id
+                for member in workspace.members
+            )
+        )
+
+        if not has_access:
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this project",
+            )
+
+    def get_accessible_project(self, project_id: UUID, user_id: UUID) -> Project:
+        project = self.project_repo.get_by_id(project_id)
+        if project is None:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        self.verify_access(project.workspace, user_id)
+        return project
+
+    def get_accessible_task(self, task_id: UUID, user_id: UUID) -> Task:
+        task = self.task_repo.get_by_id(task_id)
+        if task is None:
+            raise HTTPException(status_code=404, detail="Task not found")
+
+        self.get_accessible_project(task.project_id, user_id)
+        return task
+
+    def get_tasks_by_project(self, project_id: UUID, user_id: UUID):
+        self.get_accessible_project(project_id, user_id)
+        return self.task_repo.get_all_by_project(project_id)
+
+    def verify_project_active(self, project):
+        if project.is_archived:
+            raise HTTPException(
+                status_code=409,
+                detail="Unarchive the project before creating tasks",
+            )
 
     def get_position(self, project_id: UUID, status_id: UUID | None) -> int | None:
         if status_id is None:
@@ -37,38 +84,98 @@ class TaskService:
 
         return (last_position or 0) + 1
 
-    def assign_task_to_user(self, task_id: UUID, user_id: UUID):
-        task = self.task_repo.get_by_id(task_id)
+    def assign_task_to_user(self, task_id: UUID, user_id: UUID, actor_id: UUID):
+        task = self.get_accessible_task(task_id, actor_id)
+        project = self.get_accessible_project(task.project_id, actor_id)
+        self.verify_project_active(project)
         user = self.user_repo.get_by_id(user_id)
-        if task is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Task not found"
-            )
-
         if user is None:
             raise HTTPException(
                 status_code=404,
-                detail="User not found"
+                detail="User not found",
             )
 
-        if self.user_repo.is_member_of_workspace(user, task) is False:
-            return "This user is not member of this workspace"
+        workspace = project.workspace
+        can_be_assigned = (
+            workspace.owner_id == user.id
+            or any(
+                member.user_id == user.id
+                for member in workspace.members
+            )
+        )
 
-        if self.user_repo.is_already_assigned(user, task):
-            return "This user is already assigned to this task"
+        if not can_be_assigned:
+            raise HTTPException(
+                status_code=403,
+                detail="User does not belong to this workspace",
+            )
 
-        return self.user_repo.assign_task_to_user(user_id, task_id)
+        try:
+            created = self.task_repo.add_assignee(task.id, user.id)
+            if created:
+                self.session.add(Notification(type=NotificationType.TASK_ASSIGNMENT,type_id=task.id,sender_id=actor_id,recipient_id=user.id))
 
-    def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema):
-        list_model = self.list_repo.get_by_id(list_id)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
+
+    def unassign_task_from_user(self, task_id: UUID, user_id: UUID, actor_id: UUID) -> None:
+        task = self.get_accessible_task(task_id, actor_id)
+        project = self.get_accessible_project(task.project_id, actor_id)
+        self.verify_project_active(project)
+
+        try:
+            self.task_repo.remove_assignee(task.id, user_id)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
+
+    def create_task(self, project_id: UUID, task: CreateTaskSchema, user_id: UUID):
+
+        project = self.project_repo.get_by_id(project_id)
+
+        if project is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Project not found",
+            )
+
+        self.verify_access(project.workspace, user_id)
+        self.verify_project_active(project)
+
+        position = self.get_position(project_id, task.status_id)
+
+        return self.task_repo.create_task(project_id, task, position)
+    
+    def create_subtask(self,task_id: UUID, subtask: CreateSubtaskSchema,user_id: UUID):
+        parent_task = self.get_accessible_task(task_id, user_id)
+
+        project = self.get_accessible_project(
+            parent_task.project_id,
+            user_id,
+        )
+        self.verify_project_active(project)
+
+        subtask_data = subtask.model_dump()
+        if subtask_data["term"] is None:
+            subtask_data["term"] = parent_task.term
+
+        return self.task_repo.create_subtask(parent_task=parent_task, subtask=CreateSubtaskSchema(**subtask_data))
+            
+    def create_task_in_list(self, list_id: UUID, task: CreateTaskSchema, user_id: UUID):
+        list_model = self.list_repo.get_by_id_only(list_id)
 
         if list_model is None:
             raise HTTPException(status_code=404, detail="List not found")
 
+        self.verify_access(list_model.project.workspace, user_id)
+        self.verify_project_active(list_model.project)
+
         position = self.get_position(list_model.project_id,task.status_id)
 
-        return self.task_repo.create_task_in_list(project_id=list_model.project_id, list_id=list_model.id, task=task, position=position)
+        return self.task_repo.create_task_in_list(list_model.project_id, list_model.id, task, position)
         
     def move_inside_status(self, task: Task, status: Status, new_position: int):
         tasks = sorted(status.tasks, key=lambda t: t.position)
