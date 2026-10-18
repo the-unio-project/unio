@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from 'react';
-import { login, cadastro } from '@/lib/api';
+import { login, cadastro, removerToken } from '@/lib/api';
 
 const AuthContext = createContext();
 
@@ -18,8 +18,13 @@ export function AuthProvider({ children }) {
         setUsuarioAtual({ name: nome, email });
     }
 
+    function fazerLogout() {
+        removerToken();
+        setUsuarioAtual(null);
+    }
+
     return (
-        <AuthContext.Provider value={{ usuarioAtual, fazerLogin, fazerCadastro }}>
+        <AuthContext.Provider value={{ usuarioAtual, fazerLogin, fazerCadastro, fazerLogout }}>
             {children}
         </AuthContext.Provider>
     );

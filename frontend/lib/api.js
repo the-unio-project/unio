@@ -84,3 +84,7 @@ export async function fetchComAutenticacao(endpoint, opcoes = {}) {
 
     return resposta.json();
 }
+
+export function removerToken() {
+    document.cookie = 'access_token=; Max-Age=0; path=/';
+}
