@@ -7,7 +7,7 @@ import { PRIORIDADES } from "@/lib/prioridades";
 import { tagsMock } from "@/lib/mock";
 import Modal from "@/components/ui/Modal";
 
-export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
+export default function ModalTarefa({ tarefa, membros, aoFechar, aoAtualizar }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
@@ -45,6 +45,18 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
 
     function removerTag(tagId) {
         aoAtualizar(tarefa.id, { tags: idsAplicados.filter((id) => id !== tagId) });
+    }
+
+    const idsResponsaveis = tarefa.responsaveis ?? [];
+    const responsaveisAtuais = membros.filter((m) => idsResponsaveis.includes(m.id));
+    const membrosDisponiveis = membros.filter((m) => !idsResponsaveis.includes(m.id));
+
+    function adicionarResponsavel(usuarioId) {
+        aoAtualizar(tarefa.id, { responsaveis: [...idsResponsaveis, usuarioId] });
+    }
+
+    function removerResponsavel(usuarioId) {
+        aoAtualizar(tarefa.id, { responsaveis: idsResponsaveis.filter((id) => id !== usuarioId) });
     }
 
     return (
@@ -87,7 +99,32 @@ export default function ModalTarefa({ tarefa, aoFechar, aoAtualizar }) {
                 value={tarefa.dataVencimento}
                 onChange={(e) => aoAtualizar(tarefa.id, { dataVencimento: e.target.value })}
                 onClick={(e) => e.currentTarget.showPicker?.()}
+                className="mb-2"
             />
+            <p className="block text-gray-700 dark:text-gray-300 mb-2">Responsáveis</p>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+                {responsaveisAtuais.map((m) => (
+                    <span key={m.id} className="flex items-center gap-1 rounded bg-gray-200 px-2 py-1 text-xs text-gray-700">
+                        {m.nome}
+                        <button type="button" onClick={() => removerResponsavel(m.id)} aria-label={`Remover ${m.nome}`}>
+                            <X size={12} />
+                        </button>
+                    </span>
+                ))}
+                {membrosDisponiveis.length > 0 && (
+                    <select
+                        value=""
+                        onChange={(e) => adicionarResponsavel(Number(e.target.value))}
+                        aria-label="Adicionar responsável"
+                        className="border p-1 rounded text-xs"
+                    >
+                        <option value="" disabled>+ Adicionar responsável</option>
+                        {membrosDisponiveis.map((m) => (
+                            <option key={m.id} value={m.id}>{m.nome}</option>
+                        ))}
+                    </select>
+                )}
+            </div>
             <p className="block text-gray-700 dark:text-gray-300 mb-2">Tags</p>
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 {tagsAplicadas.map((tag) => (
