@@ -61,7 +61,7 @@ export async function cadastro(nome, email, senha) {
     return resposta.json().catch(() => null);
 }
 
-export async function fetchComAutenticacao(endpoint, opcoes = {}) {
+export async function apiFetch(endpoint, opcoes = {}) {
     const token = getAuthToken();
     const headers = {
         "content-type": "application/json",
@@ -78,8 +78,14 @@ export async function fetchComAutenticacao(endpoint, opcoes = {}) {
         headers,
     });
 
+    if (resposta.status === 401) {
+        removerToken();
+        window.location.href = '/login';
+        throw new Error('Sessão expirada. Faça login novamente.');
+    }
+
     if (!resposta.ok) {
-        throw new Error('Erro na requisição ou token expirado.');
+        throw new Error('Erro na requisição.');
     }
 
     return resposta.json();
@@ -87,4 +93,8 @@ export async function fetchComAutenticacao(endpoint, opcoes = {}) {
 
 export function removerToken() {
     document.cookie = 'access_token=; Max-Age=0; path=/';
+}
+
+export function buscarPerfil() {
+    return apiFetch('/me/');
 }
