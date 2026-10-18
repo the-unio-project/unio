@@ -1,22 +1,34 @@
 "use client";
 
-import { createContext, useContext, useState } from 'react';
-import { login, cadastro, removerToken } from '@/lib/api';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { login, cadastro, removerToken, buscarPerfil, getAuthToken } from '@/lib/api';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [usuarioAtual, setUsuarioAtual] = useState(null);
 
+    async function carregarUsuario() {
+        const perfil = await buscarPerfil();
+        setUsuarioAtual(perfil);
+    }
+
     async function fazerLogin(email, senha) {
-        const dados = await login(email, senha);
-        setUsuarioAtual(dados?.user ?? { email });
+        await login(email, senha);
+        await carregarUsuario();
     }
 
     async function fazerCadastro(nome, email, senha) {
         await cadastro(nome, email, senha);
-        setUsuarioAtual({ name: nome, email });
+        await carregarUsuario();
     }
+
+    useEffect(() => {
+        if (!getAuthToken()) return;
+        buscarPerfil()
+            .then(setUsuarioAtual)
+            .catch(() => setUsuarioAtual(null));
+    }, []);
 
     function fazerLogout() {
         removerToken();
