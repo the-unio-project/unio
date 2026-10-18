@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTarefas } from "@/context/TarefasContext";
+import { useWorkspace } from "@/context/WorkspaceContext";
+import { membrosMock } from "@/lib/mock";
 import SecaoStatus from "@/components/tasks/SecaoStatus";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
 import { PRIORIDADES } from "@/lib/prioridades";
@@ -11,18 +13,19 @@ const STATUS = ["A fazer", "Em andamento", "Concluída"];
 export default function TaskList({ projetoId }) {
   const { tarefas: todasTarefas, atualizarTarefa, adicionarTarefa } = useTarefas();
   const tarefas = todasTarefas.filter((t) => t.projetoId === projetoId);
+  const { projetos } = useWorkspace();
+  const workspaceId = projetos.find((p) => p.id === projetoId)?.workspaceId;
+  const membros = membrosMock.filter((m) => m.workspaceId === workspaceId);
 
 
   const [filtroPrioridade, setFiltroPrioridade] = useState("todas");
   const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
   const [tarefaSelecionadaId, setTarefaSelecionadaId] = useState(null);
-
   const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
-  const responsaveis = [...new Set(tarefas.map((t) => t.responsavel))].filter(Boolean);
   const tarefasFiltradas = tarefas.filter((tarefa) => {
     const prioridadeValida = filtroPrioridade === "todas" || tarefa.prioridade === filtroPrioridade;
-    const responsavelValido = filtroResponsavel === "todos" || tarefa.responsavel === filtroResponsavel;
+    const responsavelValido = filtroResponsavel === "todos" || (tarefa.responsaveis ?? []).includes(Number(filtroResponsavel));
     return prioridadeValida && responsavelValido;
   });
 
@@ -56,10 +59,8 @@ export default function TaskList({ projetoId }) {
           className="border p-2 rounded text-sm"
         >
           <option value="todos">Responsável</option>
-          {responsaveis.map((nome) => (
-            <option key={nome} value={nome}>
-              {nome}
-            </option>
+          {membros.map((m) => (
+            <option key={m.id} value={m.id}>{m.nome}</option>
           ))}
         </select>
       </div>
@@ -78,6 +79,7 @@ export default function TaskList({ projetoId }) {
           tarefas={porStatus[status] || []}
           aoAdicionar={aoAdicionar}
           aoSelecionar={setTarefaSelecionadaId}
+          membros={membros}
         />
       ))}
       {tarefaSelecionada && (
@@ -85,6 +87,7 @@ export default function TaskList({ projetoId }) {
           tarefa={tarefaSelecionada}
           aoFechar={() => setTarefaSelecionadaId(null)}
           aoAtualizar={atualizarTarefa}
+          membros={membros}
         />
       )}
     </div>

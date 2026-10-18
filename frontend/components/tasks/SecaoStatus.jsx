@@ -13,13 +13,20 @@ const coresStatus = {
 
 const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-4";
 
-export default function SecaoStatus({ status, tarefas, aoAdicionar, aoSelecionar }) {
+export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoSelecionar }) {
     const [novoTitulo, setNovoTitulo] = useState("");
 
     function confirmarNovaTarefa() {
         if (novoTitulo.trim() === "") return;
         aoAdicionar(status, novoTitulo);
         setNovoTitulo("");
+    }
+
+    function nomesResponsaveis(tarefa) {
+        return (tarefa.responsaveis ?? [])
+            .map((id) => membros.find((m) => m.id === id)?.nome)
+            .filter(Boolean)
+            .join(", ");
     }
 
     return (
@@ -45,8 +52,8 @@ export default function SecaoStatus({ status, tarefas, aoAdicionar, aoSelecionar
                         <button type="button" className="text-left truncate">
                             {tarefa.titulo}
                         </button>
-                        <span className="text-sm text-gray-600 truncate">
-                            {tarefa.responsavel || "-"}
+                        <span className="text-sm text-gray-600 truncate" title={nomesResponsaveis(tarefa)}>
+                            {nomesResponsaveis(tarefa) || "-"}
                         </span>
                         <span className={`justify-self-start text-xs px-2 py-1 rounded ${PRIORIDADES[tarefa.prioridade]?.cor}`}>
                             {PRIORIDADES[tarefa.prioridade]?.rotulo}

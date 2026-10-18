@@ -20,7 +20,7 @@ export function TarefasProvider({ children }) {
             projetoId,
             status,
             titulo,
-            responsavel: '',
+            responsaveis: [],
             prioridade: 'normal',
             dataVencimento: '',
         };
