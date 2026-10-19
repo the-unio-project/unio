@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import { PRIORIDADES } from "@/lib/prioridades";
 
 const coresStatus = {
     "A fazer": "bg-gray-200 text-gray-700",
@@ -10,36 +11,56 @@ const coresStatus = {
     "Concluída": "bg-green-100 text-green-700",
 };
 
-const coresPrioridade = {
-    alta: "bg-red-100 text-red-700",
-    média: "bg-yellow-100 text-yellow-700",
-    baixa: "bg-blue-100 text-blue-700",
-};
+const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-4";
 
-export default function SecaoStatus({ status, tarefas, aoAdicionar }) {
+export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoSelecionar }) {
     const [novoTitulo, setNovoTitulo] = useState("");
 
-function confirmarNovaTarefa() {
-    if (novoTitulo.trim() === "") return;
-    aoAdicionar(status, novoTitulo);
-    setNovoTitulo("");
-}
+    function confirmarNovaTarefa() {
+        if (novoTitulo.trim() === "") return;
+        aoAdicionar(status, novoTitulo);
+        setNovoTitulo("");
+    }
+
+    function nomesResponsaveis(tarefa) {
+        return (tarefa.responsaveis ?? [])
+            .map((id) => membros.find((m) => m.id === id)?.nome)
+            .filter(Boolean)
+            .join(", ");
+    }
 
     return (
         <section className="mb-6">
             <h2 className={`inline-block font-bold text-lg mb-2 p-1 rounded ${coresStatus[status]}`}>
                 {status}
             </h2>
+            {tarefas.length > 0 && (
+                <div className={`${COLUNAS} px-2 mb-1 text-xs text-gray-500 border border-transparent`}>
+                    <span>Título</span>
+                    <span>Responsável</span>
+                    <span>Prioridade</span>
+                    <span>Data</span>
+                </div>
+            )}
             <ul className="flex flex-col gap-2">
                 {tarefas.map((tarefa) => (
-                    <li key={tarefa.id} className="flex items-center gap-4 border p-2 rounded">
-                        <span className="flex-1">{tarefa.titulo}</span>
-                        <span className="text-sm text-gray-600">{tarefa.responsavel}</span>
-                        <span className={`text-xs px-2 py-1 rounded ${coresPrioridade[tarefa.prioridade]}`}>
-                            {tarefa.prioridade}
+                    <li
+                        key={tarefa.id}
+                        className={`${COLUNAS} hover:bg-gray-100 dark:hover:bg-gray-700 transition border p-2 rounded cursor-pointer`}
+                        onClick={() => aoSelecionar(tarefa.id)}
+                    >
+                        <button type="button" className="text-left truncate">
+                            {tarefa.titulo}
+                        </button>
+                        <span className="text-sm text-gray-600 truncate" title={nomesResponsaveis(tarefa)}>
+                            {nomesResponsaveis(tarefa) || "-"}
                         </span>
-                        <span className="text-sm text-gray-600">{tarefa.dataVencimento}</span>
-
+                        <span className={`justify-self-start text-xs px-2 py-1 rounded ${PRIORIDADES[tarefa.prioridade]?.cor}`}>
+                            {PRIORIDADES[tarefa.prioridade]?.rotulo}
+                        </span>
+                        <span className="text-sm text-gray-600">
+                            {tarefa.dataVencimento}
+                        </span>
                     </li>
                 ))}
             </ul>
@@ -48,7 +69,7 @@ function confirmarNovaTarefa() {
                     value={novoTitulo}
                     onChange={(e) => setNovoTitulo(e.target.value)}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter") confirmarNovaTarefa(); 
+                        if (e.key === "Enter") confirmarNovaTarefa();
                     }}
                     placeholder="+ Adicionar tarefa"
                     className="border p-2 rounded flex-1 text-sm"

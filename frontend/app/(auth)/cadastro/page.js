@@ -1,9 +1,10 @@
 "use client";
 
-import {useState} from 'react';
+import { useState } from 'react';
 import { useRouter } from "next/navigation";
-import { cadastro } from "@/lib/api";
-import Input from '@/components//ui/Input';
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
 export default function CadastroPage() {
@@ -13,6 +14,8 @@ export default function CadastroPage() {
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
     const [erro, setErro] = useState('');
+    const { fazerCadastro } = useAuth();
+    const [carregando, setCarregando] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -27,7 +30,7 @@ export default function CadastroPage() {
             return;
         }
 
-        if (senha.trim () === '') {
+        if (senha.trim() === '') {
             setErro('Senha é obrigatória');
             return;
         }
@@ -42,53 +45,72 @@ export default function CadastroPage() {
             return;
         }
 
+        setErro('');
+        setCarregando(true);
         try {
-            await cadastro(nome, email, senha);
-            router.push('/login');
-            
+            await fazerCadastro(nome, email, senha);
+            router.push('/dashboard');
         } catch (err) {
             setErro(err.message);
-            return;
+        } finally {
+            setCarregando(false);
         }
     }
 
     return (
-        <div className="flex items-center justify-center h-screen">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 border rounded p-4">
-                    <Input 
-                        label="Nome Completo"
-                        type="text"
-                        value={nome}
-                        onChange={(e) => setNome(e.target.value)}
-                        placeholder="Digite seu nome completo"
-                    />
+        <div className="flex items-center justify-center h-screen px-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-xs w-full">
 
-                    <Input 
-                        label="Email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Digite seu email"
-                    />
+                <div className="text-center mb-4">
+                    <h1 className="text-2xl font-bold dark:text-white">Criar Conta</h1>
+                </div>
 
-                    <Input 
-                        label="Senha"
-                        type="password"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        placeholder="Digite sua senha"
-                    />
+                <Input
+                    variant="filled"
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Nome Completo"
+                />
 
-                    <Input 
-                        label="Confirmar Senha"
-                        type="password"
-                        value={confirmarSenha}
-                        onChange={(e) => setConfirmarSenha(e.target.value)}
-                        placeholder="Confirme sua senha"
-                    />
-                    {confirmarSenha !== '' && confirmarSenha !== senha && (<p className="text-orange-500 text-sm">As senhas ainda não coincidem</p>)}
-                {erro && <p className="text-red-500">{erro}</p>}
-                <Button type="submit">
+                <Input
+                    variant="filled"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="E-mail"
+                />
+
+                <Input
+                    variant="filled"
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    placeholder="Senha"
+                />
+
+                <Input
+                    variant="filled"
+                    type="password"
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                    placeholder="Confirmar Senha"
+                />
+
+                {confirmarSenha !== '' && confirmarSenha !== senha && (
+                    <p className="text-orange-500 text-sm text-center">As senhas ainda não coincidem</p>
+                )}
+
+                {erro && <p className="text-red-500 text-sm font-medium text-center">{erro}</p>}
+
+                <div className="text-center text-sm text-gray-800 mt-2 dark:text-gray-300">
+                    Já tem uma conta?{' '}
+                    <Link href="/login" className="underline font-medium hover:text-black dark:hover:text-white transition-colors">
+                        Entrar
+                    </Link>
+                </div>
+
+                <Button type="submit" variant="primary" disabled={carregando}>
                     Cadastrar
                 </Button>
             </form>

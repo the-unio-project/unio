@@ -1,62 +1,106 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useWorkspace } from "@/context/WorkspaceContext";
-import { projetosMock } from "@/lib/mock";
-import { ChevronRight } from "lucide-react";
-import Link from 'next/link';
+import { ChevronRight, Plus, Pencil } from "lucide-react";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
+import ModalProjeto from "@/components/projects/ModalProjeto";
 
 export default function Sidebar() {
-    const { workspaceAtual, setWorkspaceAtual, workspaces } = useWorkspace();
+    const { workspaceAtual, projetos: todosProjetos, criarProjeto, editarProjeto } = useWorkspace();
+    const router = useRouter();
     const [projetosAberto, setProjetosAberto] = useState(true);
+    const [modalAberto, setModalAberto] = useState(false);
+    const [projetoEditandoId, setProjetoEditandoId] = useState(null);
 
-    const projetos = workspaceAtual
-        ? projetosMock.filter((projeto) => projeto.workspaceId === workspaceAtual.id): [];
+    const projetos = workspaceAtual ? todosProjetos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
+    const projetoEditando = todosProjetos.find((p) => p.id === projetoEditandoId);
+
+    function salvarNovoProjeto(dados) {
+        const novo = criarProjeto(workspaceAtual.id, dados);
+        setModalAberto(false);
+        router.push(`/${workspaceAtual.id}/projetos/${novo.id}`);
+    }
+
+    function salvarAlteracao(dados) {
+        editarProjeto(projetoEditandoId, dados);
+        setProjetoEditandoId(null);
+    }
 
     return (
-        <nav className="w-64 h-screen p-4">
-            <span className="text-lg font-bold">
-                {workspaceAtual ? workspaceAtual.nome : "Carregando..."}
-            </span>
-            <ul className="flex flex-col gap-2 list-none mt-4">
-                {workspaces.map((workspace) => (
-                    <li key={workspace.id}>
-                        <button onClick={() => setWorkspaceAtual(workspace)}>
-                            {workspace.nome}
-                        </button>
-                    </li>
-                ))}
-            </ul>
+        <nav className="w-64 h-full shrink-0 overflow-y-auto p-4">
+            <div className="flex items-center justify-between">
+                <button
+                    onClick={() => setProjetosAberto(!projetosAberto)}
+                    className="flex items-center gap-2 font-semibold"
+                >
+                    Projetos
+                    <ChevronRight
+                        size={16}
+                        className={`transition-transform duration-200 ${projetosAberto ? "rotate-90" : ""}`}
+                    />
+                </button>
+                {workspaceAtual && (
+                    <Button variant="icone" onClick={() => setModalAberto(true)} aria-label="Criar projeto">
+                        <Plus size={16} />
+                    </Button>
+                )}
+            </div>
 
-            <button
-                onClick={() => setProjetosAberto(!projetosAberto)}
-                className="flex items-center gap-2 mt-4 font-semibold"
-            >
-                Projetos
-                <ChevronRight size={16} className={`transition-transform duration-200 ${projetosAberto ? "rotate-90" : ""}`} />
-                
-            </button>
-            {projetosAberto && (
-                <ul className="flex flex-col gap-2 list-none mt-2 ml-2">
-                    {projetos.map((projeto) => (
-                        <li key={projeto.id}>
-                            <Link href={`/${workspaceAtual.id}/projetos/${projeto.id}`}>
-                                {projeto.nome}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            )}
+            {projetosAberto &&
+                (projetos.length === 0 ? (
+                    <p className="mt-2 ml-2 text-sm text-gray-500">Nenhum projeto ainda</p>
+                ) : (
+                    <ul className="flex flex-col gap-2 list-none mt-2 ml-2">
+                        {projetos.map((projeto) => (
+                            <li key={projeto.id} className="group flex items-center justify-between">
+                                <Link href={`/${workspaceAtual.id}/projetos/${projeto.id}`}>
+                                    {projeto.nome}
+                                </Link>
+                                <Button
+                                    variant="icone"
+                                    onClick={() => setProjetoEditandoId(projeto.id)}
+                                    aria-label={`Editar projeto ${projeto.nome}`}
+                                    className="opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                >
+                                    <Pencil size={14} />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                ))}
 
             <ul className="flex flex-col gap-4 list-none mt-4">
-                <li><Link href="/dashboard">Dashboard</Link></li>
+                <li>
+                    <Link href="/dashboard">Dashboard</Link>
+                </li>
                 {workspaceAtual && (
                     <>
-                        <li><Link href={`/${workspaceAtual.id}/membros`}>Membros</Link></li>
-                        <li><Link href={`/${workspaceAtual.id}/settings`}>Configurações</Link></li>
+                        <li>
+                            <Link href={`/${workspaceAtual.id}/membros`}>Membros</Link>
+                        </li>
+                        <li>
+                            <Link href={`/${workspaceAtual.id}/settings`}>Configurações</Link>
+                        </li>
                     </>
                 )}
             </ul>
+
+            {modalAberto && (
+                <ModalProjeto
+                    aoFechar={() => setModalAberto(false)}
+                    aoSalvar={salvarNovoProjeto}
+                />
+            )}
+            {projetoEditando && (
+                <ModalProjeto
+                    projeto={projetoEditando}
+                    aoFechar={() => setProjetoEditandoId(null)}
+                    aoSalvar={salvarAlteracao}
+                />
+            )}
         </nav>
-    )
+    );
 }
