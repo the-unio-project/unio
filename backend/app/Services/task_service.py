@@ -168,7 +168,7 @@ class TaskService:
         list_model = self.list_repo.get_by_id_only(list_id)
 
         if list_model is None:
-            raise HTTPException(status_code=404, detail="List not found")
+            raise HTTPException(status_code=404, detail="List not found or status not in list")
 
         self.verify_access(list_model.project.workspace, user_id)
         self.verify_project_active(list_model.project)

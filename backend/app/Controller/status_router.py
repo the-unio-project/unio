@@ -30,10 +30,10 @@ async def read_single_status(status_id: UUID, session: SessionDep) -> StatusResp
         raise HTTPException(status_code=404, detail="no status found for id provided")
     return status
 
-@status_router.get("/projects/{project_id}/statuses", response_model=List[StatusResponseSchema])
-async def list_status(project_id: UUID, session: SessionDep) -> List[StatusResponseSchema]:
+@status_router.get("/projects/{project_id}/statuses", response_model=list[StatusResponseSchema])
+async def list_status(project_id: UUID, session: SessionDep) -> list[StatusResponseSchema]:
     repo = StatusRepository(session)
-    return repo.get_all()
+    return repo.get_by_project(project_id)
 
 @status_router.put("/status/{status_id}", response_model=StatusResponseSchema)
 async def replace_status(status: CreateStatusSchema, status_id: UUID, session: SessionDep) -> StatusResponseSchema:
