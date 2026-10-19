@@ -26,6 +26,12 @@ class TagService:
                 detail="Tag not found"
             )
 
+        if task.list_ is None:
+            raise HTTPException(
+                    status_code=404,
+                    detail="Task list not found, see if task is listless"
+                    )
+
         if task.list_.project_id != tag.project_id:
             raise HTTPException(
                 status_code=400,

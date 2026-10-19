@@ -19,6 +19,9 @@ class StatusRepository:
 
     def get_by_id(self, status_id: UUID) -> Status | None:
         return self.session.query(Status).filter(Status.id == status_id).first()
+
+    def get_by_project(self, project_id: UUID) -> list[Status] | None:
+        return self.session.query(Status).filter(Status.project_id == project_id).all()
     
     def get_all(self) -> list[Status] | None:
         return self.session.query(Status).all()
