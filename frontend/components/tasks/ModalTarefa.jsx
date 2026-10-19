@@ -7,7 +7,7 @@ import { PRIORIDADES } from "@/lib/prioridades";
 import { tagsMock } from "@/lib/mock";
 import Modal from "@/components/ui/Modal";
 
-export default function ModalTarefa({ tarefa, membros, aoFechar, aoAtualizar }) {
+export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
@@ -72,13 +72,14 @@ export default function ModalTarefa({ tarefa, membros, aoFechar, aoAtualizar }) 
             <label htmlFor="status" className="block text-gray-700 dark:text-gray-300 mb-2">Status</label>
             <select
                 id="status"
-                value={tarefa.status}
-                onChange={(e) => aoAtualizar(tarefa.id, { status: e.target.value })}
+                value={tarefa.statusId ?? ""}
+                onChange={(e) => aoAtualizar(tarefa.id, { statusId: Number(e.target.value) })}
                 className="border p-2 rounded mb-4"
             >
-                <option value="A fazer">A fazer</option>
-                <option value="Em andamento">Em andamento</option>
-                <option value="Concluída">Concluída</option>
+                <option value="" disabled>Sem status</option>
+                {statusDoProjeto.map((s) => (
+                    <option key={s.id} value={s.id}>{s.nome}</option>
+                ))}
             </select>
 
             <label htmlFor="prioridade" className="block text-gray-700 dark:text-gray-300 mb-2">Prioridade</label>
