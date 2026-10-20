@@ -19,7 +19,8 @@ export function WorkspaceProvider({ children }) {
     const [statusProjetos, setStatusProjetos] = useState(statusMock);
     const workspaceUrl = workspaces.find((w) => String(w.id) === params.workspaceId);
     const workspaceAtual = workspaceUrl ?? workspaceLembrado ?? workspaces[0];
-    
+    const projetosAtivos = projetos.filter((p) => !p.arquivado);
+
     function criarProjeto(workspaceId, dados) {
         const novo = { id: Date.now(), workspaceId, ...dados };
         const statusNovo = STATUS_PADRAO.map((s, i) => ({ ...s, projetoId: novo.id, id: novo.id + i + 1 }));
@@ -29,9 +30,7 @@ export function WorkspaceProvider({ children }) {
     }
 
     function editarProjeto(id, mudancas) {
-        setProjetos((anteriores) =>
-            anteriores.map((p) => (p.id === id ? { ...p, ...mudancas } : p))
-        );
+        setProjetos((anteriores) => anteriores.map((p) => (p.id === id ? { ...p, ...mudancas } : p)));
     }
 
     function criarWorkspace(nome) {
@@ -40,8 +39,22 @@ export function WorkspaceProvider({ children }) {
         return novo;
     }
 
+    function arquivarProjeto(id) {
+        editarProjeto(id, { arquivado: true });
+    }
+
+    function excluirProjeto(id) {
+        setProjetos((anteriores) => anteriores.filter((p) => p.id !== id));
+        setStatusProjetos((anteriores) => anteriores.filter((s) => s.projetoId !== id));
+    }
+
     return (
-        <WorkspaceContext.Provider value={{ workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto, editarProjeto, criarWorkspace, statusProjetos }}>
+        <WorkspaceContext.Provider
+            value={{
+                workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto,
+                editarProjeto, criarWorkspace, statusProjetos, projetosAtivos, arquivarProjeto, excluirProjeto
+            }}
+        >
             {children}
         </WorkspaceContext.Provider>
     );

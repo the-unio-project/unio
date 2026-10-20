@@ -1,21 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { ChevronRight, Plus, Pencil } from "lucide-react";
+import { useTarefas } from "@/context/TarefasContext";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import ModalProjeto from "@/components/projects/ModalProjeto";
 
 export default function Sidebar() {
-    const { workspaceAtual, projetos: todosProjetos, criarProjeto, editarProjeto } = useWorkspace();
+    const {
+        workspaceAtual, projetos: todosProjetos, projetosAtivos,
+        criarProjeto, editarProjeto, arquivarProjeto, excluirProjeto, setWorkspaceLembrado
+    } = useWorkspace();
+    const { excluirTarefasProjeto } = useTarefas();
+    const params = useParams();
     const router = useRouter();
     const [projetosAberto, setProjetosAberto] = useState(true);
     const [modalAberto, setModalAberto] = useState(false);
     const [projetoEditandoId, setProjetoEditandoId] = useState(null);
 
-    const projetos = workspaceAtual ? todosProjetos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
+    const projetos = workspaceAtual ? projetosAtivos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
     const projetoEditando = todosProjetos.find((p) => p.id === projetoEditandoId);
 
     function salvarNovoProjeto(dados) {
@@ -26,6 +32,30 @@ export default function Sidebar() {
 
     function salvarAlteracao(dados) {
         editarProjeto(projetoEditandoId, dados);
+        setProjetoEditandoId(null);
+    }
+
+    function sairProjetoAberto(id) {
+        if (String(id) !== params.projectId) return;
+        const outro = projetos.find((p) => p.id !== id);
+        if (outro) {
+            router.push(`/${workspaceAtual.id}/projetos/${outro.id}`);
+        } else {
+            setWorkspaceLembrado(workspaceAtual);
+            router.push("/dashboard");
+        }
+    }
+
+    function arquivar() {
+        arquivarProjeto(projetoEditandoId);
+        sairProjetoAberto(projetoEditandoId);
+        setProjetoEditandoId(null);
+    }
+
+    function excluir() {
+        excluirProjeto(projetoEditandoId);
+        excluirTarefasProjeto(projetoEditandoId);
+        sairProjetoAberto(projetoEditandoId);
         setProjetoEditandoId(null);
     }
 
@@ -99,6 +129,8 @@ export default function Sidebar() {
                     projeto={projetoEditando}
                     aoFechar={() => setProjetoEditandoId(null)}
                     aoSalvar={salvarAlteracao}
+                    aoArquivar={arquivar}
+                    aoExcluir={excluir}
                 />
             )}
         </nav>
