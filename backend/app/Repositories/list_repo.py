@@ -31,7 +31,7 @@ class ListRepository:
             return None
         update_data = new_list.model_dump(exclude_unset=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data found")
         for field, value in update_data.items():
             setattr(list_model, field, value)
         self.session.commit()
@@ -44,4 +44,4 @@ class ListRepository:
             return None
         self.session.delete(list_model)
         self.session.commit()
-        return DeleteListSchema(mensagem=f"list {list_model.name} deletada com sucesso!", id=list_id)
+        return DeleteListSchema(mensagem=f"List {list_model.name} was deleted successfully!", id=list_id)

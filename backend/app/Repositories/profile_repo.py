@@ -23,7 +23,7 @@ def update_profile(user_id:UUID, profile_schema:SetProfileSchema, profile_pictur
     user = session.query(User).filter(User.id == user_id).first()
 
     if not user:
-        raise HTTPException(status_code=400, detail="No user found")
+        raise HTTPException(status_code=404, detail="No user found")
     if not profile_picture.filename:
         raise HTTPException(status_code=400, detail="Profile picture file has no filename")
 

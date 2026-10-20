@@ -43,7 +43,7 @@ class ProjectRepository:
             return None
         update_data = new_project.model_dump(exclude_unset=True, exclude_none=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data found")
         for field, value in update_data.items():
             setattr(project, field, value)
         self.session.commit()
@@ -56,7 +56,7 @@ class ProjectRepository:
             return None
         self.session.delete(project)
         self.session.commit()
-        return DeleteProjectSchema(mensagem=f"Projeto {project.name} deletado com sucesso!", id=project_id)
+        return DeleteProjectSchema(mensagem=f"Project {project.name} deleted successfully!", id=project_id)
 
     def archive(self, project: Project):
         project.is_archived = True

@@ -44,7 +44,7 @@ class StatusRepository:
             return None
         update_data = new_status.model_dump(exclude_unset=True, exclude_none=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data was found")
         for field, value in update_data.items():
             setattr(status, field, value)
         self.session.commit()
@@ -61,5 +61,5 @@ class StatusRepository:
         self.session.flush()
         self.session.delete(status)
         self.session.commit()
-        return DeleteStatusSchema(message=f"Status {status.name} deletado com sucesso!", id=status_id)
+        return DeleteStatusSchema(message=f"Status {status.name} deleted successfully!", id=status_id)
     

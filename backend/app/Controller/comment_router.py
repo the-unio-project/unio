@@ -34,6 +34,6 @@ def remove_comment(comment_id:UUID, session=Depends(get_session)):
     result = comment_repo.delete_comment(comment_id, session)
 
     if not result:
-        raise HTTPException(status_code=400, detail="Comment not found")
+        raise HTTPException(status_code=404, detail="Comment not found")
 
     return {"message": "Comment deleted successfully"}

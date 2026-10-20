@@ -78,7 +78,7 @@ class TaskRepository:
                 current_task.position -= 1
         self.session.delete(task)
         self.session.commit()
-        return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
+        return DeleteTaskSchema(mensagem=f"Task {task.title} deleted successfully!", id=task_id)
 
     def get_user_tasks(self, user_id: UUID, order: str = "asc"):
         query = self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id)

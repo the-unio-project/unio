@@ -17,7 +17,7 @@ class UserRepository:
         existing_user = session.query(User).filter(User.email == user.email).first()
 
         if existing_user:
-            raise HTTPException(status_code=400, detail="E-mail already registered")
+            raise HTTPException(status_code=401, detail="E-mail already registered")
 
         new_user = User(**user.model_dump())
 

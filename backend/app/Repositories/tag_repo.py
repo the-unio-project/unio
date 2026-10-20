@@ -25,7 +25,7 @@ class TagRepository:
             return None
         self.session.delete(tag)
         self.session.commit()
-        return DeleteTagSchema(mensagem=f"Tag {tag.name} deletada com sucesso!", id=tag_id)
+        return DeleteTagSchema(mensagem=f"Tag {tag.name} deleted successfully!", id=tag_id)
 
     def edit_tag(self, new_tag: EditTagSchema, tag_id: UUID):
         tag = self.get_by_id(tag_id)
@@ -33,7 +33,7 @@ class TagRepository:
             return None
         update_data = new_tag.model_dump(exclude_unset=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data found")
         for field, value in update_data.items():
             setattr(tag, field, value)
         self.session.commit()
@@ -55,7 +55,7 @@ class TagRepository:
         task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first()
         self.session.delete(task_tag)
         self.session.commit()
-        return DeleteTagSchema(mensagem=f"Tag {task_tag.tag.name} removida da tarefa {task_tag.task.title} com sucesso!", id=tag_id)
+        return DeleteTagSchema(mensagem=f"Tag {task_tag.tag.name} removed task from {task_tag.task.title} successfully!", id=tag_id)
 
 
     def is_applied(self, task_id: UUID, tag_id: UUID) -> bool:
