@@ -8,7 +8,7 @@ from Models.models import Project, User
 from Schemas.project_schema import ProjectResponseSchema, CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 from Database.database import get_session
 
-from Repositories.project_storage import ProjectRepository
+from Repositories.project_repo import ProjectRepository
 from Services.Permissions.perm_methods import assert_workspace_member
 from Services.project_service import ProjectService
 

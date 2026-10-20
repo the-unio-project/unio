@@ -9,7 +9,7 @@ from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTa
 from Database.database import get_session
 
 from Models.models import NotificationType, Task, TaskAssignee, User
-from Repositories.task_storage import TaskRepository
+from Repositories.task_repo import TaskRepository
 from Services.Notifications.notification_methods import notify
 from Services.task_service import TaskService
 from Services.Authentication.auth_methods import verify_token

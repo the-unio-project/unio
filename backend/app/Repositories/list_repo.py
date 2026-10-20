@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from Models.models import ListModel
-from Schemas.list_schema import CreateListSchema, DeleteListSchema, EditListSchema, ListResponseSchema
+from Schemas.list_schema import CreateListSchema, DeleteListSchema, EditListSchema
 
 class ListRepository:
     def __init__(self, session: Session):

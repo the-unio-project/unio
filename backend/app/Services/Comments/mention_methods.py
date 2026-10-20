@@ -2,7 +2,6 @@
 
 from uuid import UUID
 
-
 def get_comment_mentions(comment:str):
     cycling = True
 

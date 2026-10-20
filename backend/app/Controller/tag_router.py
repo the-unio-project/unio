@@ -9,7 +9,7 @@ from Schemas.tag_schema import EditTagSchema, TagResponseSchema, CreateTagSchema
 from Database.database import get_session
 
 from Models.models import Tag
-from Repositories.tag_storage import TagRepository
+from Repositories.tag_repo import TagRepository
 from Services.tag_service import TagService
 
 tag_router = APIRouter()

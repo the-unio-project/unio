@@ -6,7 +6,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Task, TaskAssignee
-from Repositories.status_storage import StatusRepository
+from Repositories.status_repo import StatusRepository
 from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
 from sqlalchemy.dialects.postgresql import insert
 

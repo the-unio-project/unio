@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from Models.models import Status
-from Repositories.status_storage import StatusRepository
-from Repositories.project_storage import ProjectRepository
+from Repositories.status_repo import StatusRepository
+from Repositories.project_repo import ProjectRepository
 
 class StatusService:
 
