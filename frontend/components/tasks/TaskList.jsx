@@ -8,15 +8,13 @@ import SecaoStatus from "@/components/tasks/SecaoStatus";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
 import { PRIORIDADES } from "@/lib/prioridades";
 
-const STATUS = ["A fazer", "Em andamento", "Concluída"];
-
 export default function TaskList({ projetoId }) {
   const { tarefas: todasTarefas, atualizarTarefa, adicionarTarefa } = useTarefas();
   const tarefas = todasTarefas.filter((t) => t.projetoId === projetoId);
-  const { projetos } = useWorkspace();
+  const { projetos, statusProjetos } = useWorkspace();
   const workspaceId = projetos.find((p) => p.id === projetoId)?.workspaceId;
   const membros = membrosMock.filter((m) => m.workspaceId === workspaceId);
-
+  const statusDoProjeto = statusProjetos.filter((s) => s.projetoId === projetoId);
 
   const [filtroPrioridade, setFiltroPrioridade] = useState("todas");
   const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
@@ -30,13 +28,13 @@ export default function TaskList({ projetoId }) {
   });
 
   const porStatus = tarefasFiltradas.reduce((acc, tarefa) => {
-    acc[tarefa.status] = acc[tarefa.status] || [];
-    acc[tarefa.status].push(tarefa);
+    acc[tarefa.statusId] = acc[tarefa.statusId] || [];
+    acc[tarefa.statusId].push(tarefa);
     return acc;
   }, {});
 
-  function aoAdicionar(status, titulo) {
-    adicionarTarefa(projetoId, status, titulo);
+  function aoAdicionar(statusId, titulo) {
+    adicionarTarefa(projetoId, statusId, titulo);
   }
 
   return (
@@ -64,7 +62,11 @@ export default function TaskList({ projetoId }) {
           ))}
         </select>
       </div>
-      {tarefas.length === 0 && (
+      {statusDoProjeto.length === 0 && (
+        <p className="text-gray-500 mb-4">Este projeto ainda não tem status.</p>
+      )}
+
+      {tarefas.length === 0 && statusDoProjeto.length > 0 && (
         <p className="text-gray-500 mb-4">Esse projeto ainda não possui tarefas, crie a primeira abaixo.</p>
       )}
 
@@ -72,11 +74,11 @@ export default function TaskList({ projetoId }) {
         <p className="text-gray-500 mb-4">Nenhuma tarefa corresponde aos filtros aplicados.</p>
       )}
 
-      {STATUS.map((status) => (
+      {statusDoProjeto.map((status) => (
         <SecaoStatus
-          key={status}
+          key={status.id}
           status={status}
-          tarefas={porStatus[status] || []}
+          tarefas={porStatus[status.id] || []}
           aoAdicionar={aoAdicionar}
           aoSelecionar={setTarefaSelecionadaId}
           membros={membros}
@@ -88,6 +90,7 @@ export default function TaskList({ projetoId }) {
           aoFechar={() => setTarefaSelecionadaId(null)}
           aoAtualizar={atualizarTarefa}
           membros={membros}
+          statusDoProjeto={statusDoProjeto}
         />
       )}
     </div>

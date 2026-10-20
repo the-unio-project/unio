@@ -4,12 +4,7 @@ import { useState } from "react";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { PRIORIDADES } from "@/lib/prioridades";
-
-const coresStatus = {
-    "A fazer": "bg-gray-200 text-gray-700",
-    "Em andamento": "bg-yellow-100 text-yellow-700",
-    "Concluída": "bg-green-100 text-green-700",
-};
+import { estiloDaCor } from "@/lib/cores";
 
 const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-4";
 
@@ -18,7 +13,7 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
 
     function confirmarNovaTarefa() {
         if (novoTitulo.trim() === "") return;
-        aoAdicionar(status, novoTitulo);
+        aoAdicionar(status.id, novoTitulo);
         setNovoTitulo("");
     }
 
@@ -31,8 +26,11 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
 
     return (
         <section className="mb-6">
-            <h2 className={`inline-block font-bold text-lg mb-2 p-1 rounded ${coresStatus[status]}`}>
-                {status}
+            <h2
+                className="inline-block font-bold text-lg mb-2 p-1 rounded"
+                style={estiloDaCor(status.cor)}
+            >
+                {status.nome}
             </h2>
             {tarefas.length > 0 && (
                 <div className={`${COLUNAS} px-2 mb-1 text-xs text-gray-500 border border-transparent`}>

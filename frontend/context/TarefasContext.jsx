@@ -14,11 +14,11 @@ export function TarefasProvider({ children }) {
         );
     }
 
-    function adicionarTarefa(projetoId, status, titulo) {
+    function adicionarTarefa(projetoId, statusId, titulo) {
         const novaTarefa = {
             id: Date.now(),
             projetoId,
-            status,
+            statusId,
             titulo,
             responsaveis: [],
             prioridade: 'normal',
