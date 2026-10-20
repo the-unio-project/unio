@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import Depends, HTTPException, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -39,8 +39,8 @@ async def create_project(workspace_id: UUID, project: CreateProjectSchema, sessi
 async def read_single_project(project: AccessibleProjectDep):
     return project
 
-@project_router.get("/{workspace_id}/project/", response_model=List[ProjectResponseSchema])
-async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> List[ProjectResponseSchema]:
+@project_router.get("/{workspace_id}/project/", response_model=list[ProjectResponseSchema])
+async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> list[ProjectResponseSchema]:
     assert_workspace_member(workspace_id, user.id, session)
     repo = ProjectRepository(session)
     return repo.get_all_workspace(workspace_id)

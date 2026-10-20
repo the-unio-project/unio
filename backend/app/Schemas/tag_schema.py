@@ -1,9 +1,6 @@
-from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, HttpUrl
-
-from Models.models import Tag
+from pydantic import BaseModel
 
 class CreateTagSchema(BaseModel):
     name: str

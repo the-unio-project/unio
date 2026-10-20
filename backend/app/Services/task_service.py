@@ -3,14 +3,13 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Models.models import Project, Status, Task, TaskAssignee, Workspace
+from Models.models import Project, Status, Task, Workspace
 from Repositories.list_repo import ListRepository
 from Repositories.status_repo import StatusRepository
 from Repositories.task_repo import TaskRepository
 from Repositories.user_repo import UserRepository
 from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema
 from Repositories.project_repo import ProjectRepository
-from Services.project_service import ProjectService
 
 from Models.models import Notification, NotificationType
 

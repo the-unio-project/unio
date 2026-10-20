@@ -1,10 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Tag, TaskTag
-from Schemas.tag_schema import CreateTagSchema, DeleteTagSchema, EditTagSchema, TagResponseSchema
+from Schemas.tag_schema import CreateTagSchema, DeleteTagSchema, EditTagSchema
 
 class TagRepository:
     def __init__(self, session: Session):
@@ -17,7 +16,7 @@ class TagRepository:
         self.session.refresh(new_tag)
         return new_tag
 
-    def get_by_id(self, tag_id: UUID) -> Optional[Tag]:
+    def get_by_id(self, tag_id: UUID) -> Tag | None:
         return self.session.query(Tag).filter(Tag.id == tag_id).first()
 
     def delete_tag(self, tag_id: UUID):

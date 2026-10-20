@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Project
@@ -17,10 +16,10 @@ class ProjectRepository:
         self.session.refresh(new_project)
         return new_project
 
-    def get_by_id(self, project_id: UUID) -> Optional[Project]:
+    def get_by_id(self, project_id: UUID) -> Project | None:
         return self.session.query(Project).filter(Project.id == project_id).first()
     
-    def get_all(self) -> List[Project]:
+    def get_all(self) -> list[Project]:
         return self.session.query(Project).order_by(Project.created_at.asc()).all()
 
     def get_all_workspace(self, workspace_id: UUID):

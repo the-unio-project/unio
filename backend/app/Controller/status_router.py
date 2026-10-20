@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import Depends, HTTPException, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session

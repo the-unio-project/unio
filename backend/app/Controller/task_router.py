@@ -1,16 +1,13 @@
-from datetime import datetime
-from typing import Annotated, List, Literal
-import typing
-from fastapi import Body, Depends, HTTPException, APIRouter
-from uuid import UUID, uuid4
+from typing import Annotated, Literal
+from fastapi import Depends, APIRouter
+from uuid import UUID
 from sqlalchemy.orm import Session
 
 from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
-from Models.models import NotificationType, Task, TaskAssignee, User
+from Models.models import User
 from Repositories.task_repo import TaskRepository
-from Services.Notifications.notification_methods import notify
 from Services.task_service import TaskService
 from Services.Authentication.auth_methods import verify_token
 
@@ -34,8 +31,8 @@ async def read_single_task(task_id: UUID, session: SessionDep, current_user: Cur
     service = TaskService(session)
     return service.get_accessible_task(task_id, current_user.id)
 
-@task_router.get("/projects/{project_id}/tasks", response_model=List[TaskResponseSchema])
-async def list_tasks(session: SessionDep, project_id: UUID, current_user: CurrentUserDep) -> List[TaskResponseSchema]:
+@task_router.get("/projects/{project_id}/tasks", response_model=list[TaskResponseSchema])
+async def list_tasks(session: SessionDep, project_id: UUID, current_user: CurrentUserDep) -> list[TaskResponseSchema]:
     service = TaskService(session)
     return service.get_tasks_by_project(project_id, current_user.id)
 
@@ -73,17 +70,17 @@ async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionD
     service = TaskService(session)
     return service.move_task(task_id=task_id, status_id=task.status_id, new_position=task.position)
 
-@task_router.get("/me/tasks", response_model=List[DashboardTaskSchema])
+@task_router.get("/me/tasks", response_model=list[DashboardTaskSchema])
 async def get_user_tasks(session: SessionDep, current_user: CurrentUserDep, order: Literal["asc", "desc"] = "asc"):
     repo = TaskRepository(session)
     return repo.get_user_tasks(current_user.id, order)
 
-@task_router.get("/me/tasks/due-today", response_model=List[DashboardTaskSchema])
+@task_router.get("/me/tasks/due-today", response_model=list[DashboardTaskSchema])
 async def get_tasks_due_today(session: SessionDep, current_user: CurrentUserDep):
     repo = TaskRepository(session)
     return repo.get_tasks_due_today(current_user.id)
 
-@task_router.get("/me/tasks/overdue", response_model=List[DashboardTaskSchema])
+@task_router.get("/me/tasks/overdue", response_model=list[DashboardTaskSchema])
 async def get_tasks_overdue(session: SessionDep, current_user: CurrentUserDep):
     repo = TaskRepository(session)
     return repo.get_overdue_tasks(current_user.id)

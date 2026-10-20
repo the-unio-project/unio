@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from Database.database import get_session
 from Schemas.auth_schemas import RegisterSchema, LoginSchema
-from Services.Authentication.auth_methods import auth_user, create_token  # pyright: ignore[reportAssignmentType]
+from Services.Authentication.auth_methods import auth_user, create_token
 
 from Repositories.user_repo import UserRepository
 

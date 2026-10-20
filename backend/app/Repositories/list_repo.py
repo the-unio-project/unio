@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import ListModel
@@ -17,13 +16,13 @@ class ListRepository:
         self.session.refresh(new_list)
         return new_list
 
-    def get_by_id(self, list_id: UUID, project_id: UUID) -> Optional[ListModel]:
+    def get_by_id(self, list_id: UUID, project_id: UUID) -> ListModel | None:
         return self.session.query(ListModel).filter(ListModel.id == list_id, ListModel.project_id == project_id).first()
 
-    def get_by_id_only(self, list_id: UUID) -> Optional[ListModel]:
+    def get_by_id_only(self, list_id: UUID) -> ListModel | None:
         return self.session.query(ListModel).filter(ListModel.id == list_id).first()
     
-    def get_all_by_project(self, project_id: UUID) -> List[ListModel]:
+    def get_all_by_project(self, project_id: UUID) -> list[ListModel]:
         return self.session.query(ListModel).filter(ListModel.project_id == project_id).all()
 
     def edit_list(self, new_list: EditListSchema, list_id: UUID, project_id: UUID):

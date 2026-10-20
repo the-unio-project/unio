@@ -1,5 +1,4 @@
 from fastapi import Depends, FastAPI
-from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 
 # Routing & App

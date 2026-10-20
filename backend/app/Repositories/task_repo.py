@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta
 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Task, TaskAssignee
 from Repositories.status_repo import StatusRepository
-from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema
 from sqlalchemy.dialects.postgresql import insert
 
 class TaskRepository:
@@ -52,10 +50,10 @@ class TaskRepository:
 
         return new_subtask
 
-    def get_by_id(self, task_id: UUID) -> Optional[Task]:
+    def get_by_id(self, task_id: UUID) -> Task | None:
         return self.session.query(Task).filter(Task.id == task_id).first()
     
-    def get_all_by_project(self, project_id: UUID) -> List[Task]:
+    def get_all_by_project(self, project_id: UUID) -> list[Task]:
         return self.session.query(Task).filter(Task.project_id == project_id).order_by(Task.status_id, Task.position, Task.id)
     
     def replace_task(self, new_task: CreateTaskSchema, task_id: UUID):
