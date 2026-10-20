@@ -7,6 +7,7 @@ export default function Button({ children, onClick, variant = "primary", type = 
     task: "px-4 py-2 bg-gray-100 text-gray-800 hover:bg-gray-200",
     icone: "p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800",
     contorno: "px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800",
+    perigo: "px-4 py-2 rounded-md font-medium bg-red-600 text-white hover:bg-red-700",
     };
 
   return (
