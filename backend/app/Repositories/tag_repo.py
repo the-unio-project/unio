@@ -16,9 +16,12 @@ class TagRepository:
         self.session.refresh(new_tag)
         return new_tag
 
-    def get_by_id(self, tag_id: UUID) -> Tag | None:
-        return self.session.query(Tag).filter(Tag.id == tag_id).first()
-
+    def get_by_id(self, tag_id: UUID) -> Tag:
+        tag = self.session.query(Tag).filter(Tag.id == tag_id).first()
+        if not tag:
+            raise HTTPException(status_code=404, detail="No tag found")
+        return tag
+     
     def delete_tag(self, tag_id: UUID):
         tag = self.get_by_id(tag_id)
         if tag is None:

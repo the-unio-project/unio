@@ -17,10 +17,13 @@ class StatusRepository:
         self.session.refresh(new_status)
         return new_status
 
-    def get_by_id(self, status_id: UUID) -> Status | None:
-        return self.session.query(Status).filter(Status.id == status_id).first()
+    def get_by_id(self, status_id: UUID) -> Status:
+        status = self.session.query(Status).filter(Status.id == status_id).first()
+        if not status:
+            raise HTTPException(status_code=404, detail="No status found")
+        return status
 
-    def get_by_project(self, project_id: UUID) -> list[Status] | None:
+    def get_by_project(self, project_id: UUID) -> list[Status]:
         return self.session.query(Status).filter(Status.project_id == project_id).all()
     
     def get_all(self) -> list[Status] | None:

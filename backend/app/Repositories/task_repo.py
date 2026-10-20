@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -50,8 +51,11 @@ class TaskRepository:
 
         return new_subtask
 
-    def get_by_id(self, task_id: UUID) -> Task | None:
-        return self.session.query(Task).filter(Task.id == task_id).first()
+    def get_by_id(self, task_id: UUID) -> Task:
+        task = self.session.query(Task).filter(Task.id == task_id).first()
+        if not task:
+            raise HTTPException(status_code=404, detail="No task found")
+        return task
     
     def get_all_by_project(self, project_id: UUID) -> list[Task]:
         return self.session.query(Task).filter(Task.project_id == project_id).order_by(Task.status_id, Task.position, Task.id)

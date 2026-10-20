@@ -16,8 +16,11 @@ class ProjectRepository:
         self.session.refresh(new_project)
         return new_project
 
-    def get_by_id(self, project_id: UUID) -> Project | None:
-        return self.session.query(Project).filter(Project.id == project_id).first()
+    def get_by_id(self, project_id: UUID) -> Project:
+        project =  self.session.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="No project found")
+        return project
     
     def get_all(self) -> list[Project]:
         return self.session.query(Project).order_by(Project.created_at.asc()).all()

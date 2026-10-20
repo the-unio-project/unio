@@ -33,8 +33,11 @@ class UserRepository:
 
         return new_user
 
-    def get_by_id(self, user_id: UUID) -> User | None:
-        return self.session.query(User).filter(User.id == user_id).first()
+    def get_by_id(self, user_id: UUID) -> User:
+        user = self.session.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="No user found")
+        return user
 
     def get_all(self) -> list[User]:
         return self.session.query(User).order_by(User.created_at.asc()).all()

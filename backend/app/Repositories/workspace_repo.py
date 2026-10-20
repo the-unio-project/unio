@@ -20,8 +20,11 @@ def create_workspace(workspace: CreateWorkspaceSchema, user_id:UUID, session:Ses
 
     return new_workspace
 
-def get_workspace_by_id(workspace_id: UUID, session: Session) -> Workspace | None:
-    return session.query(Workspace).filter(Workspace.id == workspace_id).first()
+def get_workspace_by_id(workspace_id: UUID, session: Session) -> Workspace:
+    workspace = session.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not workspace:
+        raise HTTPException(status_code=404, detail="No workspace found")
+    return workspace
 
 def get_workspace_by_owner(owner_id: UUID, session: Session) -> list[Workspace]:
     workspaces = session.query(Workspace).filter(Workspace.owner_id == owner_id).all()

@@ -16,11 +16,17 @@ class ListRepository:
         self.session.refresh(new_list)
         return new_list
 
-    def get_by_id(self, list_id: UUID, project_id: UUID) -> ListModel | None:
-        return self.session.query(ListModel).filter(ListModel.id == list_id, ListModel.project_id == project_id).first()
+    def get_by_id(self, list_id: UUID, project_id: UUID) -> ListModel:
+        list = self.session.query(ListModel).filter(ListModel.id == list_id, ListModel.project_id == project_id).first()
+        if not list:
+            raise HTTPException(status_code=404, detail="No list found")
+        return list
 
-    def get_by_id_only(self, list_id: UUID) -> ListModel | None:
-        return self.session.query(ListModel).filter(ListModel.id == list_id).first()
+    def get_by_id_only(self, list_id: UUID) -> ListModel:
+         list = self.session.query(ListModel).filter(ListModel.id == list_id).first()
+         if not list:
+             raise HTTPException(status_code=404, detail="No list found")
+         return list
     
     def get_all_by_project(self, project_id: UUID) -> list[ListModel]:
         return self.session.query(ListModel).filter(ListModel.project_id == project_id).all()
