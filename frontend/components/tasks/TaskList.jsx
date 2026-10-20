@@ -9,7 +9,7 @@ import ModalTarefa from "@/components/tasks/ModalTarefa";
 import { PRIORIDADES } from "@/lib/prioridades";
 
 export default function TaskList({ projetoId }) {
-  const { tarefas: todasTarefas, atualizarTarefa, adicionarTarefa } = useTarefas();
+  const { tarefas: todasTarefas, atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
   const tarefas = todasTarefas.filter((t) => t.projetoId === projetoId);
   const { projetos, statusProjetos } = useWorkspace();
   const workspaceId = projetos.find((p) => p.id === projetoId)?.workspaceId;
@@ -35,6 +35,11 @@ export default function TaskList({ projetoId }) {
 
   function aoAdicionar(statusId, titulo) {
     adicionarTarefa(projetoId, statusId, titulo);
+  }
+
+  function excluir(id) {
+    excluirTarefa(id);
+    setTarefaSelecionadaId(null);
   }
 
   return (
@@ -91,6 +96,7 @@ export default function TaskList({ projetoId }) {
           aoAtualizar={atualizarTarefa}
           membros={membros}
           statusDoProjeto={statusDoProjeto}
+          aoExcluir={excluir}
         />
       )}
     </div>
