@@ -72,16 +72,12 @@ def get_members(workspace_id: UUID, session:Session) -> list[WorkspaceMember]:
     return members
 
 def get_member(workspace_id: UUID, user_id: UUID, session:Session) -> WorkspaceMember:
-    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+    member = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).filter(WorkspaceMember.user_id == user_id).first()
 
-    if not members:
-        raise HTTPException(status_code=404, detail="No workspace found'")
-    
-    for member in members:
-        if member.user.id == user_id:
-            return member
+    if not member:
+        raise HTTPException(status_code=404, detail="No member found for this workspace, or workspace doesnt exist")
 
-    raise HTTPException(status_code=404, detail="No member found in workspace")
+    return member
 
 def get_users(workspace_id: UUID, session:Session) -> list[User]:
     members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
