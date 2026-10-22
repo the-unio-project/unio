@@ -6,154 +6,157 @@ from Models.models import Project, Task, User, Workspace, WorkspaceInvite, Works
 from Schemas.workspace_schema import CreateWorkspaceSchema, DeleteWorkspaceSchema, WorkspaceInviteSchema, WorkspaceMemberSchema
 from Services.Tasks.search_methods import search_title
 
-def create_workspace(workspace: CreateWorkspaceSchema, user_id:UUID, session:Session) -> Workspace:
+class WorkspaceRepository:
+    def __init__(self, session: Session):
+        self.session = session
 
-    new_workspace = Workspace(**workspace.model_dump())
-    new_workspace.owner_id = user_id
+    def create_workspace(self, workspace: CreateWorkspaceSchema, user_id:UUID) -> Workspace:
 
-    session.add(new_workspace)
-    session.commit()
-    session.refresh(new_workspace)
+        new_workspace = Workspace(**workspace.model_dump())
+        new_workspace.owner_id = user_id
 
-    owner_schema = WorkspaceMemberSchema(workspace_id=new_workspace.id, user_id=user_id, role=WorkspaceRole.OWNER)
-    create_member(owner_schema, session)
+        self.session.add(new_workspace)
+        self.session.commit()
+        self.session.refresh(new_workspace)
 
-    return new_workspace
+        owner_schema = WorkspaceMemberSchema(workspace_id=new_workspace.id, user_id=user_id, role=WorkspaceRole.OWNER)
+        self.create_member(owner_schema)
 
-def get_workspace_by_id(workspace_id: UUID, session: Session) -> Workspace | None:
-    return session.query(Workspace).filter(Workspace.id == workspace_id).first()
+        return new_workspace
 
-def get_workspace_by_owner(owner_id: UUID, session: Session) -> list[Workspace]:
-    workspaces = session.query(Workspace).filter(Workspace.owner_id == owner_id).all()
-    return workspaces
+    def get_workspace_by_id(self, workspace_id: UUID) -> Workspace:
+        workspace = self.session.query(Workspace).filter(Workspace.id == workspace_id).first()
+        if workspace is None:
+            raise HTTPException(status_code=404, detail="No workspace found")
+        return workspace
 
-def get_workspace_by_membership(member_id: UUID, session: Session) -> list[Workspace]:
-    user = session.query(User).filter(User.id == member_id).first()
+    def get_workspace_by_owner(self, owner_id: UUID) -> list[Workspace]:
+        workspaces = self.session.query(Workspace).filter(Workspace.owner_id == owner_id).all()
+        return workspaces
 
-    if not user:
-        raise HTTPException(status_code=400, detail="invalid user")
+    def get_workspace_by_membership(self, member_id: UUID) -> list[Workspace]:
+        user = self.session.query(User).filter(User.id == member_id).first()
 
-    memberships = user.workspace_memberships
-    
-    if memberships.count == 0:
-        raise HTTPException(status_code=400, detail="user isnt a member of any workspaces")
+        if not user:
+            raise HTTPException(status_code=400, detail="invalid user")
 
-    workspaces = list[Workspace]()
+        memberships = user.workspace_memberships
 
-    for workspaceMember in memberships:
-        workspaces.append(workspaceMember.workspace)
+        if memberships.count == 0:
+            raise HTTPException(status_code=401, detail="user isnt a member of any workspaces")
 
-    return workspaces
+        workspaces = list[Workspace]()
 
-def get_all_workspaces(session:Session) -> list[Workspace]:
-    workspaces = session.query(Workspace).order_by(Workspace.created_at.asc()).all()
-    for workspace in workspaces:
-        print(workspace.owner.id)
-    return workspaces
+        for workspaceMember in memberships:
+            workspaces.append(workspaceMember.workspace)
 
-# MEMBER FUNCTIONS
+        return workspaces
 
-def create_member(member: WorkspaceMemberSchema, session:Session):
-    new_member = WorkspaceMember(**member.model_dump())
+    def get_all_workspaces(self) -> list[Workspace]:
+        workspaces = self.session.query(Workspace).order_by(Workspace.created_at.asc()).all()
+        for workspace in workspaces:
+            print(workspace.owner.id)
+        return workspaces
 
-    session.add(new_member)
-    session.commit()
-    session.refresh(new_member)
+    # MEMBER FUNCTIONS
 
-def get_members(workspace_id: UUID, session:Session) -> list[WorkspaceMember]:
-    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+    def create_member(self, member: WorkspaceMemberSchema):
+        new_member = WorkspaceMember(**member.model_dump())
 
-    if not members:
-        raise HTTPException(status_code=400, detail="No workspace found")
+        self.session.add(new_member)
+        self.session.commit()
+        self.session.refresh(new_member)
 
-    return members
+    def get_members(self, workspace_id: UUID) -> list[WorkspaceMember]:
+        members = self.session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
 
-def get_member(workspace_id: UUID, user_id: UUID, session:Session) -> WorkspaceMember:
-    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+        if not members:
+            raise HTTPException(status_code=404, detail="No workspace found")
 
-    if not members:
-        raise HTTPException(status_code=400, detail="No workspace found'")
-    
-    for member in members:
-        if member.user.id == user_id:
-            return member
+        return members
 
-    raise HTTPException(status_code=400, detail="No member found in workspace")
+    def get_member(self, workspace_id: UUID, user_id: UUID) -> WorkspaceMember:
+        member = self.session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).filter(WorkspaceMember.user_id == user_id).first()
 
-def get_users(workspace_id: UUID, session:Session) -> list[User]:
-    members = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
+        if not member:
+            raise HTTPException(status_code=404, detail="No member found for this workspace, or workspace doesnt exist")
 
-    if not members:
-        raise HTTPException(status_code=400, detail="No workspace found")
-    
-    users = list[User]()
+        return member
 
-    for member in members:
-        users.append(member.user)
+    def get_users(self, workspace_id: UUID) -> list[User]:
+        members = self.session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
 
-    return users
+        if not members:
+            raise HTTPException(status_code=404, detail="No workspace found")
 
-def remove_member(workspace_id: UUID, user_id: UUID, session:Session) -> str:
-    member = session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).filter(WorkspaceMember.user_id == user_id).first()
+        users = list[User]()
 
-    if not member:
-        raise HTTPException(status_code=400, detail="No membership found")
+        for member in members:
+            users.append(member.user)
 
-    session.delete(member)
-    session.commit()
+        return users
 
-    return "Workspace member deleted successfully"
+    def remove_member(self, workspace_id: UUID, user_id: UUID) -> str:
+        member = self.session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).filter(WorkspaceMember.user_id == user_id).first()
 
-# INVITE FUNCTIONS
+        if not member:
+            raise HTTPException(status_code=404, detail="No membership found")
 
-def create_invite(workspace_id: UUID, session:Session) -> WorkspaceInvite:
-    invite = WorkspaceInviteSchema(workspace_id=workspace_id)
-    new_invite = WorkspaceInvite(**invite.model_dump())
+        self.session.delete(member)
+        self.session.commit()
 
-    session.add(new_invite)
-    session.commit()
-    session.refresh(new_invite)
+        return "Workspace member deleted successfully"
 
-    return new_invite
+    # INVITE FUNCTIONS
 
-def accept_invite(invite_id: UUID, user:User, session:Session) -> WorkspaceMember:
-    workspaceInvite = session.query(WorkspaceInvite).filter(WorkspaceInvite.id == invite_id).first()
+    def create_invite(self, workspace_id: UUID) -> WorkspaceInvite:
+        invite = WorkspaceInviteSchema(workspace_id=workspace_id)
+        new_invite = WorkspaceInvite(**invite.model_dump())
 
-    if not workspaceInvite:
-        raise HTTPException(status_code=400, detail="invalid invite")
+        self.session.add(new_invite)
+        self.session.commit()
+        self.session.refresh(new_invite)
 
-    workspaceMember = session.query(WorkspaceMember).filter(WorkspaceMember.user_id == user.id).first()
+        return new_invite
 
-    if workspaceMember:
-        raise HTTPException(status_code=400, detail="member already in this workspace")
+    def accept_invite(self, invite_id: UUID, user:User) -> WorkspaceMember:
+        workspaceInvite = self.session.query(WorkspaceInvite).filter(WorkspaceInvite.id == invite_id).first()
 
-    memberSchema = WorkspaceMemberSchema(workspace_id=workspaceInvite.workspace_id, user_id=user.id, role=WorkspaceRole.MEMBER)
-    member = WorkspaceMember(**memberSchema.model_dump())
+        if not workspaceInvite:
+            raise HTTPException(status_code=404, detail="invalid invite")
 
-    session.add(member)
-    session.commit()
-    session.refresh(member)
+        workspaceMember = self.session.query(WorkspaceMember).filter(WorkspaceMember.user_id == user.id).first()
 
-    return member
+        if workspaceMember:
+            raise HTTPException(status_code=401, detail="member already in this workspace")
 
-def delete_workspace(workspace_id: UUID, session: Session) -> DeleteWorkspaceSchema:
-    workspace = get_workspace_by_id(workspace_id, session)
-    if workspace is None:
-        return None
-    session.delete(workspace)
-    session.commit()
-    return DeleteWorkspaceSchema(message=f"Workspace {workspace.name} deletado com sucesso!", id=workspace_id)
+        memberSchema = WorkspaceMemberSchema(workspace_id=workspaceInvite.workspace_id, user_id=user.id, role=WorkspaceRole.MEMBER)
+        member = WorkspaceMember(**memberSchema.model_dump())
 
-# GLOBAL TASK SEARCH
+        self.session.add(member)
+        self.session.commit()
+        self.session.refresh(member)
 
-def search_task_by_title(workspace_id:UUID, query:str, session:Session) -> list[Task]:
-    projects = session.query(Project).filter(Project.workspace_id == workspace_id).all()
-    
-    final_tasks:list[Task] = []
+        return member
 
-    for project in projects:
-        tasks = session.query(Task).filter(Task.project_id == project.id).all()
+    def delete_workspace(self, workspace_id: UUID) -> DeleteWorkspaceSchema:
+        workspace = self.get_workspace_by_id(workspace_id)
+        if workspace is None:
+            return None
+        self.session.delete(workspace)
+        self.session.commit()
+        return DeleteWorkspaceSchema(message=f"Workspace {workspace.name} deletado com sucesso!", id=workspace_id)
 
-        final_tasks.extend(search_title(query, tasks))
+    # GLOBAL TASK SEARCH
 
-    return final_tasks
+    def search_task_by_title(self, workspace_id:UUID, query:str) -> list[Task]:
+        projects = self.session.query(Project).filter(Project.workspace_id == workspace_id).all()
+
+        final_tasks:list[Task] = []
+
+        for project in projects:
+            tasks = self.session.query(Task).filter(Task.project_id == project.id).all()
+
+            final_tasks.extend(search_title(query, tasks))
+
+        return final_tasks

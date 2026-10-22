@@ -11,7 +11,7 @@ def read_notification(notif_id: UUID, session:Session):
     notification = session.query(Notification).filter(Notification.id == notif_id).first()
 
     if not notification:
-        raise HTTPException(status_code=400, detail="No valid notification found for given ID.")
+        raise HTTPException(status_code=404, detail="No valid notification found for given ID.")
 
     notification.is_read = True
 

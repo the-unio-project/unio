@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import Depends, HTTPException, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from Models.models import Project, User
 from Schemas.project_schema import ProjectResponseSchema, CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 from Database.database import get_session
 
-from Repositories.project_storage import ProjectRepository
+from Repositories.project_repo import ProjectRepository
 from Services.Permissions.perm_methods import assert_workspace_member
 from Services.project_service import ProjectService
 
@@ -32,15 +32,15 @@ AccessibleProjectDep = Annotated[Project, Depends(get_accessible_project)]
 @project_router.post("/{workspace_id}/project/", response_model=ProjectResponseSchema)
 async def create_project(workspace_id: UUID, project: CreateProjectSchema, session: SessionDep, user: CurrentUserDep) -> ProjectResponseSchema:
     assert_workspace_member(workspace_id, user.id, session)
-    repo = ProjectRepository(session)
-    return repo.create_project(workspace_id, project)
+    service = ProjectService(session)
+    return service.create_project(workspace_id, project, user.id)
 
 @project_router.get("/project/{project_id}", response_model=ProjectResponseSchema)
 async def read_single_project(project: AccessibleProjectDep):
     return project
 
-@project_router.get("/{workspace_id}/project/", response_model=List[ProjectResponseSchema])
-async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> List[ProjectResponseSchema]:
+@project_router.get("/{workspace_id}/project/", response_model=list[ProjectResponseSchema])
+async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> list[ProjectResponseSchema]:
     assert_workspace_member(workspace_id, user.id, session)
     repo = ProjectRepository(session)
     return repo.get_all_workspace(workspace_id)
@@ -66,6 +66,6 @@ async def archive_project(project: AccessibleProjectDep, session: SessionDep) ->
     return service.archive_project(session, project.id)
 
 @project_router.patch("/project/{project_id}/unarchive", response_model=ProjectResponseSchema)
-async def archive_project(project: AccessibleProjectDep, session: SessionDep) -> ProjectResponseSchema:
+async def unarchive_project(project: AccessibleProjectDep, session: SessionDep) -> ProjectResponseSchema:
     service = ProjectService(session)
     return service.unarchive_project(session, project.id)

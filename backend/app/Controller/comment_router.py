@@ -18,7 +18,7 @@ comment_router = APIRouter()
 def create_comment(task_id:UUID, comment_schema: CreateCommentSchema, session:Session=Depends(get_session), user:User=Depends(verify_token)):
     comment = comment_repo.create_comment(comment_schema, task_id, user.id, session)
 
-    valid_ids = get_comment_mentions(comment.comment)
+    valid_ids = get_comment_mentions(comment.comment, comment.task.project_id, session)
 
     if valid_ids.count != 0:
         _ = bulk_notify(NotificationType.COMMENT_MENTION, comment.id, user.id, valid_ids, session)
@@ -34,6 +34,6 @@ def remove_comment(comment_id:UUID, session=Depends(get_session)):
     result = comment_repo.delete_comment(comment_id, session)
 
     if not result:
-        raise HTTPException(status_code=400, detail="Comment not found")
+        raise HTTPException(status_code=404, detail="Comment not found")
 
     return {"message": "Comment deleted successfully"}

@@ -1,9 +1,6 @@
-from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
-
-from Schemas.list_schema import ListResponseSchema
+from pydantic import BaseModel, Field
 
 class CreateProjectSchema(BaseModel):
     name: str

@@ -1,10 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import ListModel
-from Schemas.list_schema import CreateListSchema, DeleteListSchema, EditListSchema, ListResponseSchema
+from Schemas.list_schema import CreateListSchema, DeleteListSchema, EditListSchema
 
 class ListRepository:
     def __init__(self, session: Session):
@@ -17,13 +16,19 @@ class ListRepository:
         self.session.refresh(new_list)
         return new_list
 
-    def get_by_id(self, list_id: UUID, project_id: UUID) -> Optional[ListModel]:
-        return self.session.query(ListModel).filter(ListModel.id == list_id, ListModel.project_id == project_id).first()
+    def get_by_id(self, list_id: UUID, project_id: UUID) -> ListModel:
+        list = self.session.query(ListModel).filter(ListModel.id == list_id, ListModel.project_id == project_id).first()
+        if not list:
+            raise HTTPException(status_code=404, detail="No list found")
+        return list
 
-    def get_by_id_only(self, list_id: UUID) -> Optional[ListModel]:
-        return self.session.query(ListModel).filter(ListModel.id == list_id).first()
+    def get_by_id_only(self, list_id: UUID) -> ListModel:
+         list = self.session.query(ListModel).filter(ListModel.id == list_id).first()
+         if not list:
+             raise HTTPException(status_code=404, detail="No list found")
+         return list
     
-    def get_all_by_project(self, project_id: UUID) -> List[ListModel]:
+    def get_all_by_project(self, project_id: UUID) -> list[ListModel]:
         return self.session.query(ListModel).filter(ListModel.project_id == project_id).all()
 
     def edit_list(self, new_list: EditListSchema, list_id: UUID, project_id: UUID):
@@ -32,7 +37,7 @@ class ListRepository:
             return None
         update_data = new_list.model_dump(exclude_unset=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data found")
         for field, value in update_data.items():
             setattr(list_model, field, value)
         self.session.commit()
@@ -45,4 +50,4 @@ class ListRepository:
             return None
         self.session.delete(list_model)
         self.session.commit()
-        return DeleteListSchema(mensagem=f"list {list_model.name} deletada com sucesso!", id=list_id)
+        return DeleteListSchema(mensagem=f"List {list_model.name} was deleted successfully!", id=list_id)

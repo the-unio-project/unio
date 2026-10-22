@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import HTTPException, UploadFile, Depends
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from supabase import Client
 
@@ -23,9 +23,13 @@ def update_profile(user_id:UUID, profile_schema:SetProfileSchema, profile_pictur
     user = session.query(User).filter(User.id == user_id).first()
 
     if not user:
-        raise HTTPException(status_code=400, detail="No user found")
+        raise HTTPException(status_code=404, detail="No user found")
     if not profile_picture.filename:
         raise HTTPException(status_code=400, detail="Profile picture file has no filename")
+    if not profile_picture.size:
+        raise HTTPException(status_code=400, detail="Profile picture file has no size") # somehow
+    if profile_picture.size > 102400:
+        raise HTTPException(status_code=400, detail="File size too large, limit = 100KB")
 
     extension=allowed_extensions(profile_picture.filename)
     if not extension:

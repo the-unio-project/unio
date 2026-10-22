@@ -2,8 +2,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Repositories.tag_storage import TagRepository
-from Repositories.task_storage import TaskRepository
+from Repositories.tag_repo import TagRepository
+from Repositories.task_repo import TaskRepository
 
 class TagService:
     def __init__(self, session: Session):

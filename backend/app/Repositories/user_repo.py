@@ -17,7 +17,7 @@ class UserRepository:
         existing_user = session.query(User).filter(User.email == user.email).first()
 
         if existing_user:
-            raise HTTPException(status_code=400, detail="E-mail already registered")
+            raise HTTPException(status_code=401, detail="E-mail already registered")
 
         new_user = User(**user.model_dump())
 
@@ -33,8 +33,11 @@ class UserRepository:
 
         return new_user
 
-    def get_by_id(self, user_id: UUID) -> User | None:
-        return self.session.query(User).filter(User.id == user_id).first()
+    def get_by_id(self, user_id: UUID) -> User:
+        user = self.session.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="No user found")
+        return user
 
     def get_all(self) -> list[User]:
         return self.session.query(User).order_by(User.created_at.asc()).all()

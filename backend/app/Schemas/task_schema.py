@@ -1,10 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 
 from Models.models import TaskPriority
-
 
 class CreateTaskSchema(BaseModel):
     title: str = Field(min_length=1, max_length=100)
