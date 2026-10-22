@@ -32,8 +32,8 @@ AccessibleProjectDep = Annotated[Project, Depends(get_accessible_project)]
 @project_router.post("/{workspace_id}/project/", response_model=ProjectResponseSchema)
 async def create_project(workspace_id: UUID, project: CreateProjectSchema, session: SessionDep, user: CurrentUserDep) -> ProjectResponseSchema:
     assert_workspace_member(workspace_id, user.id, session)
-    repo = ProjectRepository(session)
-    return repo.create_project(workspace_id, project)
+    service = ProjectService(session)
+    return service.create_project(workspace_id, project, user.id)
 
 @project_router.get("/project/{project_id}", response_model=ProjectResponseSchema)
 async def read_single_project(project: AccessibleProjectDep):
@@ -66,6 +66,6 @@ async def archive_project(project: AccessibleProjectDep, session: SessionDep) ->
     return service.archive_project(session, project.id)
 
 @project_router.patch("/project/{project_id}/unarchive", response_model=ProjectResponseSchema)
-async def archive_project(project: AccessibleProjectDep, session: SessionDep) -> ProjectResponseSchema:
+async def unarchive_project(project: AccessibleProjectDep, session: SessionDep) -> ProjectResponseSchema:
     service = ProjectService(session)
     return service.unarchive_project(session, project.id)

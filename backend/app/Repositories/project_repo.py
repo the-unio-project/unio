@@ -3,16 +3,18 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from Models.models import Project
+from Repositories.status_repo import StatusRepository
 from Schemas.project_schema import CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 
 class ProjectRepository:
     def __init__(self, session: Session):
         self.session = session
+        self.status_repo = StatusRepository(session)
 
     def create_project(self, workspace_id:UUID, project: CreateProjectSchema):
         new_project = Project(**project.model_dump(), workspace_id=workspace_id)
         self.session.add(new_project)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(new_project)
         return new_project
 
