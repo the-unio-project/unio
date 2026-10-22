@@ -2,19 +2,14 @@
 
 import { useState } from "react";
 import { useTarefas } from "@/context/TarefasContext";
-import { useWorkspace } from "@/context/WorkspaceContext";
-import { membrosMock } from "@/lib/mock";
+import { useDadosProjeto } from "@/hooks/useDadosProjeto";
 import SecaoStatus from "@/components/tasks/SecaoStatus";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
 import { PRIORIDADES } from "@/lib/prioridades";
 
 export default function TaskList({ projetoId }) {
-  const { tarefas: todasTarefas, atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
-  const tarefas = todasTarefas.filter((t) => t.projetoId === projetoId);
-  const { projetos, statusProjetos } = useWorkspace();
-  const workspaceId = projetos.find((p) => p.id === projetoId)?.workspaceId;
-  const membros = membrosMock.filter((m) => m.workspaceId === workspaceId);
-  const statusDoProjeto = statusProjetos.filter((s) => s.projetoId === projetoId);
+  const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
+  const { tarefas, membros, statusDoProjeto } = useDadosProjeto(projetoId);
 
   const [filtroPrioridade, setFiltroPrioridade] = useState("todas");
   const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
