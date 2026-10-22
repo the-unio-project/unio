@@ -20,7 +20,7 @@ def delete_comment(comment_id: UUID, session:Session):
     comment = session.query(Comment).filter(Comment.id == comment_id).first()
 
     if not comment:
-        raise HTTPException(status_code=400, detail="Comment not found")
+        raise HTTPException(status_code=404, detail="Comment not found")
 
     session.delete(comment)
     session.commit()

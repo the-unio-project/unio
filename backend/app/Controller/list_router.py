@@ -6,10 +6,10 @@ from sqlalchemy.orm import Session
 from Schemas.list_schema import DeleteListSchema, EditListSchema, ListResponseSchema, CreateListSchema
 from Database.database import get_session
 
-from Repositories.list_storage import ListRepository
+from Repositories.list_repo import ListRepository
 
 from Models.models import Project, User, WorkspaceRole
-from Repositories.project_storage import ProjectRepository
+from Repositories.project_repo import ProjectRepository
 from Services.Authentication.auth_methods import verify_token
 from Services.Permissions.perm_methods import assert_workspace_permission
 

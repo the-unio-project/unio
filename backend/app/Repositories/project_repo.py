@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Project
@@ -17,10 +16,13 @@ class ProjectRepository:
         self.session.refresh(new_project)
         return new_project
 
-    def get_by_id(self, project_id: UUID) -> Optional[Project]:
-        return self.session.query(Project).filter(Project.id == project_id).first()
+    def get_by_id(self, project_id: UUID) -> Project:
+        project =  self.session.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="No project found")
+        return project
     
-    def get_all(self) -> List[Project]:
+    def get_all(self) -> list[Project]:
         return self.session.query(Project).order_by(Project.created_at.asc()).all()
 
     def get_all_workspace(self, workspace_id: UUID):
@@ -44,7 +46,7 @@ class ProjectRepository:
             return None
         update_data = new_project.model_dump(exclude_unset=True, exclude_none=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data found")
         for field, value in update_data.items():
             setattr(project, field, value)
         self.session.commit()
@@ -57,7 +59,7 @@ class ProjectRepository:
             return None
         self.session.delete(project)
         self.session.commit()
-        return DeleteProjectSchema(mensagem=f"Projeto {project.name} deletado com sucesso!", id=project_id)
+        return DeleteProjectSchema(mensagem=f"Project {project.name} deleted successfully!", id=project_id)
 
     def archive(self, project: Project):
         project.is_archived = True

@@ -2,12 +2,11 @@ from datetime import datetime, timedelta
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Task, TaskAssignee
-from Repositories.status_storage import StatusRepository
-from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema, TaskResponseSchema, EditTaskSchema
+from Repositories.status_repo import StatusRepository
+from Schemas.task_schema import CreateSubtaskSchema, CreateTaskSchema, DeleteTaskSchema
 from sqlalchemy.dialects.postgresql import insert
 
 class TaskRepository:
@@ -52,10 +51,13 @@ class TaskRepository:
 
         return new_subtask
 
-    def get_by_id(self, task_id: UUID) -> Optional[Task]:
-        return self.session.query(Task).filter(Task.id == task_id).first()
+    def get_by_id(self, task_id: UUID) -> Task:
+        task = self.session.query(Task).filter(Task.id == task_id).first()
+        if not task:
+            raise HTTPException(status_code=404, detail="No task found")
+        return task
     
-    def get_all_by_project(self, project_id: UUID) -> List[Task]:
+    def get_all_by_project(self, project_id: UUID) -> list[Task]:
         return self.session.query(Task).filter(Task.project_id == project_id).order_by(Task.status_id, Task.position, Task.id)
     
     def replace_task(self, new_task: CreateTaskSchema, task_id: UUID):
@@ -80,7 +82,7 @@ class TaskRepository:
                 current_task.position -= 1
         self.session.delete(task)
         self.session.commit()
-        return DeleteTaskSchema(mensagem=f"Tarefa {task.title} deletada com sucesso!", id=task_id)
+        return DeleteTaskSchema(mensagem=f"Task {task.title} deleted successfully!", id=task_id)
 
     def get_user_tasks(self, user_id: UUID, order: str = "asc"):
         query = self.session.query(Task).join(TaskAssignee, TaskAssignee.task_id == Task.id).filter(TaskAssignee.user_id == user_id)

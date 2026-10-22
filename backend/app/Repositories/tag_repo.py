@@ -1,10 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
 from uuid import UUID
 
 from Models.models import Tag, TaskTag
-from Schemas.tag_schema import CreateTagSchema, DeleteTagSchema, EditTagSchema, TagResponseSchema
+from Schemas.tag_schema import CreateTagSchema, DeleteTagSchema, EditTagSchema
 
 class TagRepository:
     def __init__(self, session: Session):
@@ -17,16 +16,19 @@ class TagRepository:
         self.session.refresh(new_tag)
         return new_tag
 
-    def get_by_id(self, tag_id: UUID) -> Optional[Tag]:
-        return self.session.query(Tag).filter(Tag.id == tag_id).first()
-
+    def get_by_id(self, tag_id: UUID) -> Tag:
+        tag = self.session.query(Tag).filter(Tag.id == tag_id).first()
+        if not tag:
+            raise HTTPException(status_code=404, detail="No tag found")
+        return tag
+     
     def delete_tag(self, tag_id: UUID):
         tag = self.get_by_id(tag_id)
         if tag is None:
             return None
         self.session.delete(tag)
         self.session.commit()
-        return DeleteTagSchema(mensagem=f"Tag {tag.name} deletada com sucesso!", id=tag_id)
+        return DeleteTagSchema(mensagem=f"Tag {tag.name} deleted successfully!", id=tag_id)
 
     def edit_tag(self, new_tag: EditTagSchema, tag_id: UUID):
         tag = self.get_by_id(tag_id)
@@ -34,7 +36,7 @@ class TagRepository:
             return None
         update_data = new_tag.model_dump(exclude_unset=True)
         if not update_data:
-            raise HTTPException(status_code=404, detail="Nenhum dado válido encontrado")
+            raise HTTPException(status_code=404, detail="No valid data found")
         for field, value in update_data.items():
             setattr(tag, field, value)
         self.session.commit()
@@ -56,7 +58,7 @@ class TagRepository:
         task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first()
         self.session.delete(task_tag)
         self.session.commit()
-        return DeleteTagSchema(mensagem=f"Tag {task_tag.tag.name} removida da tarefa {task_tag.task.title} com sucesso!", id=tag_id)
+        return DeleteTagSchema(mensagem=f"Tag {task_tag.tag.name} removed task from {task_tag.task.title} successfully!", id=tag_id)
 
 
     def is_applied(self, task_id: UUID, tag_id: UUID) -> bool:

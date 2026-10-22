@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from Models.models import User, Workspace, WorkspaceRole
+from Schemas.user_schema import UserResponseSchema
 from Services.Authentication.auth_methods import verify_token
 from Services.Permissions.perm_methods import assert_workspace_permission, assert_workspace_member
 from Database.database import get_session
@@ -49,7 +50,7 @@ def accept_invite(invite_token:UUID, user = Depends(verify_token), session:Sessi
 
 # Members
 
-@workspace_router.post(path="/{workspace_id}/member/list")
+@workspace_router.post(path="/{workspace_id}/member/list", response_model=list[UserResponseSchema])
 def list_members(workspace_id:UUID, user = Depends(verify_token), session:Session = Depends(get_session)):
     assert_workspace_member(workspace_id, user.id, session)
 

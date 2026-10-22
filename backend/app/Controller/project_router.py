@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import Depends, HTTPException, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from Models.models import Project, User
 from Schemas.project_schema import ProjectResponseSchema, CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 from Database.database import get_session
 
-from Repositories.project_storage import ProjectRepository
+from Repositories.project_repo import ProjectRepository
 from Services.Permissions.perm_methods import assert_workspace_member
 from Services.project_service import ProjectService
 
@@ -39,8 +39,8 @@ async def create_project(workspace_id: UUID, project: CreateProjectSchema, sessi
 async def read_single_project(project: AccessibleProjectDep):
     return project
 
-@project_router.get("/{workspace_id}/project/", response_model=List[ProjectResponseSchema])
-async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> List[ProjectResponseSchema]:
+@project_router.get("/{workspace_id}/project/", response_model=list[ProjectResponseSchema])
+async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> list[ProjectResponseSchema]:
     assert_workspace_member(workspace_id, user.id, session)
     repo = ProjectRepository(session)
     return repo.get_all_workspace(workspace_id)

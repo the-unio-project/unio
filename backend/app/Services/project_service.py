@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from Repositories.project_storage import ProjectRepository
+from Repositories.project_repo import ProjectRepository
 
 class ProjectService:
     def __init__(self, session: Session):

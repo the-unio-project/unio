@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import Depends, HTTPException, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from Schemas.status_schemas import StatusResponseSchema, CreateStatusSchema, DeleteStatusSchema, UpdateStatusSchema
 from Database.database import get_session
 
-from Repositories.status_storage import StatusRepository
+from Repositories.status_repo import StatusRepository
 from Services.Statuses.status_service import StatusService
 
 status_router = APIRouter()
