@@ -3,24 +3,24 @@
 import { useState } from "react";
 import { useTarefas } from "@/context/TarefasContext";
 import { useDadosProjeto } from "@/hooks/useDadosProjeto";
+import { useFiltrosTarefas } from "@/hooks/useFiltrosTarefas";
+import FiltrosTarefas from "@/components/tasks/FiltrosTarefas";
 import SecaoStatus from "@/components/tasks/SecaoStatus";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
-import { PRIORIDADES } from "@/lib/prioridades";
 
 export default function TaskList({ projetoId }) {
   const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
   const { tarefas, membros, statusDoProjeto } = useDadosProjeto(projetoId);
+  const {
+    filtroPrioridade,
+    setFiltroPrioridade,
+    filtroResponsavel,
+    setFiltroResponsavel,
+    tarefasFiltradas,
+  } = useFiltrosTarefas(tarefas);
 
-  const [filtroPrioridade, setFiltroPrioridade] = useState("todas");
-  const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
   const [tarefaSelecionadaId, setTarefaSelecionadaId] = useState(null);
   const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
-
-  const tarefasFiltradas = tarefas.filter((tarefa) => {
-    const prioridadeValida = filtroPrioridade === "todas" || tarefa.prioridade === filtroPrioridade;
-    const responsavelValido = filtroResponsavel === "todos" || (tarefa.responsaveis ?? []).includes(Number(filtroResponsavel));
-    return prioridadeValida && responsavelValido;
-  });
 
   const porStatus = tarefasFiltradas.reduce((acc, tarefa) => {
     acc[tarefa.statusId] = acc[tarefa.statusId] || [];
@@ -39,29 +39,14 @@ export default function TaskList({ projetoId }) {
 
   return (
     <div className="p-4">
-      <div className="flex gap-4 mb-4">
-        <select
-          value={filtroPrioridade}
-          onChange={(e) => setFiltroPrioridade(e.target.value)}
-          className="border p-2 rounded text-sm"
-        >
-          <option value="todas">Prioridade</option>
-          {Object.entries(PRIORIDADES).map(([valor, { rotulo }]) => (
-            <option key={valor} value={valor}>{rotulo}</option>
-          ))}
-        </select>
-
-        <select
-          value={filtroResponsavel}
-          onChange={(e) => setFiltroResponsavel(e.target.value)}
-          className="border p-2 rounded text-sm"
-        >
-          <option value="todos">Responsável</option>
-          {membros.map((m) => (
-            <option key={m.id} value={m.id}>{m.nome}</option>
-          ))}
-        </select>
-      </div>
+      <FiltrosTarefas
+        membros={membros}
+        filtroPrioridade={filtroPrioridade}
+        aoMudarPrioridade={setFiltroPrioridade}
+        filtroResponsavel={filtroResponsavel}
+        aoMudarResponsavel={setFiltroResponsavel}
+      />
+      
       {statusDoProjeto.length === 0 && (
         <p className="text-gray-500 mb-4">Este projeto ainda não tem status.</p>
       )}
