@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from Models.models import TaskPriority
 
-
 class CreateTaskSchema(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=100)

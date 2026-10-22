@@ -17,6 +17,22 @@ class StatusRepository:
         self.session.refresh(new_status)
         return new_status
 
+    def create_default_statuses(self, project_id: UUID) -> list[Status]:
+        defaults = [
+            ("A fazer", "#CE4360"),
+            ("Em andamento", "#FCE078"),
+            ("Concluído", "#B2D477"),
+        ]
+
+        statuses = [Status(
+            project_id=project_id,
+            name=name,color=color,
+            position=position
+        ) for position, (name, color) in enumerate(defaults, start=1)]
+
+        self.session.add_all(statuses)
+        return statuses
+
     def get_by_id(self, status_id: UUID) -> Status:
         status = self.session.query(Status).filter(Status.id == status_id).first()
         if not status:
