@@ -5,8 +5,8 @@ import SemWorkspace from "@/components/workspaces/SemWorkspace";
 import SemProjeto from "@/components/projects/SemProjeto";
 
 export default function Dashboard() {
-  const { workspaces, workspaceAtual, projetos } = useWorkspace();
-  const projetosDoWorkspace = workspaceAtual ? projetos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
+  const { workspaces, workspaceAtual, projetosAtivos } = useWorkspace();
+  const projetosDoWorkspace = workspaceAtual ? projetosAtivos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
 
   if (workspaces.length === 0) {
     return <SemWorkspace />;

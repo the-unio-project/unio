@@ -8,7 +8,7 @@ import ModalWorkspace from "@/components/workspaces/ModalWorkspace";
 import Button from "@/components/ui/Button";
 
 export default function WorkspaceSelector() {
-    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetos, criarWorkspace } = useWorkspace();
+    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetosAtivos, criarWorkspace } = useWorkspace();
     const [aberto, setAberto] = useState(false);
     const [modalAberto, setModalAberto] = useState(false);
     const router = useRouter();
@@ -17,7 +17,7 @@ export default function WorkspaceSelector() {
 
     function trocarWorkspace(workspace) {
         setWorkspaceLembrado(workspace);
-        const primeiroProjeto = projetos.find((p) => p.workspaceId === workspace.id);
+        const primeiroProjeto = projetosAtivos.find((p) => p.workspaceId === workspace.id);
         router.push(
             primeiroProjeto
                 ? `/${workspace.id}/projetos/${primeiroProjeto.id}`

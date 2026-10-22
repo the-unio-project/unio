@@ -27,8 +27,16 @@ export function TarefasProvider({ children }) {
         setTarefas((anteriores) => [...anteriores, novaTarefa]);
     }
 
+    function excluirTarefa(id) {
+        setTarefas((anteriores) => anteriores.filter((t) => t.id !== id));
+    }
+
+    function excluirTarefasProjeto(projetoId) {
+        setTarefas((anteriores) => anteriores.filter((t) => t.projetoId !== projetoId));
+    }
+
     return (
-        <TarefasContext.Provider value={{ tarefas, atualizarTarefa, adicionarTarefa }}>
+        <TarefasContext.Provider value={{ tarefas, atualizarTarefa, adicionarTarefa, excluirTarefa, excluirTarefasProjeto }}>
             {children}
         </TarefasContext.Provider>
     );
