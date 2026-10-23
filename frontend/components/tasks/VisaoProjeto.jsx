@@ -7,6 +7,7 @@ import { useFiltrosTarefas } from "@/hooks/useFiltrosTarefas";
 import FiltrosTarefas from "@/components/tasks/FiltrosTarefas";
 import TaskList from "@/components/tasks/TaskList";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
+import ModosVisualizacao from "@/components/tasks/ModosVisualizacao";
 
 export default function VisaoProjeto({ projetoId }) {
     const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
@@ -19,6 +20,7 @@ export default function VisaoProjeto({ projetoId }) {
         tarefasFiltradas,
     } = useFiltrosTarefas(tarefas);
 
+    const [visao, setVisao] = useState("lista");
     const [tarefaSelecionadaId, setTarefaSelecionadaId] = useState(null);
     const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
@@ -33,6 +35,7 @@ export default function VisaoProjeto({ projetoId }) {
 
     return (
         <div className="p-4">
+            <ModosVisualizacao visaoAtual={visao} aoMudar={setVisao} />
             <FiltrosTarefas
                 membros={membros}
                 filtroPrioridade={filtroPrioridade}
@@ -53,13 +56,17 @@ export default function VisaoProjeto({ projetoId }) {
                 <p className="text-gray-500 mb-4">Nenhuma tarefa corresponde aos filtros aplicados.</p>
             )}
 
-            <TaskList
-                statusDoProjeto={statusDoProjeto}
-                tarefas={tarefasFiltradas}
-                membros={membros}
-                aoAdicionar={aoAdicionar}
-                aoSelecionar={setTarefaSelecionadaId}
-            />
+            {visao === "lista" ? (
+                <TaskList
+                    statusDoProjeto={statusDoProjeto}
+                    tarefas={tarefasFiltradas}
+                    membros={membros}
+                    aoAdicionar={aoAdicionar}
+                    aoSelecionar={setTarefaSelecionadaId}
+                />
+            ) : (
+                <p className="text-gray-500">Kanban em construção.</p>
+            )}
 
             {tarefaSelecionada && (
                 <ModalTarefa
