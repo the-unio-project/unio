@@ -247,3 +247,10 @@ class TaskService:
         self.task_repo.commit()
 
         return task
+
+    def get_task_assignees(self, user_id: UUID, task_id: UUID):
+        task = self.get_accessible_task(task_id, user_id)
+        assignees = []
+        for assignements in task.assignees:
+            assignees.append(assignements.user)
+        return assignees

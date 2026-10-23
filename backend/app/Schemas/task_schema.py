@@ -65,3 +65,9 @@ class DashboardTaskSchema(BaseModel):
     status_id: UUID | None
     position: int | None
     model_config = ConfigDict(from_attributes=True)
+
+class TaskAssigneeResponseSchema(BaseModel):
+    id: UUID
+    name: str
+    profile_pic: str | None
+    model_config = ConfigDict(from_attributes=True)
