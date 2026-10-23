@@ -1,5 +1,5 @@
 import ProjetoCabecalho from "@/components/projects/ProjetoCabecalho";
-import TaskList from "@/components/tasks/TaskList";
+import VisaoProjeto from "@/components/tasks/VisaoProjeto";
 
 export default async function ProjetoPage({ params }) {
     const { projectId } = await params;
@@ -7,7 +7,7 @@ export default async function ProjetoPage({ params }) {
     return (
         <>
             <ProjetoCabecalho />
-            <TaskList projetoId={Number(projectId)} />
+            <VisaoProjeto key={projectId} projetoId={Number(projectId)} />
         </>
     );
 }
