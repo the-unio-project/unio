@@ -1,21 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
 import { PRIORIDADES } from "@/lib/prioridades";
 import { estiloDaCor } from "@/lib/cores";
+import NovaTarefaInline from "@/components/tasks/NovaTarefaInline";
 
 const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-4";
 
 export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoSelecionar }) {
-    const [novoTitulo, setNovoTitulo] = useState("");
-
-    function confirmarNovaTarefa() {
-        if (novoTitulo.trim() === "") return;
-        aoAdicionar(status.id, novoTitulo);
-        setNovoTitulo("");
-    }
 
     function nomesResponsaveis(tarefa) {
         return (tarefa.responsaveis ?? [])
@@ -62,20 +53,7 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
                     </li>
                 ))}
             </ul>
-            <div className="mt-2 flex gap-2">
-                <Input
-                    value={novoTitulo}
-                    onChange={(e) => setNovoTitulo(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") confirmarNovaTarefa();
-                    }}
-                    placeholder="+ Adicionar tarefa"
-                    className="border p-2 rounded flex-1 text-sm"
-                />
-                <Button onClick={confirmarNovaTarefa} variant="task" className="text-sm px-3 py-1 border rounded">
-                    Adicionar
-                </Button>
-            </div>
+            <NovaTarefaInline aoAdicionar={(titulo) => aoAdicionar(status.id, titulo)} />
         </section>
     )
 }
