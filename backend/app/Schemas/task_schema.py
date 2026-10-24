@@ -69,5 +69,5 @@ class DashboardTaskSchema(BaseModel):
 class TaskAssigneeResponseSchema(BaseModel):
     id: UUID
     name: str
-    profile_pic: str | None
+    profile_pic: str | None = Field(validation_alias="profile_picture")
     model_config = ConfigDict(from_attributes=True)
