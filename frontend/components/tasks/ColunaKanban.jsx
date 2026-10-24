@@ -1,10 +1,19 @@
+"use client";
+
+import { useDroppable } from "@dnd-kit/core";
 import { estiloDaCor } from "@/lib/cores";
 import CartaoTarefa from "@/components/tasks/CartaoTarefa";
 import NovaTarefaInline from "@/components/tasks/NovaTarefaInline";
 
 export default function ColunaKanban({ status, tarefas, membros, aoAdicionar, aoSelecionar }) {
+    const { setNodeRef, isOver } = useDroppable({ id: status.id });
+
     return (
-        <section className="w-72 shrink-0 rounded-lg bg-gray-100 dark:bg-zinc-900 p-3">
+        <section
+            ref={setNodeRef}
+            className={`w-72 shrink-0 rounded-lg p-3 transition-colors ${isOver ? "bg-gray-200 dark:bg-zinc-700" : "bg-gray-100 dark:bg-zinc-900"
+                }`}
+        >
             <h2
                 className="inline-block font-bold text-sm mb-3 px-2 py-1 rounded"
                 style={estiloDaCor(status.cor)}

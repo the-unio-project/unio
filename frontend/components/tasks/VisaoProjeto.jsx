@@ -34,6 +34,10 @@ export default function VisaoProjeto({ projetoId }) {
         setTarefaSelecionadaId(null);
     }
 
+    function moverTarefa(tarefaId, novoStatusId) {
+        atualizarTarefa(tarefaId, { statusId: novoStatusId });
+    }
+
     return (
         <div className="p-4">
             <ModosVisualizacao visaoAtual={visao} aoMudar={setVisao} />
@@ -72,6 +76,7 @@ export default function VisaoProjeto({ projetoId }) {
                     membros={membros}
                     aoAdicionar={aoAdicionar}
                     aoSelecionar={setTarefaSelecionadaId}
+                    aoMoverTarefa={moverTarefa}
                 />
             )}
 
