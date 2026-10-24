@@ -2,6 +2,7 @@
 
 import { PRIORIDADES } from "@/lib/prioridades";
 import { estiloDaCor } from "@/lib/cores";
+import { formatarDataLista } from "@/lib/datas";
 import NovaTarefaInline from "@/components/tasks/NovaTarefaInline";
 
 const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-4";
@@ -48,7 +49,7 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
                             {PRIORIDADES[tarefa.prioridade]?.rotulo}
                         </span>
                         <span className="text-sm text-gray-600">
-                            {tarefa.dataVencimento}
+                            {formatarDataLista(tarefa.dataVencimento)}
                         </span>
                     </li>
                 ))}

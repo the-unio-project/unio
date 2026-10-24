@@ -5,3 +5,9 @@ export function formatarData(dataIso) {
     const [, mes, dia] = dataIso.split("-");
     return `${Number(dia)} ${MESES[Number(mes) - 1]}`;
 }
+
+export function formatarDataLista(dataIso) {
+    if (!dataIso) return "";
+    const [ano, mes, dia] = dataIso.split("-");
+    return `${dia}/${mes}/${ano}`;
+}
