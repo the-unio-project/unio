@@ -8,6 +8,7 @@ import FiltrosTarefas from "@/components/tasks/FiltrosTarefas";
 import TaskList from "@/components/tasks/TaskList";
 import ModalTarefa from "@/components/tasks/ModalTarefa";
 import ModosVisualizacao from "@/components/tasks/ModosVisualizacao";
+import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function VisaoProjeto({ projetoId }) {
     const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
@@ -65,7 +66,13 @@ export default function VisaoProjeto({ projetoId }) {
                     aoSelecionar={setTarefaSelecionadaId}
                 />
             ) : (
-                <p className="text-gray-500">Kanban em construção.</p>
+                <KanbanBoard
+                    statusDoProjeto={statusDoProjeto}
+                    tarefas={tarefasFiltradas}
+                    membros={membros}
+                    aoAdicionar={aoAdicionar}
+                    aoSelecionar={setTarefaSelecionadaId}
+                />
             )}
 
             {tarefaSelecionada && (

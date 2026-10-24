@@ -1,11 +1,8 @@
 import SecaoStatus from "@/components/tasks/SecaoStatus";
+import { agruparPorStatus } from "@/lib/tarefas";
 
 export default function TaskList({ statusDoProjeto, tarefas, membros, aoAdicionar, aoSelecionar }) {
-  const porStatus = tarefas.reduce((acc, tarefa) => {
-    acc[tarefa.statusId] = acc[tarefa.statusId] || [];
-    acc[tarefa.statusId].push(tarefa);
-    return acc;
-  }, {});
+  const porStatus = agruparPorStatus(tarefas);
 
   return (
     <>
