@@ -125,10 +125,10 @@ class WorkspaceRepository:
         if not workspaceInvite:
             raise HTTPException(status_code=404, detail="invalid invite")
 
-        workspaceMember = self.session.query(WorkspaceMember).filter(WorkspaceMember.user_id == user.id).first()
+        workspaceMember = self.session.query(WorkspaceMember).filter(WorkspaceMember.user_id == user.id,WorkspaceMember.workspace_id == workspaceInvite.workspace_id).first()
 
         if workspaceMember:
-            raise HTTPException(status_code=401, detail="member already in this workspace")
+            raise HTTPException(status_code=409, detail="User already belongs to this workspace")
 
         memberSchema = WorkspaceMemberSchema(workspace_id=workspaceInvite.workspace_id, user_id=user.id, role=WorkspaceRole.MEMBER)
         member = WorkspaceMember(**memberSchema.model_dump())

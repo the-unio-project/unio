@@ -3,7 +3,7 @@ from fastapi import Depends, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session
 
-from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
+from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskAssigneeResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
 from Models.models import User
@@ -84,3 +84,8 @@ async def get_tasks_due_today(session: SessionDep, current_user: CurrentUserDep)
 async def get_tasks_overdue(session: SessionDep, current_user: CurrentUserDep):
     repo = TaskRepository(session)
     return repo.get_overdue_tasks(current_user.id)
+
+@task_router.get("/tasks/{task_id}/assignees", response_model=list[TaskAssigneeResponseSchema])
+async def get_task_assignees(session: SessionDep, current_user: CurrentUserDep, task_id):
+    service = TaskService(session)
+    return service.get_task_assignees(current_user.id, task_id)
