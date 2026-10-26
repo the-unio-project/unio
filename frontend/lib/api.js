@@ -85,7 +85,9 @@ export async function apiFetch(endpoint, opcoes = {}) {
     }
 
     if (!resposta.ok) {
-        throw new Error('Erro na requisição.');
+        const erro = new Error('Erro na requisição.');
+        erro.status = resposta.status;
+        throw erro;
     }
 
     return resposta.json();
@@ -97,4 +99,18 @@ export function removerToken() {
 
 export function buscarPerfil() {
     return apiFetch('/me/');
+}
+
+function traduzirWorkspace(w) {
+    return {
+        id: w.id,
+        nome: w.name,
+        donoId: w.owner_id,
+        logoUrl: w.logo_url,
+    };
+}
+
+export async function listarWorkspaces() {
+    const dados = await apiFetch('/workspaces/');
+    return dados.map(traduzirWorkspace);
 }

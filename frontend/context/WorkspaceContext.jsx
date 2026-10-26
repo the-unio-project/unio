@@ -1,19 +1,25 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { projetosMock, statusMock } from "@/lib/mock";
 import { STATUS_PADRAO } from "@/lib/status";
+import { listarWorkspaces } from "@/lib/api";
 
 const WorkspaceContext = createContext();
 
 export function WorkspaceProvider({ children }) {
     const params = useParams();
-    const [workspaces, setWorkspaces] = useState([
-        { id: 1, nome: "Equipe de Desenvolvimento" },
-        { id: 2, nome: "Equipe de Design" },
-        { id: 3, nome: "Equipe de Marketing" },
-    ]);
+    const [workspaces, setWorkspaces] = useState([]);
+    const [carregandoWorkspaces, setCarregandoWorkspaces] = useState(true);
+    const [erroWorkspaces, setErroWorkspaces] = useState(null);
+    useEffect(() => {
+        listarWorkspaces()
+            .then(setWorkspaces)
+            .catch(() => setErroWorkspaces("Não foi possível carregar os workspaces."))
+            .finally(() => setCarregandoWorkspaces(false));
+    }, []);
+
     const [projetos, setProjetos] = useState(projetosMock);
     const [workspaceLembrado, setWorkspaceLembrado] = useState(null);
     const [statusProjetos, setStatusProjetos] = useState(statusMock);
@@ -52,7 +58,8 @@ export function WorkspaceProvider({ children }) {
         <WorkspaceContext.Provider
             value={{
                 workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto,
-                editarProjeto, criarWorkspace, statusProjetos, projetosAtivos, arquivarProjeto, excluirProjeto
+                editarProjeto, criarWorkspace, statusProjetos, projetosAtivos, arquivarProjeto, excluirProjeto,
+                carregandoWorkspaces, erroWorkspaces
             }}
         >
             {children}
