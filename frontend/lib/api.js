@@ -114,3 +114,22 @@ export async function listarWorkspaces() {
     const dados = await apiFetch('/workspaces/');
     return dados.map(traduzirWorkspace);
 }
+
+const ICONE_PADRAO_API = "https://example.com/";
+
+function traduzirProjeto(p, workspaceId) {
+    return {
+        id: p.id,
+        workspaceId,
+        nome: p.name,
+        descricao: p.description ?? "",
+        cor: p.color,
+        iconeUrl: p.icon_url === ICONE_PADRAO_API ? null : p.icon_url,
+        arquivado: p.is_archived,
+    };
+}
+
+export async function listarProjetos(workspaceId) {
+    const dados = await apiFetch(`/workspaces/${workspaceId}/project/`);
+    return dados.map((p) => traduzirProjeto(p, workspaceId));
+}

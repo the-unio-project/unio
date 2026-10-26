@@ -12,7 +12,8 @@ import ModalProjeto from "@/components/projects/ModalProjeto";
 export default function Sidebar() {
     const {
         workspaceAtual, projetos: todosProjetos, projetosAtivos,
-        criarProjeto, editarProjeto, arquivarProjeto, excluirProjeto, setWorkspaceLembrado
+        criarProjeto, editarProjeto, arquivarProjeto, excluirProjeto, setWorkspaceLembrado,
+        carregandoProjetos, erroProjetos
     } = useWorkspace();
     const { excluirTarefasProjeto } = useTarefas();
     const params = useParams();
@@ -80,7 +81,11 @@ export default function Sidebar() {
             </div>
 
             {projetosAberto &&
-                (projetos.length === 0 ? (
+                (carregandoProjetos ? (
+                    <p className="mt-2 ml-2 text-sm text-gray-500">Carregando...</p>
+                ) : erroProjetos ? (
+                    <p className="mt-2 ml-2 text-sm text-red-500">{erroProjetos}</p>
+                ) : projetos.length === 0 ? (
                     <p className="mt-2 ml-2 text-sm text-gray-500">Nenhum projeto ainda</p>
                 ) : (
                     <ul className="flex flex-col gap-2 list-none mt-2 ml-2">

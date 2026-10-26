@@ -5,7 +5,7 @@ import SemWorkspace from "@/components/workspaces/SemWorkspace";
 import SemProjeto from "@/components/projects/SemProjeto";
 
 export default function Dashboard() {
-  const { workspaces, workspaceAtual, projetosAtivos, carregandoWorkspaces, erroWorkspaces } = useWorkspace();
+  const { workspaces, workspaceAtual, projetosAtivos, carregandoWorkspaces, erroWorkspaces, carregandoProjetos } = useWorkspace();
   const projetosDoWorkspace = workspaceAtual ? projetosAtivos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
 
   if (carregandoWorkspaces) {
@@ -17,6 +17,9 @@ export default function Dashboard() {
 
   if (workspaces.length === 0) {
     return <SemWorkspace />;
+  }
+  if (carregandoProjetos) {
+    return <p className="p-4 text-gray-500">Carregando...</p>;
   }
   if (projetosDoWorkspace.length === 0) {
     return <SemProjeto />;

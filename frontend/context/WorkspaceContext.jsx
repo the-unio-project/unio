@@ -2,9 +2,9 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { projetosMock, statusMock } from "@/lib/mock";
 import { STATUS_PADRAO } from "@/lib/status";
-import { listarWorkspaces } from "@/lib/api";
+import { statusMock } from "@/lib/mock";
+import { listarWorkspaces, listarProjetos } from "@/lib/api";
 
 const WorkspaceContext = createContext();
 
@@ -20,12 +20,36 @@ export function WorkspaceProvider({ children }) {
             .finally(() => setCarregandoWorkspaces(false));
     }, []);
 
-    const [projetos, setProjetos] = useState(projetosMock);
+    const [projetos, setProjetos] = useState([]);
+    const [projetosDeWorkspace, setProjetosDeWorkspace] = useState(null);
+    const [erroProjetos, setErroProjetos] = useState(null);
     const [workspaceLembrado, setWorkspaceLembrado] = useState(null);
     const [statusProjetos, setStatusProjetos] = useState(statusMock);
     const workspaceUrl = workspaces.find((w) => String(w.id) === params.workspaceId);
     const workspaceAtual = workspaceUrl ?? workspaceLembrado ?? workspaces[0];
+    const workspaceAtualId = workspaceAtual?.id;
+    const carregandoProjetos = Boolean(workspaceAtualId) && projetosDeWorkspace !== workspaceAtualId;
     const projetosAtivos = projetos.filter((p) => !p.arquivado);
+
+    useEffect(() => {
+        if (!workspaceAtualId) return;
+        let cancelado = false;
+
+        listarProjetos(workspaceAtualId)
+            .then((lista) => {
+                if (cancelado) return;
+                setProjetos(lista);
+                setProjetosDeWorkspace(workspaceAtualId);
+                setErroProjetos(null);
+            })
+            .catch(() => {
+                if (!cancelado) setErroProjetos("Não foi possível carregar os projetos.");
+            });
+
+        return () => {
+            cancelado = true;
+        };
+    }, [workspaceAtualId]);
 
     function criarProjeto(workspaceId, dados) {
         const novo = { id: Date.now(), workspaceId, ...dados };
@@ -59,7 +83,7 @@ export function WorkspaceProvider({ children }) {
             value={{
                 workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto,
                 editarProjeto, criarWorkspace, statusProjetos, projetosAtivos, arquivarProjeto, excluirProjeto,
-                carregandoWorkspaces, erroWorkspaces
+                carregandoWorkspaces, erroWorkspaces, carregandoProjetos, erroProjetos
             }}
         >
             {children}
