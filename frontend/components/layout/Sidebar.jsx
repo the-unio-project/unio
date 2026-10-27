@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { ChevronRight, Plus, Pencil } from "lucide-react";
-import { useTarefas } from "@/context/TarefasContext";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import ModalProjeto from "@/components/projects/ModalProjeto";
@@ -15,7 +14,6 @@ export default function Sidebar() {
         criarProjeto, editarProjeto, arquivarProjeto, excluirProjeto, setWorkspaceLembrado,
         carregandoProjetos, erroProjetos
     } = useWorkspace();
-    const { excluirTarefasProjeto } = useTarefas();
     const params = useParams();
     const router = useRouter();
     const [projetosAberto, setProjetosAberto] = useState(true);
@@ -31,8 +29,8 @@ export default function Sidebar() {
         router.push(`/${workspaceAtual.id}/projetos/${novo.id}`);
     }
 
-    function salvarAlteracao(dados) {
-        editarProjeto(projetoEditandoId, dados);
+    async function salvarAlteracao(dados) {
+        await editarProjeto(projetoEditandoId, dados);
         setProjetoEditandoId(null);
     }
 
@@ -47,15 +45,14 @@ export default function Sidebar() {
         }
     }
 
-    function arquivar() {
-        arquivarProjeto(projetoEditandoId);
+    async function arquivar() {
+        await arquivarProjeto(projetoEditandoId);
         sairProjetoAberto(projetoEditandoId);
         setProjetoEditandoId(null);
     }
 
-    function excluir() {
-        excluirProjeto(projetoEditandoId);
-        excluirTarefasProjeto(projetoEditandoId);
+    async function excluir() {
+        await excluirProjeto(projetoEditandoId);
         sairProjetoAberto(projetoEditandoId);
         setProjetoEditandoId(null);
     }
