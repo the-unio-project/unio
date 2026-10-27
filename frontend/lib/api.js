@@ -1,4 +1,5 @@
 const API_URL = 'http://localhost:8000';
+const COR_PADRAO_PROJETO = "#3b82f6";
 
 export function getAuthToken() {
     if (typeof document === 'undefined') return null;
@@ -206,7 +207,7 @@ export async function criarWorkspaceApi(nome) {
 }
 
 export async function criarProjetoApi(workspaceId, dados) {
-    const corpo = { name: dados.nome };
+    const corpo = { name: dados.nome, color: dados.cor ?? COR_PADRAO_PROJETO };
     if (dados.descricao) corpo.description = dados.descricao;
 
     const projeto = await apiFetch(`/workspaces/${workspaceId}/project/`, {
