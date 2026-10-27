@@ -164,7 +164,35 @@ function traduzirTarefa(t, projetoId) {
     };
 }
 
+async function listarIdsResponsaveis(tarefaId) {
+    const dados = await apiFetch(`/tasks/${tarefaId}/assignees`);
+    return dados.map((u) => u.id);
+}
+
 export async function listarTarefas(projetoId) {
     const dados = await apiFetch(`/projects/${projetoId}/tasks`);
-    return dados.map((t) => traduzirTarefa(t, projetoId));
+    const tarefas = dados.map((t) => traduzirTarefa(t, projetoId));
+
+    //apagar quando o backend incluir o campo de responsáveis.
+    return Promise.all(
+        tarefas.map(async (tarefa) => ({
+            ...tarefa,
+            responsaveis: await listarIdsResponsaveis(tarefa.id),
+        }))
+    );
+}
+
+function traduzirMembro(m, workspaceId) {
+    return {
+        id: m.id,
+        nome: m.name,
+        email: m.email,
+        workspaceId,
+        foto: null,    // verificar com os designers/backend (precisa de url).
+    };
+}
+
+export async function listarMembros(workspaceId) {
+    const dados = await apiFetch(`/workspaces/${workspaceId}/member/list`, { method: 'POST' });
+    return dados.map((m) => traduzirMembro(m, workspaceId));
 }
