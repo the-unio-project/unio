@@ -11,8 +11,8 @@ export default function SemWorkspace() {
     const [modalAberto, setModalAberto] = useState(false);
     const router = useRouter();
 
-    function salvarNovoWorkspace(nome) {
-        criarWorkspace(nome);
+    async function salvarNovoWorkspace(nome) {
+        await criarWorkspace(nome);
         setModalAberto(false);
         router.push("/dashboard");
     }
@@ -22,11 +22,11 @@ export default function SemWorkspace() {
             <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
                 Ainda não há workspaces criados.
             </p>
-            <Button 
+            <Button
                 variant="primary"
                 onClick={() => setModalAberto(true)}
-                >
-                    Criar um Workspace
+            >
+                Criar um Workspace
             </Button>
             {modalAberto && (
                 <ModalWorkspace
