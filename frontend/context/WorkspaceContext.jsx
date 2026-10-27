@@ -22,32 +22,33 @@ export function WorkspaceProvider({ children }) {
 
     const [projetos, setProjetos] = useState([]);
     const [projetosDeWorkspace, setProjetosDeWorkspace] = useState(null);
-    const [erroProjetos, setErroProjetos] = useState(null);
+    const [workspaceComErro, setWorkspaceComErro] = useState(null);
     const [workspaceLembrado, setWorkspaceLembrado] = useState(null);
     const [statusProjetos, setStatusProjetos] = useState(statusMock);
     const workspaceUrl = workspaces.find((w) => String(w.id) === params.workspaceId);
     const workspaceAtual = workspaceUrl ?? workspaceLembrado ?? workspaces[0];
     const workspaceAtualId = workspaceAtual?.id;
-    const carregandoProjetos = Boolean(workspaceAtualId) && projetosDeWorkspace !== workspaceAtualId;
+    const erroProjetos = workspaceComErro === workspaceAtualId ? "Não foi possível carregar os projetos." : null;
+    const carregandoProjetos = Boolean(workspaceAtualId) && projetosDeWorkspace !== workspaceAtualId && !erroProjetos;
     const projetosAtivos = projetos.filter((p) => !p.arquivado);
 
     useEffect(() => {
         if (!workspaceAtualId) return;
-        let cancelado = false;
+        let ignorarResposta = false;
 
         listarProjetos(workspaceAtualId)
             .then((lista) => {
-                if (cancelado) return;
+                if (ignorarResposta) return;
                 setProjetos(lista);
                 setProjetosDeWorkspace(workspaceAtualId);
-                setErroProjetos(null);
+                setWorkspaceComErro(null);
             })
             .catch(() => {
-                if (!cancelado) setErroProjetos("Não foi possível carregar os projetos.");
+                if (!ignorarResposta) setWorkspaceComErro(workspaceAtualId);
             });
 
         return () => {
-            cancelado = true;
+            ignorarResposta = true;
         };
     }, [workspaceAtualId]);
 
