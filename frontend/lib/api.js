@@ -196,3 +196,22 @@ export async function listarMembros(workspaceId) {
     const dados = await apiFetch(`/workspaces/${workspaceId}/member/list`, { method: 'POST' });
     return dados.map((m) => traduzirMembro(m, workspaceId));
 }
+
+export async function criarWorkspaceApi(nome) {
+    const dados = await apiFetch('/workspaces/', {
+        method: 'POST',
+        body: JSON.stringify({ name: nome }),
+    });
+    return traduzirWorkspace(dados.Workspace);
+}
+
+export async function criarProjetoApi(workspaceId, dados) {
+    const corpo = { name: dados.nome };
+    if (dados.descricao) corpo.description = dados.descricao;
+
+    const projeto = await apiFetch(`/workspaces/${workspaceId}/project/`, {
+        method: 'POST',
+        body: JSON.stringify(corpo),
+    });
+    return traduzirProjeto(projeto, workspaceId);
+}
