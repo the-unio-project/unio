@@ -1,25 +1,26 @@
 import { useState, useEffect } from "react";
-import { useTarefas } from "@/context/TarefasContext";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { membrosMock } from "@/lib/mock";
-import { listarStatus } from "@/lib/api";
+import { listarStatus, listarTarefas } from "@/lib/api";
 
 export function useDadosProjeto(projetoId) {
-    const { tarefas: todasTarefas } = useTarefas();
     const { projetos } = useWorkspace();
     const [statusDoProjeto, setStatusDoProjeto] = useState([]);
+    const [tarefas, setTarefas] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
 
     useEffect(() => {
         let ignorarResposta = false;
 
-        listarStatus(projetoId)
-            .then((lista) => {
-                if (!ignorarResposta) setStatusDoProjeto(lista);
+        Promise.all([listarStatus(projetoId), listarTarefas(projetoId)])
+            .then(([listaStatus, listaTarefas]) => {
+                if (ignorarResposta) return;
+                setStatusDoProjeto(listaStatus);
+                setTarefas(listaTarefas);
             })
             .catch(() => {
-                if (!ignorarResposta) setErro("Não foi possível carregar os status do projeto.");
+                if (!ignorarResposta) setErro("Não foi possível carregar o projeto.");
             })
             .finally(() => {
                 if (!ignorarResposta) setCarregando(false);
@@ -30,9 +31,33 @@ export function useDadosProjeto(projetoId) {
         };
     }, [projetoId]);
 
-    const tarefas = todasTarefas.filter((t) => t.projetoId === projetoId);
+    function atualizarTarefa(id, mudancas) {
+        setTarefas((anteriores) => anteriores.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
+    }
+
+    function adicionarTarefa(statusId, titulo) {
+        const nova = {
+            id: Date.now(),
+            projetoId,
+            statusId,
+            titulo,
+            descricao: "",
+            responsaveis: [],
+            prioridade: "normal",
+            dataVencimento: "",
+        };
+        setTarefas((anteriores) => [...anteriores, nova]);
+    }
+
+    function excluirTarefa(id) {
+        setTarefas((anteriores) => anteriores.filter((t) => t.id !== id));
+    }
+
     const workspaceId = projetos.find((p) => p.id === projetoId)?.workspaceId;
     const membros = membrosMock.filter((m) => m.workspaceId === workspaceId);
 
-    return { tarefas, membros, statusDoProjeto, carregando, erro };
+    return {
+        tarefas, membros, statusDoProjeto, carregando, erro,
+        atualizarTarefa, adicionarTarefa, excluirTarefa,
+    };
 }

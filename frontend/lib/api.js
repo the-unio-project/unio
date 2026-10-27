@@ -147,3 +147,24 @@ export async function listarStatus(projetoId) {
     const dados = await apiFetch(`/projects/${projetoId}/statuses`);
     return dados.map(traduzirStatus);
 }
+
+const PRIORIDADE_API = { low: "baixa", medium: "normal", high: "alta", urgent: "urgente" };
+
+function traduzirTarefa(t, projetoId) {
+    return {
+        id: t.id,
+        projetoId,
+        titulo: t.title,
+        descricao: t.description ?? "",
+        prioridade: PRIORIDADE_API[t.priority] ?? "normal",
+        dataVencimento: t.term ? t.term.slice(0, 10) : "",
+        statusId: t.status_id,
+        position: t.position,
+        responsaveis: [],
+    };
+}
+
+export async function listarTarefas(projetoId) {
+    const dados = await apiFetch(`/projects/${projetoId}/tasks`);
+    return dados.map((t) => traduzirTarefa(t, projetoId));
+}

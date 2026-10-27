@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTarefas } from "@/context/TarefasContext";
 import { useDadosProjeto } from "@/hooks/useDadosProjeto";
 import { useFiltrosTarefas } from "@/hooks/useFiltrosTarefas";
 import FiltrosTarefas from "@/components/tasks/FiltrosTarefas";
@@ -11,8 +10,10 @@ import ModosVisualizacao from "@/components/tasks/ModosVisualizacao";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function VisaoProjeto({ projetoId }) {
-    const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
-    const { tarefas, membros, statusDoProjeto, carregando, erro } = useDadosProjeto(projetoId);
+    const {
+        tarefas, membros, statusDoProjeto, carregando, erro,
+        atualizarTarefa, adicionarTarefa, excluirTarefa,
+    } = useDadosProjeto(projetoId);
     const {
         filtroPrioridade,
         setFiltroPrioridade,
@@ -26,7 +27,7 @@ export default function VisaoProjeto({ projetoId }) {
     const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
     function aoAdicionar(statusId, titulo) {
-        adicionarTarefa(projetoId, statusId, titulo);
+        adicionarTarefa(statusId, titulo);
     }
 
     function excluir(id) {

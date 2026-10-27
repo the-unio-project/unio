@@ -90,7 +90,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                 <select
                     id="status"
                     value={tarefa.statusId ?? ""}
-                    onChange={(e) => aoAtualizar(tarefa.id, { statusId: Number(e.target.value) })}
+                    onChange={(e) => aoAtualizar(tarefa.id, { statusId: e.target.value })}
                     className="border p-2 rounded mb-4"
                 >
                     <option value="" disabled>Sem status</option>
@@ -132,7 +132,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     {membrosDisponiveis.length > 0 && (
                         <select
                             value=""
-                            onChange={(e) => adicionarResponsavel(Number(e.target.value))}
+                            onChange={(e) => adicionarResponsavel(e.target.value)}
                             aria-label="Adicionar responsável"
                             className="border p-1 rounded text-xs"
                         >
