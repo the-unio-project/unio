@@ -12,6 +12,8 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
     const [nome, setNome] = useState(projeto?.nome ?? "");
     const [descricao, setDescricao] = useState(projeto?.descricao ?? "");
     const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+    const [salvando, setSalvando] = useState(false);
+    const [erro, setErro] = useState("");
 
     const acoes = projetoExistente && (
         <>
@@ -30,9 +32,16 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
         </>
     )
 
-    function salvar() {
-        if (nome.trim() === "") return;
-        aoSalvar({ nome: nome.trim(), descricao: descricao.trim() });
+    async function salvar() {
+        if (nome.trim() === "" || salvando) return;
+        setSalvando(true);
+        setErro("");
+        try {
+            await aoSalvar({ nome: nome.trim(), descricao: descricao.trim() });
+        } catch {
+            setErro("Não foi possível salvar o projeto.");
+            setSalvando(false);
+        }
     }
 
     return (
@@ -64,13 +73,14 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
                     className="mb-4 block w-full border p-2 rounded"
                 />
 
+                {erro && <p className="mb-4 text-sm text-red-500">{erro}</p>}
                 <div className="flex justify-end gap-2">
                     <Button onClick={aoFechar} variant="secondary">
                         Cancelar
                     </Button>
                     <Button
                         onClick={salvar}
-                        disabled={nome.trim() === ""}
+                        disabled={nome.trim() === "" || salvando}
                         className="disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {projetoExistente ? "Atualizar" : "Salvar"}
