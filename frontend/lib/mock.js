@@ -1,28 +1,3 @@
-export const projetosMock = [
-  { id: 1, workspaceId: 1, nome: "Site Institucional" },
-  { id: 2, workspaceId: 1, nome: "App Mobile" },
-  { id: 3, workspaceId: 2, nome: "UX/UI" },
-];
-
-export const statusMock = [
-  { id: 1, projetoId: 1, nome: "A fazer", cor: "#6b7280" },
-  { id: 2, projetoId: 1, nome: "Em andamento", cor: "#eab308" },
-  { id: 3, projetoId: 1, nome: "Concluída", cor: "#22c55e" },
-  { id: 4, projetoId: 2, nome: "A fazer", cor: "#6b7280" },
-  { id: 5, projetoId: 2, nome: "Em andamento", cor: "#eab308" },
-  { id: 6, projetoId: 2, nome: "Concluída", cor: "#22c55e" },
-  { id: 7, projetoId: 3, nome: "A fazer", cor: "#6b7280" },
-  { id: 8, projetoId: 3, nome: "Em andamento", cor: "#eab308" },
-  { id: 9, projetoId: 3, nome: "Concluída", cor: "#22c55e" },
-];
-
-export const membrosMock = [
-  { id: 1, workspaceId: 1, nome: "João" },
-  { id: 2, workspaceId: 1, nome: "Maria" },
-  { id: 1, workspaceId: 2, nome: "João" },
-  { id: 3, workspaceId: 2, nome: "Ana" },
-];
-
 export const tagsMock = [
   { id: 1, projetoId: 1, nome: "Frontend", cor: "bg-green-100 text-green-700" },
   { id: 2, projetoId: 1, nome: "Infra", cor: "bg-blue-100 text-blue-700" },

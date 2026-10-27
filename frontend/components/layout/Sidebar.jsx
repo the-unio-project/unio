@@ -25,8 +25,8 @@ export default function Sidebar() {
     const projetos = workspaceAtual ? projetosAtivos.filter((projeto) => projeto.workspaceId === workspaceAtual.id) : [];
     const projetoEditando = todosProjetos.find((p) => p.id === projetoEditandoId);
 
-    function salvarNovoProjeto(dados) {
-        const novo = criarProjeto(workspaceAtual.id, dados);
+    async function salvarNovoProjeto(dados) {
+        const novo = await criarProjeto(workspaceAtual.id, dados);
         setModalAberto(false);
         router.push(`/${workspaceAtual.id}/projetos/${novo.id}`);
     }
