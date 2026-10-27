@@ -17,7 +17,12 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
 
     const acoes = projetoExistente && (
         <>
-            <Button variant="icone" onClick={aoArquivar} aria-label="Arquivar projeto" title="Arquivar projeto">
+            <Button
+                variant="icone"
+                onClick={() => executar(aoArquivar, "Não foi possível arquivar o projeto.")} a
+                ria-label="Arquivar projeto"
+                title="Arquivar projeto"
+            >
                 <Archive size={18} />
             </Button>
             <Button
@@ -32,16 +37,25 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
         </>
     )
 
-    async function salvar() {
-        if (nome.trim() === "" || salvando) return;
+    async function executar(acao, mensagemErro) {
+        if (salvando) return;
         setSalvando(true);
         setErro("");
         try {
-            await aoSalvar({ nome: nome.trim(), descricao: descricao.trim() });
+            await acao();
         } catch {
-            setErro("Não foi possível salvar o projeto.");
+            setErro(mensagemErro);
             setSalvando(false);
+            setConfirmandoExclusao(false);
         }
+    }
+
+    function salvar() {
+        if (nome.trim() === "") return;
+        executar(
+            () => aoSalvar({ nome: nome.trim(), descricao: descricao.trim() }),
+            "Não foi possível salvar o projeto."
+        );
     }
 
     return (
@@ -92,7 +106,7 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
                 <ModalConfirmacao
                     titulo="Excluir projeto"
                     mensagem={`O projeto “${projeto.nome}” e suas tarefas serão excluidos e não poderão ser recuperados.`}
-                    aoConfirmar={aoExcluir}
+                    aoConfirmar={() => executar(aoExcluir, "Não foi possível excluir o projeto.")}
                     aoCancelar={() => setConfirmandoExclusao(false)}
                 />
             )}
