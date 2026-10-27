@@ -2,7 +2,10 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { listarWorkspaces, listarProjetos, criarWorkspaceApi, criarProjetoApi } from "@/lib/api";
+import {
+    listarWorkspaces, listarProjetos, criarWorkspaceApi, criarProjetoApi,
+    editarProjetoApi, arquivarProjetoApi, excluirProjetoApi,
+} from "@/lib/api";
 
 const WorkspaceContext = createContext();
 
@@ -55,8 +58,12 @@ export function WorkspaceProvider({ children }) {
         return novo;
     }
 
-    function editarProjeto(id, mudancas) {
-        setProjetos((anteriores) => anteriores.map((p) => (p.id === id ? { ...p, ...mudancas } : p)));
+    function substituirProjeto(atualizado) {
+        setProjetos((anteriores) => anteriores.map((p) => (p.id === atualizado.id ? atualizado : p)));
+    }
+
+    async function editarProjeto(id, mudancas) {
+        substituirProjeto(await editarProjetoApi(id, mudancas));
     }
 
     async function criarWorkspace(nome) {
@@ -65,11 +72,12 @@ export function WorkspaceProvider({ children }) {
         return novo;
     }
 
-    function arquivarProjeto(id) {
-        editarProjeto(id, { arquivado: true });
+    async function arquivarProjeto(id) {
+        substituirProjeto(await arquivarProjetoApi(id));
     }
 
-    function excluirProjeto(id) {
+    async function excluirProjeto(id) {
+        await excluirProjetoApi(id);
         setProjetos((anteriores) => anteriores.filter((p) => p.id !== id));
     }
 

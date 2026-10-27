@@ -216,3 +216,20 @@ export async function criarProjetoApi(workspaceId, dados) {
     });
     return traduzirProjeto(projeto, workspaceId);
 }
+
+export async function editarProjetoApi(projetoId, dados) {
+    const projeto = await apiFetch(`/workspaces/project/${projetoId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ name: dados.nome, description: dados.descricao }),
+    });
+    return traduzirProjeto(projeto, projeto.workspace_id);
+}
+
+export async function arquivarProjetoApi(projetoId) {
+    const projeto = await apiFetch(`/workspaces/project/${projetoId}/archive`, { method: 'PATCH' });
+    return traduzirProjeto(projeto, projeto.workspace_id);
+}
+
+export async function excluirProjetoApi(projetoId) {
+    await apiFetch(`/workspaces/project/${projetoId}`, { method: 'DELETE' });
+}
