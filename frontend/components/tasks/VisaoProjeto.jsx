@@ -12,7 +12,7 @@ import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function VisaoProjeto({ projetoId }) {
     const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
-    const { tarefas, membros, statusDoProjeto } = useDadosProjeto(projetoId);
+    const { tarefas, membros, statusDoProjeto, carregando, erro } = useDadosProjeto(projetoId);
     const {
         filtroPrioridade,
         setFiltroPrioridade,
@@ -37,6 +37,9 @@ export default function VisaoProjeto({ projetoId }) {
     function moverTarefa(tarefaId, novoStatusId) {
         atualizarTarefa(tarefaId, { statusId: novoStatusId });
     }
+
+    if (carregando) return <p className="p-4 text-gray-500">Carregando...</p>;
+    if (erro) return <p className="p-4 text-red-500">{erro}</p>;
 
     return (
         <div className="p-4">

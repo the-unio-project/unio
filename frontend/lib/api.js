@@ -133,3 +133,17 @@ export async function listarProjetos(workspaceId) {
     const dados = await apiFetch(`/workspaces/${workspaceId}/project/`);
     return dados.map((p) => traduzirProjeto(p, workspaceId));
 }
+
+function traduzirStatus(s) {
+    return {
+        id: s.id,
+        projetoId: s.project_id,
+        nome: s.name,
+        cor: s.color,
+    };
+}
+
+export async function listarStatus(projetoId) {
+    const dados = await apiFetch(`/projects/${projetoId}/statuses`);
+    return dados.map(traduzirStatus);
+}
