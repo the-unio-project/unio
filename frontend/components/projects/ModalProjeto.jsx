@@ -19,8 +19,8 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
         <>
             <Button
                 variant="icone"
-                onClick={() => executar(aoArquivar, "Não foi possível arquivar o projeto.")} a
-                ria-label="Arquivar projeto"
+                onClick={() => executar(aoArquivar, "Não foi possível arquivar o projeto.")}
+                aria-label="Arquivar projeto"
                 title="Arquivar projeto"
             >
                 <Archive size={18} />
