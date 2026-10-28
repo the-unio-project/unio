@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { listarStatus, listarTarefas, listarMembros } from "@/lib/api";
+import { listarStatus, listarTarefas, listarMembros, criarTarefaApi, editarTarefaApi, excluirTarefaApi } from "@/lib/api";
+
+const CAMPOS_PUT = ["titulo", "descricao", "prioridade", "dataVencimento"];
 
 export function useDadosProjeto(projetoId) {
     const { workspaceId } = useParams();
@@ -9,6 +11,7 @@ export function useDadosProjeto(projetoId) {
     const [membros, setMembros] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
+    const [erroAcao, setErroAcao] = useState("");
 
     useEffect(() => {
         let ignorarResposta = false;
@@ -32,30 +35,43 @@ export function useDadosProjeto(projetoId) {
         };
     }, [projetoId, workspaceId]);
 
-    function atualizarTarefa(id, mudancas) {
+    async function atualizarTarefa(id, mudancas) {
+        const tarefa = tarefas.find((t) => t.id === id);
+        if (!tarefa) return;
+
+        const precisaSalvar = CAMPOS_PUT.some((campo) => campo in mudancas && mudancas[campo] !== tarefa[campo]);
+        if (precisaSalvar) {
+            try {
+                await editarTarefaApi({ ...tarefa, ...mudancas });
+            } catch {
+                setErroAcao("Não foi possível salvar a alteração.");
+                return;
+            }
+        }
+        setErroAcao("");
         setTarefas((anteriores) => anteriores.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
     }
 
-    function adicionarTarefa(statusId, titulo) {
-        const nova = {
-            id: Date.now(),
-            projetoId,
-            statusId,
-            titulo,
-            descricao: "",
-            responsaveis: [],
-            prioridade: "normal",
-            dataVencimento: "",
-        };
+    async function adicionarTarefa(statusId, titulo) {
+        const nova = await criarTarefaApi(projetoId, statusId, titulo);
         setTarefas((anteriores) => [...anteriores, nova]);
     }
 
-    function excluirTarefa(id) {
+    async function excluirTarefa(id) {
+        try {
+            await excluirTarefaApi(id);
+        } catch {
+            setErroAcao("Não foi possível excluir a tarefa.");
+            return false;
+        }
+        setErroAcao("");
         setTarefas((anteriores) => anteriores.filter((t) => t.id !== id));
+        return true;
     }
 
     return {
         tarefas, membros, statusDoProjeto, carregando, erro,
         atualizarTarefa, adicionarTarefa, excluirTarefa,
+        erroAcao, setErroAcao,
     };
 }

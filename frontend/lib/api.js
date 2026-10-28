@@ -233,3 +233,40 @@ export async function arquivarProjetoApi(projetoId) {
 export async function excluirProjetoApi(projetoId) {
     await apiFetch(`/workspaces/project/${projetoId}`, { method: 'DELETE' });
 }
+
+function dataDeHoje() {
+    const agora = new Date();
+    const mes = String(agora.getMonth() + 1).padStart(2, "0");
+    const dia = String(agora.getDate()).padStart(2, "0");
+    return `${agora.getFullYear()}-${mes}-${dia}`;
+}
+
+export async function criarTarefaApi(projetoId, statusId, titulo) {
+    const tarefa = await apiFetch(`/projects/${projetoId}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify({
+            title: titulo,
+            term: `${dataDeHoje()}T12:00:00Z`,
+            status_id: statusId,
+        }),
+    });
+    return traduzirTarefa(tarefa, projetoId);
+}
+
+const PRIORIDADE_PARA_API = { baixa: "low", normal: "medium", alta: "high", urgente: "urgent" };
+
+export async function editarTarefaApi(tarefa) {
+    await apiFetch(`/tasks/${tarefa.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            title: tarefa.titulo,
+            description: tarefa.descricao,
+            priority: PRIORIDADE_PARA_API[tarefa.prioridade],
+            term: `${tarefa.dataVencimento || dataDeHoje()}T12:00:00Z`,
+        }),
+    });
+}
+
+export async function excluirTarefaApi(tarefaId) {
+    await apiFetch(`/tasks/${tarefaId}`, { method: 'DELETE' });
+}

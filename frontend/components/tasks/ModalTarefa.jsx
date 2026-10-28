@@ -9,7 +9,7 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 
-export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoExcluir }) {
+export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoExcluir, erro }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
@@ -84,8 +84,10 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         onChange={(e) => setTitulo(e.target.value)}
                         onBlur={salvarTitulo}
                         className="w-full mb-4 text-2xl font-bold"
+                        maxLength={100}
                     />
                 </div>
+                {erro && <p className="mb-4 text-sm text-red-500">{erro}</p>}
                 <label htmlFor="status" className="block text-gray-700 dark:text-gray-300 mb-2">Status</label>
                 <select
                     id="status"
@@ -115,7 +117,9 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     label="Data de vencimento"
                     type="date"
                     value={tarefa.dataVencimento}
-                    onChange={(e) => aoAtualizar(tarefa.id, { dataVencimento: e.target.value })}
+                    onChange={(e) => {
+                        if (e.target.value) aoAtualizar(tarefa.id, { dataVencimento: e.target.value });
+                    }}
                     onClick={(e) => e.currentTarget.showPicker?.()}
                     className="mb-2"
                 />
@@ -174,6 +178,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     onChange={(e) => setDescricao(e.target.value)}
                     onBlur={() => aoAtualizar(tarefa.id, { descricao })}
                     className="border p-2 rounded mb-4 block w-full"
+                    maxLength={100}
                 />
                 <p className="block text-gray-700 dark:text-gray-300">Subtarefas</p>
                 {subtarefas.length === 0 ? (
@@ -200,7 +205,10 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                 <ModalConfirmacao
                     titulo="Excluir tarefa"
                     mensagem={`A tarefa “${tarefa.titulo}” será excluída e não poderá ser recuperada.`}
-                    aoConfirmar={() => aoExcluir(tarefa.id)}
+                    aoConfirmar={async () => {
+                        await aoExcluir(tarefa.id);
+                        setConfirmandoExclusao(false);
+                    }}
                     aoCancelar={() => setConfirmandoExclusao(false)}
                 />
             )}

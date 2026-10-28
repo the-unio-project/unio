@@ -11,8 +11,8 @@ import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function VisaoProjeto({ projetoId }) {
     const {
-        tarefas, membros, statusDoProjeto, carregando, erro,
-        atualizarTarefa, adicionarTarefa, excluirTarefa,
+        tarefas, membros, statusDoProjeto, carregando, erro, atualizarTarefa,
+        adicionarTarefa, excluirTarefa, erroAcao, setErroAcao,
     } = useDadosProjeto(projetoId);
     const {
         filtroPrioridade,
@@ -27,12 +27,12 @@ export default function VisaoProjeto({ projetoId }) {
     const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
     function aoAdicionar(statusId, titulo) {
-        adicionarTarefa(statusId, titulo);
+        return adicionarTarefa(statusId, titulo);
     }
 
-    function excluir(id) {
-        excluirTarefa(id);
-        setTarefaSelecionadaId(null);
+    async function excluir(id) {
+        const deuCerto = await excluirTarefa(id);
+        if (deuCerto) setTarefaSelecionadaId(null);
     }
 
     function moverTarefa(tarefaId, novoStatusId) {
@@ -87,11 +87,15 @@ export default function VisaoProjeto({ projetoId }) {
             {tarefaSelecionada && (
                 <ModalTarefa
                     tarefa={tarefaSelecionada}
-                    aoFechar={() => setTarefaSelecionadaId(null)}
+                    aoFechar={() => {
+                        setTarefaSelecionadaId(null);
+                        setErroAcao("");
+                    }}
                     aoAtualizar={atualizarTarefa}
                     membros={membros}
                     statusDoProjeto={statusDoProjeto}
                     aoExcluir={excluir}
+                    erro={erroAcao}
                 />
             )}
         </div>
