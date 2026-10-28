@@ -91,7 +91,7 @@ export async function apiFetch(endpoint, opcoes = {}) {
         throw erro;
     }
 
-    return resposta.json();
+    return resposta.json().catch(() => null);
 }
 
 export function removerToken() {
@@ -269,4 +269,11 @@ export async function editarTarefaApi(tarefa) {
 
 export async function excluirTarefaApi(tarefaId) {
     await apiFetch(`/tasks/${tarefaId}`, { method: 'DELETE' });
+}
+
+export async function moverTarefaApi(tarefaId, statusId, posicao) {
+    await apiFetch(`/tasks/${tarefaId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status_id: statusId, position: posicao }),
+    });
 }
