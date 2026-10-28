@@ -9,7 +9,7 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 
-export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoExcluir, erro }) {
+export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoExcluir, aoMover, erro }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
@@ -92,7 +92,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                 <select
                     id="status"
                     value={tarefa.statusId ?? ""}
-                    onChange={(e) => aoAtualizar(tarefa.id, { statusId: e.target.value })}
+                    onChange={(e) => aoMover(tarefa.id, e.target.value)}
                     className="border p-2 rounded mb-4"
                 >
                     <option value="" disabled>Sem status</option>

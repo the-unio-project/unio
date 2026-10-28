@@ -12,7 +12,7 @@ import KanbanBoard from "@/components/tasks/KanbanBoard";
 export default function VisaoProjeto({ projetoId }) {
     const {
         tarefas, membros, statusDoProjeto, carregando, erro, atualizarTarefa,
-        adicionarTarefa, excluirTarefa, erroAcao, setErroAcao,
+        adicionarTarefa, excluirTarefa, erroAcao, setErroAcao, moverTarefa,
     } = useDadosProjeto(projetoId);
     const {
         filtroPrioridade,
@@ -35,10 +35,6 @@ export default function VisaoProjeto({ projetoId }) {
         if (deuCerto) setTarefaSelecionadaId(null);
     }
 
-    function moverTarefa(tarefaId, novoStatusId) {
-        atualizarTarefa(tarefaId, { statusId: novoStatusId });
-    }
-
     if (carregando) return <p className="p-4 text-gray-500">Carregando...</p>;
     if (erro) return <p className="p-4 text-red-500">{erro}</p>;
 
@@ -52,6 +48,9 @@ export default function VisaoProjeto({ projetoId }) {
                 filtroResponsavel={filtroResponsavel}
                 aoMudarResponsavel={setFiltroResponsavel}
             />
+            {erroAcao && !tarefaSelecionada && (
+                <p className="mb-4 text-sm text-red-500">{erroAcao}</p>
+            )}
 
             {statusDoProjeto.length === 0 && (
                 <p className="text-gray-500 mb-4">Este projeto ainda não tem status.</p>
@@ -92,6 +91,7 @@ export default function VisaoProjeto({ projetoId }) {
                         setErroAcao("");
                     }}
                     aoAtualizar={atualizarTarefa}
+                    aoMover={moverTarefa}
                     membros={membros}
                     statusDoProjeto={statusDoProjeto}
                     aoExcluir={excluir}

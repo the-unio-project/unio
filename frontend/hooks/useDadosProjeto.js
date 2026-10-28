@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { listarStatus, listarTarefas, listarMembros, criarTarefaApi, editarTarefaApi, excluirTarefaApi } from "@/lib/api";
+import {
+    listarStatus, listarTarefas, listarMembros, criarTarefaApi,
+    editarTarefaApi, excluirTarefaApi, moverTarefaApi
+} from "@/lib/api";
 
 const CAMPOS_PUT = ["titulo", "descricao", "prioridade", "dataVencimento"];
 
@@ -39,8 +42,8 @@ export function useDadosProjeto(projetoId) {
         const tarefa = tarefas.find((t) => t.id === id);
         if (!tarefa) return;
 
-        const precisaSalvar = CAMPOS_PUT.some((campo) => campo in mudancas && mudancas[campo] !== tarefa[campo]);
-        if (precisaSalvar) {
+        const putModificado = CAMPOS_PUT.some((campo) => campo in mudancas && mudancas[campo] !== tarefa[campo]);
+        if (putModificado) {
             try {
                 await editarTarefaApi({ ...tarefa, ...mudancas });
             } catch {
@@ -69,9 +72,23 @@ export function useDadosProjeto(projetoId) {
         return true;
     }
 
+    async function moverTarefa(id, novoStatusId) {
+        const posicao = tarefas.filter((t) => t.statusId === novoStatusId).length + 1;
+        try {
+            await moverTarefaApi(id, novoStatusId, posicao);
+        } catch {
+            setErroAcao("Não foi possível mover a tarefa.");
+            return;
+        }
+        setErroAcao("");
+        setTarefas((anteriores) =>
+            anteriores.map((t) => (t.id === id ? { ...t, statusId: novoStatusId, position: posicao } : t))
+        );
+    }
+
     return {
         tarefas, membros, statusDoProjeto, carregando, erro,
         atualizarTarefa, adicionarTarefa, excluirTarefa,
-        erroAcao, setErroAcao,
+        erroAcao, setErroAcao, moverTarefa,
     };
 }
