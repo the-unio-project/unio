@@ -12,10 +12,17 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
     const [nome, setNome] = useState(projeto?.nome ?? "");
     const [descricao, setDescricao] = useState(projeto?.descricao ?? "");
     const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+    const [salvando, setSalvando] = useState(false);
+    const [erro, setErro] = useState("");
 
     const acoes = projetoExistente && (
         <>
-            <Button variant="icone" onClick={aoArquivar} aria-label="Arquivar projeto" title="Arquivar projeto">
+            <Button
+                variant="icone"
+                onClick={() => executar(aoArquivar, "Não foi possível arquivar o projeto.")}
+                aria-label="Arquivar projeto"
+                title="Arquivar projeto"
+            >
                 <Archive size={18} />
             </Button>
             <Button
@@ -30,9 +37,25 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
         </>
     )
 
+    async function executar(acao, mensagemErro) {
+        if (salvando) return;
+        setSalvando(true);
+        setErro("");
+        try {
+            await acao();
+        } catch {
+            setErro(mensagemErro);
+            setSalvando(false);
+            setConfirmandoExclusao(false);
+        }
+    }
+
     function salvar() {
         if (nome.trim() === "") return;
-        aoSalvar({ nome: nome.trim(), descricao: descricao.trim() });
+        executar(
+            () => aoSalvar({ nome: nome.trim(), descricao: descricao.trim() }),
+            "Não foi possível salvar o projeto."
+        );
     }
 
     return (
@@ -64,13 +87,14 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
                     className="mb-4 block w-full border p-2 rounded"
                 />
 
+                {erro && <p className="mb-4 text-sm text-red-500">{erro}</p>}
                 <div className="flex justify-end gap-2">
                     <Button onClick={aoFechar} variant="secondary">
                         Cancelar
                     </Button>
                     <Button
                         onClick={salvar}
-                        disabled={nome.trim() === ""}
+                        disabled={nome.trim() === "" || salvando}
                         className="disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {projetoExistente ? "Atualizar" : "Salvar"}
@@ -82,7 +106,7 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
                 <ModalConfirmacao
                     titulo="Excluir projeto"
                     mensagem={`O projeto “${projeto.nome}” e suas tarefas serão excluidos e não poderão ser recuperados.`}
-                    aoConfirmar={aoExcluir}
+                    aoConfirmar={() => executar(aoExcluir, "Não foi possível excluir o projeto.")}
                     aoCancelar={() => setConfirmandoExclusao(false)}
                 />
             )}

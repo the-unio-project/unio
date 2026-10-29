@@ -1,58 +1,92 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { projetosMock, statusMock } from "@/lib/mock";
-import { STATUS_PADRAO } from "@/lib/status";
+import {
+    listarWorkspaces, listarProjetos, criarWorkspaceApi, criarProjetoApi,
+    editarProjetoApi, arquivarProjetoApi, excluirProjetoApi,
+} from "@/lib/api";
 
 const WorkspaceContext = createContext();
 
 export function WorkspaceProvider({ children }) {
     const params = useParams();
-    const [workspaces, setWorkspaces] = useState([
-        { id: 1, nome: "Equipe de Desenvolvimento" },
-        { id: 2, nome: "Equipe de Design" },
-        { id: 3, nome: "Equipe de Marketing" },
-    ]);
-    const [projetos, setProjetos] = useState(projetosMock);
+    const [workspaces, setWorkspaces] = useState([]);
+    const [carregandoWorkspaces, setCarregandoWorkspaces] = useState(true);
+    const [erroWorkspaces, setErroWorkspaces] = useState(null);
+    useEffect(() => {
+        listarWorkspaces()
+            .then(setWorkspaces)
+            .catch(() => setErroWorkspaces("Não foi possível carregar os workspaces."))
+            .finally(() => setCarregandoWorkspaces(false));
+    }, []);
+
+    const [projetos, setProjetos] = useState([]);
+    const [projetosDeWorkspace, setProjetosDeWorkspace] = useState(null);
+    const [workspaceComErro, setWorkspaceComErro] = useState(null);
     const [workspaceLembrado, setWorkspaceLembrado] = useState(null);
-    const [statusProjetos, setStatusProjetos] = useState(statusMock);
     const workspaceUrl = workspaces.find((w) => String(w.id) === params.workspaceId);
     const workspaceAtual = workspaceUrl ?? workspaceLembrado ?? workspaces[0];
+    const workspaceAtualId = workspaceAtual?.id;
+    const erroProjetos = workspaceComErro === workspaceAtualId ? "Não foi possível carregar os projetos." : null;
+    const carregandoProjetos = Boolean(workspaceAtualId) && projetosDeWorkspace !== workspaceAtualId && !erroProjetos;
     const projetosAtivos = projetos.filter((p) => !p.arquivado);
 
-    function criarProjeto(workspaceId, dados) {
-        const novo = { id: Date.now(), workspaceId, ...dados };
-        const statusNovo = STATUS_PADRAO.map((s, i) => ({ ...s, projetoId: novo.id, id: novo.id + i + 1 }));
+    useEffect(() => {
+        if (!workspaceAtualId) return;
+        let ignorarResposta = false;
+
+        listarProjetos(workspaceAtualId)
+            .then((lista) => {
+                if (ignorarResposta) return;
+                setProjetos(lista);
+                setProjetosDeWorkspace(workspaceAtualId);
+                setWorkspaceComErro(null);
+            })
+            .catch(() => {
+                if (!ignorarResposta) setWorkspaceComErro(workspaceAtualId);
+            });
+
+        return () => {
+            ignorarResposta = true;
+        };
+    }, [workspaceAtualId]);
+
+    async function criarProjeto(workspaceId, dados) {
+        const novo = await criarProjetoApi(workspaceId, dados);
         setProjetos((anteriores) => [...anteriores, novo]);
-        setStatusProjetos((anteriores) => [...anteriores, ...statusNovo]);
         return novo;
     }
 
-    function editarProjeto(id, mudancas) {
-        setProjetos((anteriores) => anteriores.map((p) => (p.id === id ? { ...p, ...mudancas } : p)));
+    function substituirProjeto(atualizado) {
+        setProjetos((anteriores) => anteriores.map((p) => (p.id === atualizado.id ? atualizado : p)));
     }
 
-    function criarWorkspace(nome) {
-        const novo = { id: Date.now(), nome };
+    async function editarProjeto(id, mudancas) {
+        substituirProjeto(await editarProjetoApi(id, mudancas));
+    }
+
+    async function criarWorkspace(nome) {
+        const novo = await criarWorkspaceApi(nome);
         setWorkspaces((anteriores) => [...anteriores, novo]);
         return novo;
     }
 
-    function arquivarProjeto(id) {
-        editarProjeto(id, { arquivado: true });
+    async function arquivarProjeto(id) {
+        substituirProjeto(await arquivarProjetoApi(id));
     }
 
-    function excluirProjeto(id) {
+    async function excluirProjeto(id) {
+        await excluirProjetoApi(id);
         setProjetos((anteriores) => anteriores.filter((p) => p.id !== id));
-        setStatusProjetos((anteriores) => anteriores.filter((s) => s.projetoId !== id));
     }
 
     return (
         <WorkspaceContext.Provider
             value={{
                 workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto,
-                editarProjeto, criarWorkspace, statusProjetos, projetosAtivos, arquivarProjeto, excluirProjeto
+                editarProjeto, criarWorkspace, projetosAtivos, arquivarProjeto, excluirProjeto,
+                carregandoWorkspaces, erroWorkspaces, carregandoProjetos, erroProjetos
             }}
         >
             {children}

@@ -11,8 +11,8 @@ export default function SemProjeto() {
     const [modalAberto, setModalAberto] = useState(false);
     const router = useRouter();
 
-    function salvarNovoProjeto(dados) {
-        const novo = criarProjeto(workspaceAtual.id, dados);
+    async function salvarNovoProjeto(dados) {
+        const novo = await criarProjeto(workspaceAtual.id, dados);
         setModalAberto(false);
         router.push(`/${workspaceAtual.id}/projetos/${novo.id}`);
     }
@@ -22,11 +22,11 @@ export default function SemProjeto() {
             <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
                 Esse workspace ainda não possui projetos.
             </p>
-            <Button 
+            <Button
                 variant="primary"
                 onClick={() => setModalAberto(true)}
-                >
-                    Criar um Projeto
+            >
+                Criar um Projeto
             </Button>
             {modalAberto && (
                 <ModalProjeto

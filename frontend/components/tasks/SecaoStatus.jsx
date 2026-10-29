@@ -54,7 +54,9 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
                     </li>
                 ))}
             </ul>
-            <NovaTarefaInline aoAdicionar={(titulo) => aoAdicionar(status.id, titulo)} />
+            {status.id !== null && (
+                <NovaTarefaInline aoAdicionar={(titulo) => aoAdicionar(status.id, titulo)} />
+            )}
         </section>
     )
 }

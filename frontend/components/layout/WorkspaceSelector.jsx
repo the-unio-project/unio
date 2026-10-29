@@ -26,8 +26,8 @@ export default function WorkspaceSelector() {
         setAberto(false);
     }
 
-    function salvarNovoWorkspace(nome) {
-        const novo = criarWorkspace(nome);
+    async function salvarNovoWorkspace(nome) {
+        const novo = await criarWorkspace(nome);
         setModalAberto(false);
         trocarWorkspace(novo);
     }

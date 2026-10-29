@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTarefas } from "@/context/TarefasContext";
 import { useDadosProjeto } from "@/hooks/useDadosProjeto";
 import { useFiltrosTarefas } from "@/hooks/useFiltrosTarefas";
 import FiltrosTarefas from "@/components/tasks/FiltrosTarefas";
@@ -11,8 +10,11 @@ import ModosVisualizacao from "@/components/tasks/ModosVisualizacao";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function VisaoProjeto({ projetoId }) {
-    const { atualizarTarefa, adicionarTarefa, excluirTarefa } = useTarefas();
-    const { tarefas, membros, statusDoProjeto } = useDadosProjeto(projetoId);
+    const {
+        tarefas, membros, statusDoProjeto, carregando, erro, atualizarTarefa,
+        adicionarTarefa, excluirTarefa, erroAcao, setErroAcao, moverTarefa,
+        adicionarResponsavel, removerResponsavel,
+    } = useDadosProjeto(projetoId);
     const {
         filtroPrioridade,
         setFiltroPrioridade,
@@ -26,17 +28,16 @@ export default function VisaoProjeto({ projetoId }) {
     const tarefaSelecionada = tarefas.find((t) => t.id === tarefaSelecionadaId);
 
     function aoAdicionar(statusId, titulo) {
-        adicionarTarefa(projetoId, statusId, titulo);
+        return adicionarTarefa(statusId, titulo);
     }
 
-    function excluir(id) {
-        excluirTarefa(id);
-        setTarefaSelecionadaId(null);
+    async function excluir(id) {
+        const deuCerto = await excluirTarefa(id);
+        if (deuCerto) setTarefaSelecionadaId(null);
     }
 
-    function moverTarefa(tarefaId, novoStatusId) {
-        atualizarTarefa(tarefaId, { statusId: novoStatusId });
-    }
+    if (carregando) return <p className="p-4 text-gray-500">Carregando...</p>;
+    if (erro) return <p className="p-4 text-red-500">{erro}</p>;
 
     return (
         <div className="p-4">
@@ -48,6 +49,9 @@ export default function VisaoProjeto({ projetoId }) {
                 filtroResponsavel={filtroResponsavel}
                 aoMudarResponsavel={setFiltroResponsavel}
             />
+            {erroAcao && !tarefaSelecionada && (
+                <p className="mb-4 text-sm text-red-500">{erroAcao}</p>
+            )}
 
             {statusDoProjeto.length === 0 && (
                 <p className="text-gray-500 mb-4">Este projeto ainda não tem status.</p>
@@ -83,11 +87,18 @@ export default function VisaoProjeto({ projetoId }) {
             {tarefaSelecionada && (
                 <ModalTarefa
                     tarefa={tarefaSelecionada}
-                    aoFechar={() => setTarefaSelecionadaId(null)}
+                    aoFechar={() => {
+                        setTarefaSelecionadaId(null);
+                        setErroAcao("");
+                    }}
                     aoAtualizar={atualizarTarefa}
+                    aoMover={moverTarefa}
                     membros={membros}
+                    aoAdicionarResponsavel={adicionarResponsavel}
+                    aoRemoverResponsavel={removerResponsavel}
                     statusDoProjeto={statusDoProjeto}
                     aoExcluir={excluir}
+                    erro={erroAcao}
                 />
             )}
         </div>

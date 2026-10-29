@@ -7,7 +7,7 @@ export default async function ProjetoPage({ params }) {
     return (
         <>
             <ProjetoCabecalho />
-            <VisaoProjeto key={projectId} projetoId={Number(projectId)} />
+            <VisaoProjeto key={projectId} projetoId={projectId} />
         </>
     );
 }

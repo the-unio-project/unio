@@ -5,12 +5,21 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
-export default function ModalWorkspace({ aoSalvar, aoFechar }){
+export default function ModalWorkspace({ aoSalvar, aoFechar }) {
     const [nome, setNome] = useState("");
+    const [salvando, setSalvando] = useState(false);
+    const [erro, setErro] = useState("");
 
-    function salvar() {
-        if (nome.trim() === "") return;
-        aoSalvar(nome.trim());
+    async function salvar() {
+        if (nome.trim() === "" || salvando) return;
+        setSalvando(true);
+        setErro("");
+        try {
+            await aoSalvar(nome.trim());
+        } catch {
+            setErro("Não foi possível criar o workspace.");
+            setSalvando(false);
+        }
     }
 
     return (
@@ -23,19 +32,21 @@ export default function ModalWorkspace({ aoSalvar, aoFechar }){
                 placeholder="Digite o nome do workspace"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-                onKeyDown ={(e) => {
+                onKeyDown={(e) => {
                     if (e.key === "Enter") salvar();
                 }}
                 className="mb-4 w-full border p-2 rounded"
             />
 
+            {erro && <p className="mb-4 text-sm text-red-500">{erro}</p>}
+
             <div className="flex justify-end gap-2">
                 <Button onClick={aoFechar} variant="secondary">
                     Cancelar
                 </Button>
-                <Button 
+                <Button
                     onClick={salvar}
-                    disabled={nome.trim() === ""}
+                    disabled={nome.trim() === "" || salvando}
                     className="disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     Salvar
