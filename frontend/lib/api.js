@@ -277,3 +277,11 @@ export async function moverTarefaApi(tarefaId, statusId, posicao) {
         body: JSON.stringify({ status_id: statusId, position: posicao }),
     });
 }
+
+export async function adicionarResponsavelApi(tarefaId, usuarioId) {
+    await apiFetch(`/tasks/${tarefaId}/user/${usuarioId}`, { method: 'POST' });
+}
+
+export async function removerResponsavelApi(tarefaId, usuarioId) {
+    await apiFetch(`/tasks/${tarefaId}/user/${usuarioId}`, { method: 'DELETE' });
+}

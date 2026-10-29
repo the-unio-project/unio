@@ -9,7 +9,7 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 
-export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoExcluir, aoMover, erro }) {
+export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoAdicionarResponsavel, aoRemoverResponsavel, aoExcluir, aoMover, erro }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
@@ -55,11 +55,11 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
     const membrosDisponiveis = membros.filter((m) => !idsResponsaveis.includes(m.id));
 
     function adicionarResponsavel(usuarioId) {
-        aoAtualizar(tarefa.id, { responsaveis: [...idsResponsaveis, usuarioId] });
+        aoAdicionarResponsavel(tarefa.id, usuarioId);
     }
 
     function removerResponsavel(usuarioId) {
-        aoAtualizar(tarefa.id, { responsaveis: idsResponsaveis.filter((id) => id !== usuarioId) });
+        aoRemoverResponsavel(tarefa.id, usuarioId);
     }
 
     return (

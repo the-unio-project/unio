@@ -13,6 +13,7 @@ export default function VisaoProjeto({ projetoId }) {
     const {
         tarefas, membros, statusDoProjeto, carregando, erro, atualizarTarefa,
         adicionarTarefa, excluirTarefa, erroAcao, setErroAcao, moverTarefa,
+        adicionarResponsavel, removerResponsavel,
     } = useDadosProjeto(projetoId);
     const {
         filtroPrioridade,
@@ -93,6 +94,8 @@ export default function VisaoProjeto({ projetoId }) {
                     aoAtualizar={atualizarTarefa}
                     aoMover={moverTarefa}
                     membros={membros}
+                    aoAdicionarResponsavel={adicionarResponsavel}
+                    aoRemoverResponsavel={removerResponsavel}
                     statusDoProjeto={statusDoProjeto}
                     aoExcluir={excluir}
                     erro={erroAcao}

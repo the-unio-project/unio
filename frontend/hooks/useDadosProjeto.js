@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import {
     listarStatus, listarTarefas, listarMembros, criarTarefaApi,
-    editarTarefaApi, excluirTarefaApi, moverTarefaApi
+    editarTarefaApi, excluirTarefaApi, moverTarefaApi,
+    adicionarResponsavelApi, removerResponsavelApi
 } from "@/lib/api";
 
 const CAMPOS_PUT = ["titulo", "descricao", "prioridade", "dataVencimento"];
@@ -94,9 +95,37 @@ export function useDadosProjeto(projetoId) {
         }
     }
 
+    async function adicionarResponsavel(tarefaId, usuarioId) {
+        try {
+            await adicionarResponsavelApi(tarefaId, usuarioId);
+        } catch {
+            setErroAcao("Não foi possível adicionar o responsável.");
+            return;
+        }
+        setErroAcao("");
+        setTarefas((anteriores) =>
+            anteriores.map((t) => (t.id === tarefaId ? { ...t, responsaveis: [...t.responsaveis, usuarioId] } : t))
+        );
+    }
+
+    async function removerResponsavel(tarefaId, usuarioId) {
+        try {
+            await removerResponsavelApi(tarefaId, usuarioId);
+        } catch {
+            setErroAcao("Não foi possível remover o responsável.");
+            return;
+        }
+        setErroAcao("");
+        setTarefas((anteriores) =>
+            anteriores.map((t) =>
+                t.id === tarefaId ? { ...t, responsaveis: t.responsaveis.filter((id) => id !== usuarioId) } : t
+            )
+        );
+    }
+
     return {
         tarefas, membros, statusDoProjeto, carregando, erro,
         atualizarTarefa, adicionarTarefa, excluirTarefa,
-        erroAcao, setErroAcao, moverTarefa,
+        erroAcao, setErroAcao, moverTarefa, adicionarResponsavel, removerResponsavel
     };
 }
