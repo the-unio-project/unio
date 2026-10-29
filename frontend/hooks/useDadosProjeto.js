@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import {
     listarStatus, listarTarefas, listarMembros, criarTarefaApi,
@@ -15,6 +15,7 @@ export function useDadosProjeto(projetoId) {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
     const [erroAcao, setErroAcao] = useState("");
+    const filaMover = useRef(Promise.resolve());
 
     useEffect(() => {
         let ignorarResposta = false;
@@ -73,17 +74,24 @@ export function useDadosProjeto(projetoId) {
     }
 
     async function moverTarefa(id, novoStatusId) {
+        const tarefaAntes = tarefas.find((t) => t.id === id);
+        if (!tarefaAntes) return;
         const posicao = tarefas.filter((t) => t.statusId === novoStatusId).length + 1;
-        try {
-            await moverTarefaApi(id, novoStatusId, posicao);
-        } catch {
-            setErroAcao("Não foi possível mover a tarefa.");
-            return;
-        }
-        setErroAcao("");
+
         setTarefas((anteriores) =>
             anteriores.map((t) => (t.id === id ? { ...t, statusId: novoStatusId, position: posicao } : t))
         );
+
+        const envio = filaMover.current.then(() => moverTarefaApi(id, novoStatusId, posicao));
+        filaMover.current = envio.catch(() => { });
+
+        try {
+            await envio;
+            setErroAcao("");
+        } catch {
+            setTarefas((anteriores) => anteriores.map((t) => (t.id === id ? tarefaAntes : t)));
+            setErroAcao("Não foi possível mover a tarefa.");
+        }
     }
 
     return {
