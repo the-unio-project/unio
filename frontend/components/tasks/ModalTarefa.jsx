@@ -9,7 +9,7 @@ import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 
-export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoAdicionarResponsavel, aoRemoverResponsavel, aoExcluir, aoMover, erro }) {
+export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoAdicionarResponsavel, aoRemoverResponsavel, aoExcluir, aoMover }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
@@ -87,7 +87,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         maxLength={100}
                     />
                 </div>
-                {erro && <p className="mb-4 text-sm text-red-500">{erro}</p>}
+
                 <label htmlFor="status" className="block text-gray-700 dark:text-gray-300 mb-2">Status</label>
                 <select
                     id="status"
