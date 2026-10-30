@@ -285,3 +285,26 @@ export async function adicionarResponsavelApi(tarefaId, usuarioId) {
 export async function removerResponsavelApi(tarefaId, usuarioId) {
     await apiFetch(`/tasks/${tarefaId}/user/${usuarioId}`, { method: 'DELETE' });
 }
+
+function traduzirNotificacao(n) {
+    return {
+        id: n.id,
+        tipo: n.type,
+        tarefaId: n.type_id,
+        remetenteId: n.sender_id,
+        lida: n.is_read,
+    };
+}
+
+export async function listarNotificacoes() {
+    const dados = await apiFetch('/notifications/list');
+    return (dados ?? []).map(traduzirNotificacao).reverse();
+}
+
+export async function notificacaoLidaApi(id) {
+    await apiFetch(`/notifications/read/${id}`, { method: 'POST' });
+}
+
+export async function todasLidasApi() {
+    await apiFetch('/notifications/read-all', { method: 'POST' });
+}
