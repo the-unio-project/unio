@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 import WorkspaceSelector from "@/components/layout/WorkspaceSelector";
+import CentroNotificacoes from "@/components/notifications/CentroNotificacoes";
 
 export default function Header() {
     const router = useRouter();
@@ -21,7 +22,7 @@ export default function Header() {
                 <input type="text" placeholder="Buscar..." className="border p-2 rounded" />
             </div>
             <div className="flex items-center gap-4">
-                <span>Notificações</span>
+                <CentroNotificacoes />
                 <span>Perfil</span>
                 <Button variant="contorno" onClick={handleLogout}>Sair</Button>
             </div>
