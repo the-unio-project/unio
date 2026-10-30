@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 import {
     listarStatus, listarTarefas, listarMembros, criarTarefaApi,
     editarTarefaApi, excluirTarefaApi, moverTarefaApi,
@@ -15,7 +16,6 @@ export function useDadosProjeto(projetoId) {
     const [membros, setMembros] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
-    const [erroAcao, setErroAcao] = useState("");
     const filaMover = useRef(Promise.resolve());
 
     useEffect(() => {
@@ -49,28 +49,28 @@ export function useDadosProjeto(projetoId) {
             try {
                 await editarTarefaApi({ ...tarefa, ...mudancas });
             } catch {
-                setErroAcao("Não foi possível salvar a alteração.");
+                toast.error("Não foi possível salvar a alteração.");
                 return;
             }
         }
-        setErroAcao("");
         setTarefas((anteriores) => anteriores.map((t) => (t.id === id ? { ...t, ...mudancas } : t)));
     }
 
     async function adicionarTarefa(statusId, titulo) {
         const nova = await criarTarefaApi(projetoId, statusId, titulo);
         setTarefas((anteriores) => [...anteriores, nova]);
+        toast.success("Tarefa criada.");
     }
 
     async function excluirTarefa(id) {
         try {
             await excluirTarefaApi(id);
         } catch {
-            setErroAcao("Não foi possível excluir a tarefa.");
+            toast.error("Não foi possível excluir a tarefa.");
             return false;
         }
-        setErroAcao("");
         setTarefas((anteriores) => anteriores.filter((t) => t.id !== id));
+        toast.success("Tarefa excluída.");
         return true;
     }
 
@@ -88,10 +88,9 @@ export function useDadosProjeto(projetoId) {
 
         try {
             await envio;
-            setErroAcao("");
         } catch {
             setTarefas((anteriores) => anteriores.map((t) => (t.id === id ? tarefaAntes : t)));
-            setErroAcao("Não foi possível mover a tarefa.");
+            toast.error("Não foi possível mover a tarefa.");
         }
     }
 
@@ -99,10 +98,9 @@ export function useDadosProjeto(projetoId) {
         try {
             await adicionarResponsavelApi(tarefaId, usuarioId);
         } catch {
-            setErroAcao("Não foi possível adicionar o responsável.");
+            toast.error("Não foi possível adicionar o responsável.");
             return;
         }
-        setErroAcao("");
         setTarefas((anteriores) =>
             anteriores.map((t) => (t.id === tarefaId ? { ...t, responsaveis: [...t.responsaveis, usuarioId] } : t))
         );
@@ -112,10 +110,9 @@ export function useDadosProjeto(projetoId) {
         try {
             await removerResponsavelApi(tarefaId, usuarioId);
         } catch {
-            setErroAcao("Não foi possível remover o responsável.");
+            toast.error("Não foi possível remover o responsável.");
             return;
         }
-        setErroAcao("");
         setTarefas((anteriores) =>
             anteriores.map((t) =>
                 t.id === tarefaId ? { ...t, responsaveis: t.responsaveis.filter((id) => id !== usuarioId) } : t
@@ -126,6 +123,6 @@ export function useDadosProjeto(projetoId) {
     return {
         tarefas, membros, statusDoProjeto, carregando, erro,
         atualizarTarefa, adicionarTarefa, excluirTarefa,
-        erroAcao, setErroAcao, moverTarefa, adicionarResponsavel, removerResponsavel
+        moverTarefa, adicionarResponsavel, removerResponsavel
     };
 }

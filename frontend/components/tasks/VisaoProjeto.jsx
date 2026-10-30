@@ -12,7 +12,7 @@ import KanbanBoard from "@/components/tasks/KanbanBoard";
 export default function VisaoProjeto({ projetoId }) {
     const {
         tarefas, membros, statusDoProjeto, carregando, erro, atualizarTarefa,
-        adicionarTarefa, excluirTarefa, erroAcao, setErroAcao, moverTarefa,
+        adicionarTarefa, excluirTarefa, moverTarefa,
         adicionarResponsavel, removerResponsavel,
     } = useDadosProjeto(projetoId);
     const {
@@ -49,9 +49,6 @@ export default function VisaoProjeto({ projetoId }) {
                 filtroResponsavel={filtroResponsavel}
                 aoMudarResponsavel={setFiltroResponsavel}
             />
-            {erroAcao && !tarefaSelecionada && (
-                <p className="mb-4 text-sm text-red-500">{erroAcao}</p>
-            )}
 
             {statusDoProjeto.length === 0 && (
                 <p className="text-gray-500 mb-4">Este projeto ainda não tem status.</p>
@@ -87,10 +84,7 @@ export default function VisaoProjeto({ projetoId }) {
             {tarefaSelecionada && (
                 <ModalTarefa
                     tarefa={tarefaSelecionada}
-                    aoFechar={() => {
-                        setTarefaSelecionadaId(null);
-                        setErroAcao("");
-                    }}
+                    aoFechar={() => setTarefaSelecionadaId(null)}
                     aoAtualizar={atualizarTarefa}
                     aoMover={moverTarefa}
                     membros={membros}
@@ -98,7 +92,6 @@ export default function VisaoProjeto({ projetoId }) {
                     aoRemoverResponsavel={removerResponsavel}
                     statusDoProjeto={statusDoProjeto}
                     aoExcluir={excluir}
-                    erro={erroAcao}
                 />
             )}
         </div>
