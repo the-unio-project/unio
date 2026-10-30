@@ -9,7 +9,7 @@ class CreateTaskSchema(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=100)
     priority: TaskPriority = TaskPriority.MEDIUM
-    term: datetime
+    term: datetime | None = None
     status_id: UUID | None = None
 
 class CreateSubtaskSchema(BaseModel):

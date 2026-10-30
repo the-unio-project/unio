@@ -125,7 +125,7 @@ class Task(Base):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
     assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
-    term: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    term: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
     status_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("statuses.id", ondelete="SET NULL"), nullable=True)
     status: Mapped["Status | None"] = relationship("Status", back_populates="tasks")
