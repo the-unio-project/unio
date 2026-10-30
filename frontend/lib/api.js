@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const COR_PADRAO_PROJETO = "#3b82f6";
 
 export function getAuthToken() {
