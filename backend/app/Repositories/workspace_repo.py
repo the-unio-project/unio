@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from Models.models import Project, Task, User, Workspace, WorkspaceInvite, WorkspaceMember, WorkspaceRole
-from Schemas.workspace_schema import CreateWorkspaceSchema, DeleteWorkspaceSchema, WorkspaceInviteSchema, WorkspaceMemberSchema
+from Schemas.workspace_schema import CreateWorkspaceSchema, DeleteWorkspaceSchema, WorkspaceInviteSchema, WorkspaceMemberSchema, WorkspaceResponseSchema, WorkspaceMemberResponseSchema
+from Schemas.user_schema import UserResponseSchema
 from Services.Tasks.search_methods import search_title
 
 class WorkspaceRepository:
@@ -34,7 +35,7 @@ class WorkspaceRepository:
         workspaces = self.session.query(Workspace).filter(Workspace.owner_id == owner_id).all()
         return workspaces
 
-    def get_workspace_by_membership(self, member_id: UUID) -> list[Workspace]:
+    def get_workspace_by_membership(self, member_id: UUID) -> list[WorkspaceResponseSchema]:
         user = self.session.query(User).filter(User.id == member_id).first()
 
         if not user:
@@ -45,10 +46,18 @@ class WorkspaceRepository:
         if memberships.count == 0:
             raise HTTPException(status_code=401, detail="user isnt a member of any workspaces")
 
-        workspaces = list[Workspace]()
+        workspaces = []
 
         for workspaceMember in memberships:
-            workspaces.append(workspaceMember.workspace)
+            workspace = workspaceMember.workspace
+            workspaces.append(WorkspaceResponseSchema(
+                id=workspace.id,
+                name=workspace.name,
+                owner_id=workspace.owner_id,
+                created_at=workspace.created_at,
+                logo_url=workspace.logo_url,
+                current_user_role=workspaceMember.role,
+            ))
 
         return workspaces
 
@@ -83,16 +92,17 @@ class WorkspaceRepository:
 
         return member
 
-    def get_users(self, workspace_id: UUID) -> list[User]:
+    def get_users(self, workspace_id: UUID) -> list[WorkspaceMemberResponseSchema]:
         members = self.session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).all()
 
         if not members:
             raise HTTPException(status_code=404, detail="No workspace found")
 
-        users = list[User]()
+        users = []
 
         for member in members:
-            users.append(member.user)
+            user_data = UserResponseSchema.model_validate(member.user, from_attributes=True)
+            users.append(WorkspaceMemberResponseSchema(**user_data.model_dump(), role=member.role))
 
         return users
 
