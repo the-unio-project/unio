@@ -11,7 +11,7 @@ export default function Modal({ aoFechar, largura = "max-w-2xl", acoes, children
                 if (e.target === e.currentTarget) aoFechar();
             }}
         >
-            <div className={`relative w-full ${largura} rounded-lg bg-white p-6 dark:bg-gray-900`}>
+            <div className={`relative w-full ${largura} rounded-lg bg-white p-6 text-left dark:bg-gray-900`}>
                 <div className="absolute top-4 right-4 flex items-center gap-1">
                     {acoes}
                     <Button variant="icone" onClick={aoFechar} aria-label="Fechar">
