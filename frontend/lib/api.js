@@ -64,8 +64,9 @@ export async function cadastro(nome, email, senha) {
 
 export async function apiFetch(endpoint, opcoes = {}) {
     const token = getAuthToken();
+    const eformData = opcoes.body instanceof FormData;
     const headers = {
-        "content-type": "application/json",
+        ...(eformData ? {} : { "content-type": "application/json" }),
         ...opcoes.headers,
     };
 
@@ -98,8 +99,28 @@ export function removerToken() {
     document.cookie = 'access_token=; Max-Age=0; path=/';
 }
 
-export function buscarPerfil() {
-    return apiFetch('/me/');
+export async function buscarPerfil() {
+    const perfil = await apiFetch('/me/');
+    if (perfil?.profile_picture) {
+        perfil.profile_picture = `${perfil.profile_picture}?v=${Date.now()}`;
+    }
+    return perfil;
+}
+
+export async function atualizarPerfilApi({ nickname, bio, foto }) {
+    const dados = new FormData();
+    if (foto) dados.append("profile_picture", foto);
+
+    const parametros = new URLSearchParams({ nickname, bio });
+    await apiFetch(`/me/?${parametros}`, { method: 'PUT', body: dados });
+}
+
+//Remover quando o backend aceitar foto como opcional
+export async function baixarFotoAtual(url) {
+    const resposta = await fetch(url);
+    if (!resposta.ok) throw new Error("Não foi possível ler a foto atual.");
+    const blob = await resposta.blob();
+    return new File([blob], "foto.jpg", { type: "image/jpeg" });
 }
 
 function traduzirWorkspace(w) {

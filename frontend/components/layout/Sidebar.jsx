@@ -109,15 +109,13 @@ export default function Sidebar() {
                     <Link href="/dashboard">Dashboard</Link>
                 </li>
                 {workspaceAtual && (
-                    <>
-                        <li>
-                            <Link href={`/${workspaceAtual.id}/membros`}>Membros</Link>
-                        </li>
-                        <li>
-                            <Link href={`/${workspaceAtual.id}/settings`}>Configurações</Link>
-                        </li>
-                    </>
+                    <li>
+                        <Link href={`/${workspaceAtual.id}/membros`}>Membros</Link>
+                    </li>
                 )}
+                <li>
+                    <Link href="/configuracoes">Configurações</Link>
+                </li>
             </ul>
 
             {modalAberto && (
