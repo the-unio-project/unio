@@ -9,6 +9,7 @@ function iniciais(nome) {
 const TAMANHOS = {
     sm: "h-6 w-6 text-[10px]",
     md: "h-8 w-8 text-xs",
+    lg: "h-24 w-24 text-3xl",
 };
 
 export default function Avatar({ nome, src, tamanho = "md" }) {
