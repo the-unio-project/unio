@@ -207,16 +207,32 @@ export async function listarTarefas(projetoId) {
 function traduzirMembro(m, workspaceId) {
     return {
         id: m.id,
-        nome: m.name,
+        nome: m.nickname || m.name,
         email: m.email,
         workspaceId,
-        foto: null,    // verificar com os designers/backend (precisa de url).
+        funcao: m.role,
+        foto: m.profile_picture,
     };
 }
 
 export async function listarMembros(workspaceId) {
     const dados = await apiFetch(`/workspaces/${workspaceId}/member/list`, { method: 'POST' });
     return dados.map((m) => traduzirMembro(m, workspaceId));
+}
+
+export async function removerMembroApi(workspaceId, usuarioId) {
+    const parametros = new URLSearchParams({ target_user_id: usuarioId });
+    await apiFetch(`/workspaces/${workspaceId}/member/remove?${parametros}`, { method: 'DELETE' });
+}
+
+export async function criarConviteApi(workspaceId) {
+    const convite = await apiFetch(`/workspaces/${workspaceId}/create-invite`);
+    return convite.id;
+}
+
+export async function aceitarConviteApi(token) {
+    const dados = await apiFetch(`/workspaces/invite/${token}`);
+    return dados.workspace_id;
 }
 
 export async function criarWorkspaceApi(nome) {
