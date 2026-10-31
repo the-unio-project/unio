@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 import {
     listarWorkspaces, listarProjetos, criarWorkspaceApi, criarProjetoApi,
     editarProjetoApi, arquivarProjetoApi, excluirProjetoApi,
@@ -55,6 +56,7 @@ export function WorkspaceProvider({ children }) {
     async function criarProjeto(workspaceId, dados) {
         const novo = await criarProjetoApi(workspaceId, dados);
         setProjetos((anteriores) => [...anteriores, novo]);
+        toast.success("Projeto criado.");
         return novo;
     }
 
@@ -64,21 +66,25 @@ export function WorkspaceProvider({ children }) {
 
     async function editarProjeto(id, mudancas) {
         substituirProjeto(await editarProjetoApi(id, mudancas));
+        toast.success("Projeto atualizado.");
     }
 
     async function criarWorkspace(nome) {
         const novo = await criarWorkspaceApi(nome);
         setWorkspaces((anteriores) => [...anteriores, novo]);
+        toast.success("Workspace criado.");
         return novo;
     }
 
     async function arquivarProjeto(id) {
         substituirProjeto(await arquivarProjetoApi(id));
+        toast.success("Projeto arquivado.");
     }
 
     async function excluirProjeto(id) {
         await excluirProjetoApi(id);
         setProjetos((anteriores) => anteriores.filter((p) => p.id !== id));
+        toast.success("Projeto excluído.");
     }
 
     return (

@@ -29,6 +29,7 @@ export default function useNotificacoes() {
     async function marcarComoLida(id) {
         try {
             await notificacaoLidaApi(id);
+            setErro("");
             setNotificacoes((atuais) =>
                 atuais.map((n) => (n.id === id ? { ...n, lida: true } : n))
             );
@@ -40,6 +41,7 @@ export default function useNotificacoes() {
     async function marcarTodasComoLidas() {
         try {
             await todasLidasApi();
+            setErro("");
             setNotificacoes((atuais) => atuais.map((n) => ({ ...n, lida: true })));
         } catch {
             setErro("Não foi possível marcar todas como lidas.");

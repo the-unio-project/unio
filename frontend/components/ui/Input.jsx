@@ -16,7 +16,6 @@ export default function Input({ label, variant = "default", className = "", ...r
             )}
             <input
                 id={id}
-                // Classes base (largura, focus, transição) unidas à variante e classes extras
                 className={`w-full focus:outline-none focus:ring-2 focus:ring-purple-600 transition-colors ${estilos[variant]} ${className}`}
                 {...resto}
             />
