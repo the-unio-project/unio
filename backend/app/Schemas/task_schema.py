@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from Models.models import TaskPriority
+from Models.models import TaskAssignee, TaskPriority
 
 class CreateTaskSchema(BaseModel):
     title: str = Field(min_length=1, max_length=100)
@@ -30,6 +30,7 @@ class TaskResponseSchema(CreateTaskSchema):
     title: str
     description: str | None = None
     priority: TaskPriority | None = None
+    assignees: list[TaskAssigneeMiddleSchema] | None = None
     term: datetime | None
     model_config = {
         "from_attributes": True
@@ -71,3 +72,6 @@ class TaskAssigneeResponseSchema(BaseModel):
     name: str
     profile_pic: str | None = Field(validation_alias="profile_picture")
     model_config = ConfigDict(from_attributes=True)
+
+class TaskAssigneeMiddleSchema(BaseModel):
+    user: TaskAssigneeResponseSchema
