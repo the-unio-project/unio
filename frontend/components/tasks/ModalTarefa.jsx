@@ -113,16 +113,29 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     ))}
                 </select>
 
-                <Input
-                    label="Data de vencimento"
-                    type="date"
-                    value={tarefa.dataVencimento}
-                    onChange={(e) => {
-                        if (e.target.value) aoAtualizar(tarefa.id, { dataVencimento: e.target.value });
-                    }}
-                    onClick={(e) => e.currentTarget.showPicker?.()}
-                    className="mb-2"
-                />
+                <label htmlFor="data-vencimento" className="block text-gray-700 dark:text-gray-300 mb-2">Data de vencimento</label>
+                <div className="mb-2 flex items-center gap-2">
+                    <Input
+                        id="data-vencimento"
+                        type="date"
+                        value={tarefa.dataVencimento}
+                        onChange={(e) => {
+                            if (e.target.value) aoAtualizar(tarefa.id, { dataVencimento: e.target.value });
+                        }}
+                        onClick={(e) => e.currentTarget.showPicker?.()}
+                    />
+                    {tarefa.dataVencimento && (
+                        <Button
+                            variant="icone"
+                            onClick={() => aoAtualizar(tarefa.id, { dataVencimento: "" })}
+                            aria-label="Remover data"
+                            title="Remover data"
+                        >
+                            <X size={16} />
+                        </Button>
+                    )}
+                </div>
+
                 <p className="block text-gray-700 dark:text-gray-300 mb-2">Responsáveis</p>
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     {responsaveisAtuais.map((m) => (
