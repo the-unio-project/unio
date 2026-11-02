@@ -124,7 +124,7 @@ class Task(Base):
     list_: Mapped["ListModel | None"] = relationship(back_populates="tasks")
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(100), nullable=True)
-    assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task")
+    assignees: Mapped[list["TaskAssignee"]] = relationship(back_populates="task", cascade="all, delete-orphan", passive_deletes=True)
     term: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority, name="task_priority_enum"), nullable=False, default=TaskPriority.MEDIUM)
     status_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("statuses.id", ondelete="SET NULL"), nullable=True)
@@ -138,8 +138,8 @@ class TaskAssignee(Base):
         UniqueConstraint("task_id", "user_id", name="uq_task_assignee"),
     )
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid4)
-    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id"),nullable=False)
-    user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), nullable=False)
+    task_id: Mapped[UUID] = mapped_column(Uuid,ForeignKey("tasks.id", ondelete="CASCADE"),nullable=False)
+    user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     task: Mapped["Task"] = relationship(back_populates="assignees")
     user: Mapped["User"] = relationship(back_populates="task_assignments")
 
