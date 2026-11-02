@@ -7,7 +7,7 @@ export default function useTarefasDashboard() {
     const [erro, setErro] = useState("");
 
     useEffect(() => {
-        let cancelado = false;
+        let foraDaTela = false;
 
         async function carregar() {
             try {
@@ -16,16 +16,16 @@ export default function useTarefasDashboard() {
                     listarVencendoHoje(),
                     listarAtrasadas(),
                 ]);
-                if (!cancelado) setDados({ minhas, hoje, atrasadas });
+                if (!foraDaTela) setDados({ minhas, hoje, atrasadas });
             } catch {
-                if (!cancelado) setErro("Não foi possível carregar suas tarefas.");
+                if (!foraDaTela) setErro("Não foi possível carregar suas tarefas.");
             } finally {
-                if (!cancelado) setCarregando(false);
+                if (!foraDaTela) setCarregando(false);
             }
         }
 
         carregar();
-        return () => { cancelado = true; };
+        return () => { foraDaTela = true; };
     }, []);
 
     return { ...dados, carregando, erro };
