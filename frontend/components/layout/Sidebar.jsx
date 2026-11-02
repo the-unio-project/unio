@@ -59,7 +59,9 @@ export default function Sidebar() {
 
     return (
         <nav className="w-64 h-full shrink-0 overflow-y-auto p-4">
-            <div className="flex items-center justify-between">
+            <Link href="/dashboard">Dashboard</Link>
+
+            <div className="mt-4 flex items-center justify-between">
                 <button
                     onClick={() => setProjetosAberto(!projetosAberto)}
                     className="flex items-center gap-2 font-semibold"
@@ -105,9 +107,6 @@ export default function Sidebar() {
                 ))}
 
             <ul className="flex flex-col gap-4 list-none mt-4">
-                <li>
-                    <Link href="/dashboard">Dashboard</Link>
-                </li>
                 {workspaceAtual && (
                     <li>
                         <Link href={`/${workspaceAtual.id}/membros`}>Membros</Link>
