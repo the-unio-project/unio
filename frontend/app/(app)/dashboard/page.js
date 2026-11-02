@@ -3,6 +3,7 @@
 import { useWorkspace } from "@/context/WorkspaceContext";
 import SemWorkspace from "@/components/workspaces/SemWorkspace";
 import SemProjeto from "@/components/projects/SemProjeto";
+import PainelDashboard from "@/components/dashboard/PainelDashboard";
 
 export default function Dashboard() {
   const { workspaces, workspaceAtual, projetosAtivos, carregandoWorkspaces, erroWorkspaces, carregandoProjetos, erroProjetos } = useWorkspace();
@@ -27,5 +28,5 @@ export default function Dashboard() {
   if (projetosDoWorkspace.length === 0) {
     return <SemProjeto />;
   }
-  return <h1>Dashboard</h1>;
+  return <PainelDashboard />;
 }

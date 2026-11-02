@@ -182,26 +182,22 @@ function traduzirTarefa(t, projetoId) {
         dataVencimento: t.term ? t.term.slice(0, 10) : "",
         statusId: t.status_id,
         position: t.position,
-        responsaveis: [],
+        responsaveis: (t.assignees ?? []).map((a) => a.user.id),
     };
 }
 
-async function listarIdsResponsaveis(tarefaId) {
-    const dados = await apiFetch(`/tasks/${tarefaId}/assignees`);
-    return dados.map((u) => u.id);
+async function buscarTarefasUsuario(rota) {
+    const dados = await apiFetch(rota);
+    return (dados ?? []).map((t) => traduzirTarefa(t, t.project_id));
 }
+
+export const listarMinhasTarefas = () => buscarTarefasUsuario('/me/tasks');
+export const listarVencendoHoje = () => buscarTarefasUsuario('/me/tasks/due-today');
+export const listarAtrasadas = () => buscarTarefasUsuario('/me/tasks/overdue');
 
 export async function listarTarefas(projetoId) {
     const dados = await apiFetch(`/projects/${projetoId}/tasks`);
-    const tarefas = dados.map((t) => traduzirTarefa(t, projetoId));
-
-    //apagar quando o backend incluir o campo de responsáveis.
-    return Promise.all(
-        tarefas.map(async (tarefa) => ({
-            ...tarefa,
-            responsaveis: await listarIdsResponsaveis(tarefa.id),
-        }))
-    );
+    return dados.map((t) => traduzirTarefa(t, projetoId));
 }
 
 function traduzirMembro(m, workspaceId) {
@@ -271,19 +267,11 @@ export async function excluirProjetoApi(projetoId) {
     await apiFetch(`/workspaces/project/${projetoId}`, { method: 'DELETE' });
 }
 
-function dataDeHoje() {
-    const agora = new Date();
-    const mes = String(agora.getMonth() + 1).padStart(2, "0");
-    const dia = String(agora.getDate()).padStart(2, "0");
-    return `${agora.getFullYear()}-${mes}-${dia}`;
-}
-
 export async function criarTarefaApi(projetoId, statusId, titulo) {
     const tarefa = await apiFetch(`/projects/${projetoId}/tasks`, {
         method: 'POST',
         body: JSON.stringify({
             title: titulo,
-            term: `${dataDeHoje()}T12:00:00Z`,
             status_id: statusId,
         }),
     });
@@ -299,7 +287,7 @@ export async function editarTarefaApi(tarefa) {
             title: tarefa.titulo,
             description: tarefa.descricao,
             priority: PRIORIDADE_PARA_API[tarefa.prioridade],
-            term: `${tarefa.dataVencimento || dataDeHoje()}T12:00:00Z`,
+            term: tarefa.dataVencimento ? `${tarefa.dataVencimento}T12:00:00Z` : null,
         }),
     });
 }
