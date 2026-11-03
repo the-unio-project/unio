@@ -32,7 +32,9 @@ def get_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session 
     return WorkspaceRepository(session).get_workspace_by_id(workspace_id)
 
 @workspace_router.get(path="/{workspace_id}/search")
-def query_workspace_tasks(workspace_id:UUID, q:str | None = None, _ = Depends(verify_token), session:Session = Depends(get_session)):
+def query_workspace_tasks(workspace_id:UUID, q:str | None = None, user = Depends(verify_token), session:Session = Depends(get_session)):
+    assert_workspace_member(workspace_id, user.id, session)
+
     return WorkspaceRepository(session).search_task_by_title(workspace_id, q)
 
 # Invites
@@ -77,7 +79,9 @@ def remove_member(workspace_id:UUID, target_user_id:UUID, user = Depends(verify_
         return response
       
 @workspace_router.delete(path="/{workspace_id}")
-def delete_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session = Depends(get_session)):
+def delete_workspace(workspace_id:UUID, user = Depends(verify_token), session:Session = Depends(get_session)):
+    assert_workspace_permission(workspace_id, WorkspaceRole.OWNER, user.id, session)
+
     return WorkspaceRepository(session).delete_workspace(workspace_id)
 
 @workspace_router.patch(path="/{workspace_id}/members/{target_user_id}/role")
