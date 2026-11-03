@@ -26,11 +26,10 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
                 <Archive size={18} />
             </Button>
             <Button
-                variant="icone"
+                variant="iconePerigo"
                 onClick={() => setConfirmandoExclusao(true)}
                 aria-label="Excluir projeto"
                 title="Excluir projeto"
-                className="hover:bg-red-500 hover:text-gray-50 dark:hover:bg-red-500 dark:hover:text-gray-50"
             >
                 <Trash2 size={18} />
             </Button>
@@ -61,22 +60,24 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
     return (
         <>
             <Modal aoFechar={aoFechar} largura="max-w-lg" acoes={acoes}>
-                <h2 className="mb-4 pr-24 text-xl font-bold">
+                <h2 className="mb-4 pr-24 font-titulo text-2xl">
                     {projetoExistente ? "Editar Projeto" : "Criar Projeto"}
                 </h2>
 
-                <Input
-                    label="Nome"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") salvar();
-                    }}
-                    placeholder="Digite o nome do projeto"
-                    className="mb-4 w-full border p-2 rounded"
-                />
+                <div className="mb-4">
+                    <Input
+                        variant="filled"
+                        label="Nome"
+                        value={nome}
+                        onChange={(e) => setNome(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") salvar();
+                        }}
+                        placeholder="Digite o nome do projeto"
+                    />
+                </div>
 
-                <label htmlFor="descricao-projeto" className="mb-2 block text-gray-700 dark:text-gray-300">
+                <label htmlFor="descricao-projeto" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Descrição
                 </label>
                 <textarea
@@ -84,19 +85,16 @@ export default function ModalProjeto({ projeto, aoSalvar, aoFechar, aoArquivar, 
                     value={descricao}
                     onChange={(e) => setDescricao(e.target.value)}
                     placeholder="Digite a descrição do projeto"
-                    className="mb-4 block w-full border p-2 rounded"
+                    rows={3}
+                    className="mb-4 block w-full rounded-xl border border-carvao px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary dark:border-neutral-500"
                 />
 
-                {erro && <p className="mb-4 text-sm text-red-500">{erro}</p>}
+                {erro && <p className="mb-4 text-sm text-erro">{erro}</p>}
                 <div className="flex justify-end gap-2">
-                    <Button onClick={aoFechar} variant="secondary">
+                    <Button onClick={aoFechar} variant="contorno">
                         Cancelar
                     </Button>
-                    <Button
-                        onClick={salvar}
-                        disabled={nome.trim() === "" || salvando}
-                        className="disabled:cursor-not-allowed disabled:opacity-50"
-                    >
+                    <Button onClick={salvar} disabled={nome.trim() === "" || salvando}>
                         {projetoExistente ? "Atualizar" : "Salvar"}
                     </Button>
                 </div>
