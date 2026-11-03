@@ -13,9 +13,9 @@ export default function ProjetoCabecalho() {
 
     return (
         <div className="px-4 pt-4">
-            <h1 className="text-2xl font-bold">{projeto.nome}</h1>
+            <h1 className="font-titulo text-3xl">{projeto.nome}</h1>
             {projeto.descricao && (
-                <p className="mt-1 text-gray-600 dark:text-gray-400">{projeto.descricao}</p>
+                <p className="mt-1 text-neutral-600 dark:text-neutral-400">{projeto.descricao}</p>
             )}
         </div>
     );

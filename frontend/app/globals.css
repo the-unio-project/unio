@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: var(--font-high-cruiser), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 
   --color-primary: #5e17eb;
   --color-primary-hover: #4b12bc;
