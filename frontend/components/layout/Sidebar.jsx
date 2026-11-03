@@ -67,7 +67,7 @@ export default function Sidebar() {
     };
 
     return (
-        <nav className="w-64 h-full shrink-0 overflow-y-auto rounded-3xl bg-primary p-4 pt-5 flex flex-col text-white">
+        <nav className="w-64 h-full shrink-0 overflow-y-auto rounded-3xl bg-primary p-4 flex flex-col text-white scrollbar-clara">
             <Link href="/dashboard" className={estiloItem("/dashboard")}>
                 <LayoutDashboard size={18} />
                 Dashboard

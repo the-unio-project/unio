@@ -17,3 +17,20 @@
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
   --font-titulo: var(--font-high-cruiser), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 }
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-primary, #5e17eb) 55%, transparent) transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    * {
+      scrollbar-color: rgb(255 255 255 / 0.35) transparent;
+    }
+  }
+}
+
+@utility scrollbar-clara {
+  scrollbar-color: rgb(255 255 255 / 0.5) transparent;
+}
