@@ -29,3 +29,6 @@ def delete_comment(comment_id: UUID, session:Session):
 
 def get_comments(task_id:UUID, session:Session) -> list[Comment]:
     return session.query(Comment).filter(Comment.task_id == task_id).all()
+
+def get_comment(comment_id: UUID, session:Session) -> Comment:
+    return session.query(Comment).filter(Comment.id == comment_id).first()
