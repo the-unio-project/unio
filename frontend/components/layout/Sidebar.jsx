@@ -73,11 +73,12 @@ export default function Sidebar() {
                 Dashboard
             </Link>
 
-            <div className="mt-6 flex items-center justify-between px-3">
+            <div className="mt-6 flex items-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white">
                 <button
                     type="button"
                     onClick={() => setProjetosAberto(!projetosAberto)}
-                    className="flex items-center gap-3 font-semibold text-white hover:cursor-pointer"
+                    aria-expanded={projetosAberto}
+                    className="flex flex-1 items-center gap-3 px-3 py-2 hover:cursor-pointer"
                 >
                     <FolderKanban size={18} />
                     Projetos
@@ -87,7 +88,12 @@ export default function Sidebar() {
                     />
                 </button>
                 {workspaceAtual && (
-                    <Button variant="iconeClaro" onClick={() => setModalAberto(true)} aria-label="Criar projeto">
+                    <Button
+                        variant="iconeClaro"
+                        onClick={() => setModalAberto(true)}
+                        aria-label="Criar projeto"
+                        className="mr-2 hover:cursor-pointer"
+                    >
                         <Plus size={16} />
                     </Button>
                 )}
