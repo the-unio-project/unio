@@ -25,7 +25,7 @@ export default function CentroNotificacoes() {
                 variant="iconeClaro"
                 onClick={alternar}
                 aria-label="Notificações"
-                className="relative"
+                className="relative hover:cursor-pointer"
             >
                 <Bell size={18} />
                 {naoLidas > 0 && (

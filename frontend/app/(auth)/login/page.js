@@ -107,7 +107,7 @@ export default function LoginPage() {
                             type="submit"
                             variant="primary"
                             disabled={carregando}
-                            className="mt-6 w-full uppercase tracking-wide"
+                            className="mt-6 w-full uppercase tracking-wide hover:cursor-pointer"
                         >
                             {carregando ? "Entrando..." : "Entrar"}
                         </Button>

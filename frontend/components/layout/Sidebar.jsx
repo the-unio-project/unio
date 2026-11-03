@@ -77,7 +77,7 @@ export default function Sidebar() {
                 <button
                     type="button"
                     onClick={() => setProjetosAberto(!projetosAberto)}
-                    className="flex items-center gap-3 font-semibold text-white"
+                    className="flex items-center gap-3 font-semibold text-white hover:cursor-pointer"
                 >
                     <FolderKanban size={18} />
                     Projetos

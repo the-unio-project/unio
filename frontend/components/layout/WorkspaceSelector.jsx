@@ -38,7 +38,7 @@ export default function WorkspaceSelector() {
                 type="button"
                 onClick={() => setAberto(!aberto)}
                 aria-expanded={aberto}
-                className="flex max-w-xs items-center gap-2 rounded-md p-2 text-lg font-bold text-white hover:bg-white/10 transition-colors"
+                className="flex max-w-xs items-center gap-2 rounded-md p-2 text-lg font-bold text-white hover:bg-white/10 transition-colors hover:cursor-pointer"
             >
                 <span className="truncate">{workspaceAtual.nome}</span>
                 <ChevronDown size={16} className="shrink-0 text-white/80" />
@@ -53,7 +53,7 @@ export default function WorkspaceSelector() {
                                 <button
                                     type="button"
                                     onClick={() => trocarWorkspace(workspace)}
-                                    className="flex w-full items-center justify-between gap-2 rounded-md p-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-neutral-800 transition-colors"
+                                    className="flex w-full hover:cursor-pointer items-center justify-between gap-2 rounded-md p-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-neutral-800 transition-colors"
                                 >
                                     <span className="truncate">{workspace.nome}</span>
                                     {workspace.id === workspaceAtual.id && <Check size={16} className="text-primary" />}
@@ -67,7 +67,7 @@ export default function WorkspaceSelector() {
                                     setModalAberto(true);
                                     setAberto(false);
                                 }}
-                                className="flex w-full items-center gap-2 text-sm"
+                                className="flex w-full items-center gap-2 text-sm hover:cursor-pointer"
                             >
                                 <Plus size={16} />
                                 Criar Workspace

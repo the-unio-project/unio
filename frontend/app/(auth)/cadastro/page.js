@@ -147,7 +147,7 @@ export default function CadastroPage() {
                             type="submit"
                             variant="primary"
                             disabled={carregando}
-                            className="mt-6 w-full uppercase tracking-wide"
+                            className="mt-6 w-full uppercase tracking-wide hover:cursor-pointer"
                         >
                             {carregando ? "Cadastrando..." : "Cadastrar"}
                         </Button>

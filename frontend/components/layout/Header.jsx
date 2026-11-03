@@ -33,7 +33,7 @@ export default function Header() {
                     <Avatar nome={usuarioAtual?.nickname} src={usuarioAtual?.profile_picture} />
                     <span className="text-sm font-medium text-white">{usuarioAtual?.nickname ?? "Perfil"}</span>
                 </Link>
-                <Button variant="contornoClaro" onClick={handleLogout}>
+                <Button variant="contornoClaro" onClick={handleLogout} className="hover:cursor-pointer" >
                     Sair
                 </Button>
             </div>

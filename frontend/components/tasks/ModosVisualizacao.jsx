@@ -16,7 +16,7 @@ export default function ModosVisualizacao({ visaoAtual, aoMudar }) {
                         type="button"
                         onClick={() => aoMudar(id)}
                         aria-pressed={ativa}
-                        className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium transition ${ativa
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium hover:cursor-pointer transition ${ativa
                             ? "border-primary bg-primary/20 text-primary dark:bg-primary/50 dark:text-white"
                             : "border-carvao text-carvao hover:bg-primary/20 dark:border-neutral-500 dark:text-neutral-200"
                             }`}

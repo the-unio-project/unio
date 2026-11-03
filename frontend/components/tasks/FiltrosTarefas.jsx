@@ -1,7 +1,7 @@
 import { PRIORIDADES } from "@/lib/prioridades";
 
 const ESTILO_SELECT =
-    "rounded-full border border-carvao bg-transparent px-3 py-1 text-sm text-carvao focus:outline-none focus:ring-2 focus:ring-primary dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-200";
+    "rounded-full border border-carvao bg-transparent px-3 py-1 hover:cursor-pointer text-sm text-carvao focus:outline-none focus:ring-2 focus:ring-primary dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-200";
 
 export default function FiltrosTarefas({
     membros,
