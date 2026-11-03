@@ -9,6 +9,7 @@ export default function Input({ label, variant = "default", id, className = "", 
     const estilos = {
         default: "px-3 py-2 border border-gray-300 rounded-md bg-transparent dark:border-neutral-700 dark:text-white",
         filled: "px-4 py-3 bg-campo border border-transparent rounded-xl text-carvao placeholder:text-neutral-500 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-400",
+        contrast: "px-3 py-2 rounded-md bg-white/50 border border-black/30 text-carvao placeholder:text-carvao/60",
     };
 
     return (

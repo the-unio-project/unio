@@ -12,7 +12,7 @@ export default function ColunaKanban({ status, tarefas, membros, aoAdicionar, ao
         <section
             ref={setNodeRef}
             style={corSolida(status.cor)}
-            className={`w-72 shrink-0 rounded-lg p-3 transition ${isOver ? "ring-4 ring-primary/50" : ""}`}
+            className={`w-72 shrink-0 rounded-lg p-3 transition ${isOver ? "ring-4 ring-inset ring-primary/70" : ""}`}
         >
             <h2 className="mb-3 px-1 text-sm font-bold">{status.nome}</h2>
 
@@ -28,7 +28,7 @@ export default function ColunaKanban({ status, tarefas, membros, aoAdicionar, ao
                 ))}
             </ul>
 
-            <NovaTarefaInline aoAdicionar={(titulo) => aoAdicionar(status.id, titulo)} />
+            <NovaTarefaInline variante="contrast" aoAdicionar={(titulo) => aoAdicionar(status.id, titulo)} />
         </section>
     );
 }

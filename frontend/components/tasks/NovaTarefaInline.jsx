@@ -4,7 +4,7 @@ import { useState } from "react";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
-export default function NovaTarefaInline({ aoAdicionar }) {
+export default function NovaTarefaInline({ aoAdicionar, variante = "default" }) {
     const [titulo, setTitulo] = useState("");
     const [salvando, setSalvando] = useState(false);
     const [erro, setErro] = useState("");
@@ -16,7 +16,7 @@ export default function NovaTarefaInline({ aoAdicionar }) {
         setErro("");
         try {
             await aoAdicionar(novoTitulo);
-            setTitulo(""); // só limpa se deu certo
+            setTitulo("");
         } catch {
             setErro("Não foi possível adicionar a tarefa.");
         }
@@ -27,13 +27,14 @@ export default function NovaTarefaInline({ aoAdicionar }) {
         <div className="mt-2">
             <div className="flex gap-2">
                 <Input
+                    variant={variante}
                     value={titulo}
                     onChange={(e) => setTitulo(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") confirmar();
                     }}
                     placeholder="+ Adicionar tarefa"
-                    className="border p-2 rounded flex-1 min-w-0 text-sm"
+                    className="min-w-0 text-sm"
                 />
                 <Button
                     onClick={confirmar}
