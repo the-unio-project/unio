@@ -25,30 +25,30 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
                 {status.nome}
             </h2>
             {tarefas.length > 0 && (
-                <div className={`${COLUNAS} px-2 mb-1 text-xs text-gray-500 border border-transparent`}>
+                <div className={`${COLUNAS} border-b border-neutral-300 px-3 pb-1 text-xs font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400`}>
                     <span>Título</span>
                     <span>Responsável</span>
                     <span>Prioridade</span>
                     <span>Data</span>
                 </div>
             )}
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800">
                 {tarefas.map((tarefa) => (
                     <li
                         key={tarefa.id}
-                        className={`${COLUNAS} hover:bg-gray-100 dark:hover:bg-gray-700 transition border p-2 rounded cursor-pointer`}
+                        className={`${COLUNAS} cursor-pointer rounded-lg px-3 py-2 transition hover:bg-primary/10`}
                         onClick={() => aoSelecionar(tarefa.id)}
                     >
-                        <button type="button" className="text-left truncate">
+                        <button type="button" className="truncate text-left font-medium">
                             {tarefa.titulo}
                         </button>
-                        <span className="text-sm text-gray-600 truncate" title={nomesResponsaveis(tarefa)}>
+                        <span className="truncate text-sm text-neutral-600 dark:text-neutral-400" title={nomesResponsaveis(tarefa)}>
                             {nomesResponsaveis(tarefa) || "-"}
                         </span>
                         <span className={`justify-self-start text-xs px-2 py-1 rounded ${PRIORIDADES[tarefa.prioridade]?.cor}`}>
                             {PRIORIDADES[tarefa.prioridade]?.rotulo}
                         </span>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
                             {formatarDataLista(tarefa.dataVencimento)}
                         </span>
                     </li>
