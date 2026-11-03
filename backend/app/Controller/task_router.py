@@ -3,11 +3,13 @@ from fastapi import Depends, APIRouter
 from uuid import UUID
 from sqlalchemy.orm import Session
 
+from Repositories import project_repo
 from Schemas.task_schema import CreateSubtaskSchema, DashboardTaskSchema, MoveTaskStatusSchema, SubtaskResponseSchema, TaskAssigneeResponseSchema, TaskResponseSchema, CreateTaskSchema, DeleteTaskSchema
 from Database.database import get_session
 
 from Models.models import User
 from Repositories.task_repo import TaskRepository
+from Services.Permissions.perm_methods import assert_project_member
 from Services.task_service import TaskService
 from Services.Authentication.auth_methods import verify_token
 
@@ -18,42 +20,77 @@ CurrentUserDep = Annotated[User, Depends(verify_token)]
 
 @task_router.post("/projects/{project_id}/tasks", response_model=TaskResponseSchema)
 async def create_task(project_id: UUID, task: CreateTaskSchema, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
+    assert_project_member(project_id, current_user.id, session)
+
     service = TaskService(session)
     return service.create_task(project_id, task, current_user.id)
 
 @task_router.post("/lists/{list_id}/tasks", response_model=TaskResponseSchema)
 async def create_task_in_list(list_id: UUID, task: CreateTaskSchema, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
     service = TaskService(session)
-    return service.create_task_in_list(list_id, task, current_user.id)
+    task = service.create_task_in_list(list_id, task, current_user.id)
+    
+    assert_project_member(task.project_id, current_user.id, session)
+
+    return task
 
 @task_router.get("/tasks/{task_id}", response_model=TaskResponseSchema)
 async def read_single_task(task_id: UUID, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
     service = TaskService(session)
-    return service.get_accessible_task(task_id, current_user.id)
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
+    return task
 
 @task_router.get("/projects/{project_id}/tasks", response_model=list[TaskResponseSchema])
 async def list_tasks(session: SessionDep, project_id: UUID, current_user: CurrentUserDep) -> list[TaskResponseSchema]:
     service = TaskService(session)
+
+    assert_project_member(project_id, current_user.id, session)
+
     return service.get_tasks_by_project(project_id, current_user.id)
 
 @task_router.put("/tasks/{task_id}", response_model=TaskResponseSchema)
-async def replace_task(task: CreateTaskSchema, task_id: UUID, session: SessionDep) -> TaskResponseSchema:
+async def replace_task(task: CreateTaskSchema, task_id: UUID, session: SessionDep, current_user: CurrentUserDep) -> TaskResponseSchema:
     repo = TaskRepository(session)
+    service = TaskService(session)
+
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     return repo.replace_task(task, task_id)
 
 @task_router.delete("/tasks/{task_id}", response_model=DeleteTaskSchema)
-async def delete_task(task_id: UUID, session: SessionDep):
+async def delete_task(task_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     repo = TaskRepository(session)
+
+    service = TaskService(session)
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     return repo.delete_task(task_id)
 
 @task_router.post("/tasks/{task_id}/subtasks", response_model=SubtaskResponseSchema)
 async def create_subtask(task_id: UUID, subtask: CreateSubtaskSchema,session: SessionDep, current_user: CurrentUserDep) -> SubtaskResponseSchema:
     service = TaskService(session)
+
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     return service.create_subtask(task_id=task_id, subtask=subtask, user_id=current_user.id)
 
 @task_router.post("/tasks/{task_id}/user/{user_id}")
 async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     service = TaskService(session)
+
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     service.assign_task_to_user(task_id, user_id, current_user.id)
 
     return {"message": "Successfully assigned task to user."}
@@ -61,31 +98,49 @@ async def assign_task_to_user(task_id: UUID, user_id: UUID, session: SessionDep,
 @task_router.delete("/tasks/{task_id}/user/{user_id}")
 async def unassign_task_from_user(task_id: UUID, user_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     service = TaskService(session)
+
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     service.unassign_task_from_user(task_id, user_id, current_user.id)
 
     return {"message": "Successfully unassigned task from the user."}
 
 @task_router.patch("/tasks/{task_id}/status", response_model=TaskResponseSchema)
-async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionDep):
+async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     service = TaskService(session)
+
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     return service.move_task(task_id=task_id, status_id=task.status_id, new_position=task.position)
 
 @task_router.get("/me/tasks", response_model=list[DashboardTaskSchema])
 async def get_user_tasks(session: SessionDep, current_user: CurrentUserDep, order: Literal["asc", "desc"] = "asc"):
     repo = TaskRepository(session)
+
     return repo.get_user_tasks(current_user.id, order)
 
 @task_router.get("/me/tasks/due-today", response_model=list[DashboardTaskSchema])
 async def get_tasks_due_today(session: SessionDep, current_user: CurrentUserDep):
     repo = TaskRepository(session)
+
     return repo.get_tasks_due_today(current_user.id)
 
 @task_router.get("/me/tasks/overdue", response_model=list[DashboardTaskSchema])
 async def get_tasks_overdue(session: SessionDep, current_user: CurrentUserDep):
     repo = TaskRepository(session)
+
     return repo.get_overdue_tasks(current_user.id)
 
 @task_router.get("/tasks/{task_id}/assignees", response_model=list[TaskAssigneeResponseSchema])
-async def get_task_assignees(session: SessionDep, current_user: CurrentUserDep, task_id):
+async def get_task_assignees(session: SessionDep, current_user: CurrentUserDep, task_id: UUID):
     service = TaskService(session)
+
+    task = service.get_accessible_task(task_id, current_user.id)
+
+    assert_project_member(task.project_id, current_user.id, session)
+
     return service.get_task_assignees(current_user.id, task_id)
