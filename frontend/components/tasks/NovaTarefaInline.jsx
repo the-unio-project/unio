@@ -39,12 +39,12 @@ export default function NovaTarefaInline({ aoAdicionar }) {
                     onClick={confirmar}
                     disabled={salvando}
                     variant="task"
-                    className="text-sm px-3 py-1 border rounded disabled:opacity-50"
+                    className="text-sm px-3 py-1 border rounded disabled:opacity-50 hover:cursor-pointer"
                 >
                     Adicionar
                 </Button>
             </div>
-            {erro && <p className="mt-1 text-sm text-red-500">{erro}</p>}
+            {erro && <p className="mt-1 rounded bg-white px-2 py-1 text-sm text-erro">{erro}</p>}
         </div>
     )
 }

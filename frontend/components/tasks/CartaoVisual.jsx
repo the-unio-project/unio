@@ -13,7 +13,7 @@ export default function CartaoVisual({ tarefa, membros, className = "" }) {
     const extras = responsaveis.length - visiveis.length;
 
     return (
-        <div className={`rounded-lg border bg-white dark:bg-zinc-800 p-3 transition-colors group-hover:bg-gray-50 dark:group-hover:bg-zinc-700 ${className}`}>
+        <div className={`rounded-lg border bg-white text-carvao dark:bg-zinc-800 dark:text-gray-100 p-3 transition-colors group-hover:bg-gray-50 dark:group-hover:bg-zinc-700 ${className}`}>
             <p className="text-sm font-medium mb-2">{tarefa.titulo}</p>
 
             {prioridade && (

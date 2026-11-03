@@ -1,7 +1,7 @@
 "use client";
 
 import { PRIORIDADES } from "@/lib/prioridades";
-import { estiloDaCor } from "@/lib/cores";
+import { corSolida } from "@/lib/cores";
 import { formatarDataLista } from "@/lib/datas";
 import NovaTarefaInline from "@/components/tasks/NovaTarefaInline";
 
@@ -17,10 +17,10 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
     }
 
     return (
-        <section className="mb-6">
+        <section className="mb-4 rounded-xl bg-white p-4 shadow-sm dark:bg-neutral-900">
             <h2
-                className="inline-block font-bold text-lg mb-2 p-1 rounded"
-                style={estiloDaCor(status.cor)}
+                className="mb-3 inline-block rounded-lg px-3 py-1 text-lg font-bold"
+                style={corSolida(status.cor)}
             >
                 {status.nome}
             </h2>
@@ -36,10 +36,10 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
                 {tarefas.map((tarefa) => (
                     <li
                         key={tarefa.id}
-                        className={`${COLUNAS} cursor-pointer rounded-lg px-3 py-2 transition hover:bg-primary/10`}
+                        className={`${COLUNAS} hover:cursor-pointer rounded-lg px-3 py-2 transition hover:bg-primary/10`}
                         onClick={() => aoSelecionar(tarefa.id)}
                     >
-                        <button type="button" className="truncate text-left font-medium">
+                        <button type="button" className="truncate text-left font-medium hover:cursor-pointer">
                             {tarefa.titulo}
                         </button>
                         <span className="truncate text-sm text-neutral-600 dark:text-neutral-400" title={nomesResponsaveis(tarefa)}>
