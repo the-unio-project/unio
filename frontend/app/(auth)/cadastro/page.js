@@ -60,7 +60,7 @@ export default function CadastroPage() {
 
     return (
         <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
-            <div className="hidden relative flex-col items-center justify-center bg-sucesso p-8 md:flex">
+            <div className="hidden relative flex-col items-center justify-center bg-primary p-8 md:flex">
                 <Image
                     src="/logo.svg"
                     alt="UNIO"
@@ -86,11 +86,11 @@ export default function CadastroPage() {
                 <div className="w-full max-w-sm">
                     <div className="mb-12 flex justify-center">
                         <Image
-                            src="/logo-roxa.svg"
+                            src="/logotiny.svg"
                             alt="UNIO"
-                            width={150}
-                            height={80}
-                            className="h-auto w-auto"
+                            width={75}
+                            height={40}
+                            className="w-full h-auto max-w-18.75 object-contain"
                             priority
                         />
                     </div>
