@@ -21,12 +21,15 @@ export default function CentroNotificacoes() {
 
     return (
         <div className="relative">
-            <Button variant="icone" onClick={alternar} aria-label="Notificações">
+            <Button
+                variant="iconeClaro"
+                onClick={alternar}
+                aria-label="Notificações"
+                className="relative"
+            >
                 <Bell size={18} />
                 {naoLidas > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-xs text-white">
-                        {naoLidas}
-                    </span>
+                    <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-alerta" />
                 )}
             </Button>
 
@@ -34,20 +37,20 @@ export default function CentroNotificacoes() {
                 <>
                     <div className="fixed inset-0 z-10" onClick={() => setAberto(false)} />
 
-                    <div className="absolute right-0 z-20 mt-2 w-80 rounded-md bg-white p-3 shadow-lg dark:bg-gray-900">
+                    <div className="absolute right-0 z-20 mt-2 w-80 rounded-md bg-white p-3 text-carvao shadow-lg dark:bg-neutral-900 dark:text-gray-100">
                         <div className="mb-2 flex items-center justify-between">
                             <h2 className="font-medium">Notificações</h2>
                             {naoLidas > 0 && (
                                 <button
                                     onClick={marcarTodasComoLidas}
-                                    className="text-sm text-violet-700 hover:underline"
+                                    className="text-sm text-primary hover:underline"
                                 >
                                     Marcar todas como lidas
                                 </button>
                             )}
                         </div>
 
-                        {erro && <p className="mb-2 text-sm text-red-500">{erro}</p>}
+                        {erro && <p className="mb-2 text-sm text-erro">{erro}</p>}
 
                         {notificacoes.length === 0 ? (
                             <p className="py-4 text-center text-sm text-gray-500">
@@ -59,11 +62,11 @@ export default function CentroNotificacoes() {
                                     <li key={n.id}>
                                         <button
                                             onClick={() => !n.lida && marcarComoLida(n.id)}
-                                            className={`flex w-full items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${n.lida ? "text-gray-500" : "font-medium"
+                                            className={`flex w-full items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-800 ${n.lida ? "text-gray-500" : "font-medium"
                                                 }`}
                                         >
                                             {!n.lida && (
-                                                <span className="h-2 w-2 shrink-0 rounded-full bg-violet-700" />
+                                                <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />
                                             )}
                                             {TEXTOS_NOTIFICACAO[n.tipo] ?? "Nova notificação"}
                                         </button>

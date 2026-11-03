@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { ChevronRight, Plus, Pencil } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +16,7 @@ export default function Sidebar() {
     } = useWorkspace();
     const params = useParams();
     const router = useRouter();
+    const pathname = usePathname();
     const [projetosAberto, setProjetosAberto] = useState(true);
     const [modalAberto, setModalAberto] = useState(false);
     const [projetoEditandoId, setProjetoEditandoId] = useState(null);
@@ -57,14 +58,25 @@ export default function Sidebar() {
         setProjetoEditandoId(null);
     }
 
-    return (
-        <nav className="w-64 h-full shrink-0 overflow-y-auto p-4">
-            <Link href="/dashboard">Dashboard</Link>
+    const estiloItem = (caminho) => {
+        const ativo = pathname === caminho || pathname?.startsWith(caminho + "/");
+        return `block px-3 py-2 rounded-md transition-colors ${ativo
+            ? "bg-white text-primary font-semibold"
+            : "text-white/80 hover:bg-white/10 hover:text-white"
+            }`;
+    };
 
-            <div className="mt-4 flex items-center justify-between">
+    return (
+        <nav className="w-64 h-full shrink-0 overflow-y-auto p-4 flex flex-col bg-primary text-white border-r border-primary-hover">
+            <Link href="/dashboard" className={estiloItem("/dashboard")}>
+                Dashboard
+            </Link>
+
+            <div className="mt-6 flex items-center justify-between px-3">
                 <button
+                    type="button"
                     onClick={() => setProjetosAberto(!projetosAberto)}
-                    className="flex items-center gap-2 font-semibold"
+                    className="flex items-center gap-2 font-semibold text-white"
                 >
                     Projetos
                     <ChevronRight
@@ -73,7 +85,7 @@ export default function Sidebar() {
                     />
                 </button>
                 {workspaceAtual && (
-                    <Button variant="icone" onClick={() => setModalAberto(true)} aria-label="Criar projeto">
+                    <Button variant="iconeClaro" onClick={() => setModalAberto(true)} aria-label="Criar projeto">
                         <Plus size={16} />
                     </Button>
                 )}
@@ -81,41 +93,58 @@ export default function Sidebar() {
 
             {projetosAberto &&
                 (carregandoProjetos ? (
-                    <p className="mt-2 ml-2 text-sm text-gray-500">Carregando...</p>
+                    <p className="mt-2 ml-3 text-sm text-white/60">Carregando...</p>
                 ) : erroProjetos ? (
-                    <p className="mt-2 ml-2 text-sm text-red-500">{erroProjetos}</p>
+                    <p className="mt-2 ml-3 text-sm text-alerta">{erroProjetos}</p>
                 ) : projetos.length === 0 ? (
-                    <p className="mt-2 ml-2 text-sm text-gray-500">Nenhum projeto ainda</p>
+                    <p className="mt-2 ml-3 text-sm text-white/60">Nenhum projeto ainda</p>
                 ) : (
-                    <ul className="flex flex-col gap-2 list-none mt-2 ml-2">
-                        {projetos.map((projeto) => (
-                            <li key={projeto.id} className="group flex items-center justify-between">
-                                <Link href={`/${workspaceAtual.id}/projetos/${projeto.id}`}>
-                                    {projeto.nome}
-                                </Link>
-                                <Button
-                                    variant="icone"
-                                    onClick={() => setProjetoEditandoId(projeto.id)}
-                                    aria-label={`Editar projeto ${projeto.nome}`}
-                                    className="opacity-0 group-hover:opacity-100 focus:opacity-100"
-                                >
-                                    <Pencil size={14} />
-                                </Button>
-                            </li>
-                        ))}
+                    <ul className="flex flex-col gap-1 list-none mt-2">
+                        {projetos.map((projeto) => {
+                            const linkProjeto = `/${workspaceAtual.id}/projetos/${projeto.id}`;
+                            const ativo = pathname === linkProjeto;
+
+                            return (
+                                <li key={projeto.id} className="group flex items-center justify-between">
+                                    <Link
+                                        href={linkProjeto}
+                                        className={`flex-1 truncate px-3 py-2 rounded-md transition-colors ${ativo
+                                            ? "bg-white text-primary font-semibold"
+                                            : "text-white/80 hover:bg-white/10 hover:text-white"
+                                            }`}
+                                    >
+                                        {projeto.nome}
+                                    </Link>
+                                    <Button
+                                        variant="iconeClaro"
+                                        onClick={() => setProjetoEditandoId(projeto.id)}
+                                        aria-label={`Editar projeto ${projeto.nome}`}
+                                        className="ml-1 shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                    >
+                                        <Pencil size={14} />
+                                    </Button>
+                                </li>
+                            );
+                        })}
                     </ul>
                 ))}
 
-            <ul className="flex flex-col gap-4 list-none mt-4">
-                {workspaceAtual && (
+            <div className="mt-6 pt-4 border-t border-white/10">
+                <ul className="flex flex-col gap-1 list-none">
+                    {workspaceAtual && (
+                        <li>
+                            <Link href={`/${workspaceAtual.id}/membros`} className={estiloItem(`/${workspaceAtual.id}/membros`)}>
+                                Membros
+                            </Link>
+                        </li>
+                    )}
                     <li>
-                        <Link href={`/${workspaceAtual.id}/membros`}>Membros</Link>
+                        <Link href="/configuracoes" className={estiloItem("/configuracoes")}>
+                            Configurações
+                        </Link>
                     </li>
-                )}
-                <li>
-                    <Link href="/configuracoes">Configurações</Link>
-                </li>
-            </ul>
+                </ul>
+            </div>
 
             {modalAberto && (
                 <ModalProjeto
