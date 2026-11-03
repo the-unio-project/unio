@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import { useWorkspace } from "@/context/WorkspaceContext";
-import { ChevronRight, Plus, Pencil } from "lucide-react";
+import { ChevronRight, Plus, Pencil, LayoutDashboard, FolderKanban, Users, Settings } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import ModalProjeto from "@/components/projects/ModalProjeto";
@@ -60,15 +60,16 @@ export default function Sidebar() {
 
     const estiloItem = (caminho) => {
         const ativo = pathname === caminho || pathname?.startsWith(caminho + "/");
-        return `block px-3 py-2 rounded-md transition-colors ${ativo
+        return `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${ativo
             ? "bg-white text-primary font-semibold"
             : "text-white/80 hover:bg-white/10 hover:text-white"
             }`;
     };
 
     return (
-        <nav className="w-64 h-full shrink-0 overflow-y-auto p-4 flex flex-col bg-primary text-white border-r border-primary-hover">
+        <nav className="w-64 h-full shrink-0 overflow-y-auto rounded-3xl bg-primary p-4 pt-5 flex flex-col text-white">
             <Link href="/dashboard" className={estiloItem("/dashboard")}>
+                <LayoutDashboard size={18} />
                 Dashboard
             </Link>
 
@@ -76,8 +77,9 @@ export default function Sidebar() {
                 <button
                     type="button"
                     onClick={() => setProjetosAberto(!projetosAberto)}
-                    className="flex items-center gap-2 font-semibold text-white"
+                    className="flex items-center gap-3 font-semibold text-white"
                 >
+                    <FolderKanban size={18} />
                     Projetos
                     <ChevronRight
                         size={16}
@@ -134,12 +136,14 @@ export default function Sidebar() {
                     {workspaceAtual && (
                         <li>
                             <Link href={`/${workspaceAtual.id}/membros`} className={estiloItem(`/${workspaceAtual.id}/membros`)}>
+                                <Users size={18} />
                                 Membros
                             </Link>
                         </li>
                     )}
                     <li>
                         <Link href="/configuracoes" className={estiloItem("/configuracoes")}>
+                            <Settings size={18} />
                             Configurações
                         </Link>
                     </li>
