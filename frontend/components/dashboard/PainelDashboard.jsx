@@ -8,8 +8,8 @@ export default function PainelDashboard() {
     const { workspaceAtual, projetosAtivos } = useWorkspace();
     const { minhas, hoje, atrasadas, carregando, erro } = useTarefasDashboard();
 
-    if (carregando) return <p className="p-4 text-gray-500">Carregando...</p>;
-    if (erro) return <p className="p-4 text-red-500">{erro}</p>;
+    if (carregando) return <p className="p-4 text-neutral-500">Carregando...</p>;
+    if (erro) return <p className="p-4 text-erro">{erro}</p>;
 
     const projetosPorId = new Map(
         projetosAtivos
@@ -20,7 +20,7 @@ export default function PainelDashboard() {
 
     return (
         <div className="flex flex-col gap-4 p-4">
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Dashboard</h1>
+            <h1 className="font-titulo text-3xl">Dashboard</h1>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <SecaoDashboard
