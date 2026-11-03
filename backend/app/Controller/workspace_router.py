@@ -79,3 +79,22 @@ def remove_member(workspace_id:UUID, target_user_id:UUID, user = Depends(verify_
 @workspace_router.delete(path="/{workspace_id}")
 def delete_workspace(workspace_id:UUID, _ = Depends(verify_token), session:Session = Depends(get_session)):
     return WorkspaceRepository(session).delete_workspace(workspace_id)
+
+@workspace_router.patch(path="/{workspace_id}/members/{target_user_id}/role")
+def change_member_role(workspace_id: UUID, target_user_id: UUID, user = Depends(verify_token), session:Session = Depends(get_session)):
+    assert_workspace_member(workspace_id, user.id, session)
+    target = WorkspaceRepository(session).get_member(workspace_id, target_user_id)
+    if target.role == WorkspaceRole.OWNER:
+        raise HTTPException(status_code=401, detail="Operation not Allowed")
+    elif target.role == WorkspaceRole.ADMIN:
+        assert_workspace_permission(workspace_id, WorkspaceRole.OWNER, user.id, session)
+
+        response = WorkspaceRepository(session).change_member_role(workspace_id, target_user_id)
+
+        return response
+    else:
+        assert_workspace_permission(workspace_id, WorkspaceRole.ADMIN, user.id, session)
+
+        response = WorkspaceRepository(session).change_member_role(workspace_id, target_user_id)
+
+        return response

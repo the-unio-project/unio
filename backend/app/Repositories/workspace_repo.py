@@ -117,6 +117,20 @@ class WorkspaceRepository:
 
         return "Workspace member deleted successfully"
 
+    def change_member_role(self, workspace_id: UUID, user_id: UUID) -> str:
+        member = self.session.query(WorkspaceMember).filter(WorkspaceMember.workspace_id == workspace_id).filter(WorkspaceMember.user_id == user_id).first()
+
+        if not member:
+            raise HTTPException(status_code=404, detail="No membership found")
+        
+        if member.role == WorkspaceRole.MEMBER:
+            member.role = WorkspaceRole.ADMIN
+        elif member.role == WorkspaceRole.ADMIN:
+            member.role = WorkspaceRole.MEMBER
+
+        self.session.commit()
+        return "Workspace member role was changed"
+
     # INVITE FUNCTIONS
 
     def create_invite(self, workspace_id: UUID) -> WorkspaceInvite:
