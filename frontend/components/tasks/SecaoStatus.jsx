@@ -5,7 +5,7 @@ import { corSolida } from "@/lib/cores";
 import { formatarDataLista } from "@/lib/datas";
 import NovaTarefaInline from "@/components/tasks/NovaTarefaInline";
 
-const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-4";
+const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-8";
 
 export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoSelecionar }) {
 

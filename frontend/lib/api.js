@@ -333,3 +333,28 @@ export async function notificacaoLidaApi(id) {
 export async function todasLidasApi() {
     await apiFetch('/notifications/read-all', { method: 'POST' });
 }
+
+function traduzirComentario(c) {
+    return {
+        id: c.id,
+        texto: c.comment,
+        autorId: c.sender_id,
+        tarefaId: c.task_id,
+    };
+}
+
+export async function listarComentarios(tarefaId) {
+    const dados = await apiFetch(`/tasks/${tarefaId}/comments`);
+    return (dados ?? []).map(traduzirComentario);
+}
+
+export async function criarComentarioApi(tarefaId, texto) {
+    await apiFetch(`/tasks/${tarefaId}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ comment: texto }),
+    });
+}
+
+export async function excluirComentarioApi(comentarioId) {
+    await apiFetch(`/comments/${comentarioId}`, { method: 'DELETE' });
+}
