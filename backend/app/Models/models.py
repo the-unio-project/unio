@@ -98,7 +98,7 @@ class Project(Base):
         nullable=False
     )
     color: Mapped[str] = mapped_column(String(100), nullable=False)
-    icon_url: Mapped[str] = mapped_column(String(100), nullable=True)
+    icon_url: Mapped[str] = mapped_column(String, server_default="/assets/project.svg", nullable=False)
     is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     statuses: Mapped[list["Status"]] = relationship(
         "Status",

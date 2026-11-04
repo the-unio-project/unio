@@ -1,17 +1,15 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 class CreateProjectSchema(BaseModel):
     name: str
     description: str | None = None
-    icon_url: str | None = Field(default='https://example.com/')
     color: str | None = None
 
 class EditProjectSchema(BaseModel):
     name: str | None = None
     description: str | None = None
-    icon_url: str | None = Field(default='https://example.com/')
     color: str | None = None
 
 class ProjectResponseSchema(CreateProjectSchema):
@@ -22,7 +20,7 @@ class ProjectResponseSchema(CreateProjectSchema):
     model_config = {
         "from_attributes": True
     }
-    icon_url: str | None = Field(default='https://example.com/')
+    icon_url: str
     color: str | None
     is_archived: bool
 

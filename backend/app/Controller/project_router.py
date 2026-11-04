@@ -1,8 +1,10 @@
 from typing import Annotated
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter, UploadFile
 from uuid import UUID
 from sqlalchemy.orm import Session
+from supabase import Client
 
+from Database.supabase import get_supabase
 from Services.Authentication.auth_methods import verify_token
 from Models.models import Project, User, WorkspaceRole
 from Schemas.project_schema import ProjectResponseSchema, CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
@@ -56,6 +58,10 @@ async def create_project(workspace_id: UUID, project: CreateProjectSchema, sessi
 @project_router.get("/project/{project_id}", response_model=ProjectResponseSchema)
 async def read_single_project(project: AccessibleProjectDep):
     return project
+
+@project_router.patch("/project/{project_id}/logo")
+def update_project_icon(project: ManageableProjectDep, logo: UploadFile, session: SessionDep, supabase: Client = Depends(get_supabase)):
+    return ProjectRepository(session).update_icon(project.id, logo, supabase)
 
 @project_router.get("/{workspace_id}/project/", response_model=list[ProjectResponseSchema])
 async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user: User = Depends(verify_token)) -> list[ProjectResponseSchema]:
