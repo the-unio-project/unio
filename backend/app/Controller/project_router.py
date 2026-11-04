@@ -10,6 +10,7 @@ from Database.database import get_session
 
 from Repositories.project_repo import ProjectRepository
 from Services.Permissions.perm_methods import assert_project_member, assert_workspace_member, assert_workspace_permission
+from Services.Validation.color_validation import validate_color
 from Services.project_service import ProjectService
 
 project_router = APIRouter()
@@ -44,6 +45,11 @@ ManageableProjectDep = Annotated[Project, Depends(get_manageable_project)]
 @project_router.post("/{workspace_id}/project/", response_model=ProjectResponseSchema)
 async def create_project(workspace_id: UUID, project: CreateProjectSchema, session: SessionDep, user: CurrentUserDep) -> ProjectResponseSchema:
     assert_workspace_permission(workspace_id, WorkspaceRole.ADMIN, user.id, session)
+
+    if project.color:
+        if not validate_color(project.color):
+            raise HTTPException(status_code=400, detail="Hex Code for colour invalid")
+
     service = ProjectService(session)
     return service.create_project(workspace_id, project, user.id)
 
@@ -60,6 +66,11 @@ async def get_accessible_projects(workspace_id: UUID, session: SessionDep, user:
 @project_router.put("/project/{project_id}", response_model=ProjectResponseSchema)
 async def replace_project(project: CreateProjectSchema, current_project: ManageableProjectDep, session: SessionDep, user: User = Depends(verify_token)) -> ProjectResponseSchema:
     assert_project_member(current_project.id, user.id, session)
+
+    if project.color:
+        if not validate_color(project.color):
+            raise HTTPException(status_code=400, detail="Hex Code for colour invalid")
+
     repo = ProjectRepository(session)
     return repo.replace_project(project, current_project.id)
 
