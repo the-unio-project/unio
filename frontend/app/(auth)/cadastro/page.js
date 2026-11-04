@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -26,7 +27,7 @@ export default function CadastroPage() {
         }
 
         if (!email.includes('@')) {
-            setErro('Email inválido');
+            setErro('E-mail inválido');
             return;
         }
 
@@ -36,7 +37,7 @@ export default function CadastroPage() {
         }
 
         if (senha.length < 6) {
-            setErro('Senha deve ter pelo menos 6 caracteres');
+            setErro('A senha deve ter pelo menos 6 caracteres');
             return;
         }
 
@@ -58,62 +59,101 @@ export default function CadastroPage() {
     }
 
     return (
-        <div className="flex items-center justify-center h-screen px-4">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-xs w-full">
+        <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+            <div className="hidden relative flex-col items-center justify-center bg-primary p-8 md:flex">
+                <Image
+                    src="/logo.svg"
+                    alt="UNIO"
+                    width={350}
+                    height={150}
+                    className="h-auto w-auto max-w-full"
+                    priority
+                />
 
-                <div className="text-center mb-4">
-                    <h1 className="text-2xl font-bold dark:text-white">Criar Conta</h1>
+                <div className="absolute bottom-8 left-8">
+                    <Image
+                        src="/frase.svg"
+                        alt="Unindo Pessoas e Projetos"
+                        width={200}
+                        height={60}
+                        className="h-auto w-auto max-w-full"
+                        priority
+                    />
                 </div>
+            </div>
 
-                <Input
-                    variant="filled"
-                    type="text"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    placeholder="Nome Completo"
-                />
+            <div className="flex items-center justify-center bg-white px-4 dark:bg-neutral-950">
+                <div className="w-full max-w-sm">
+                    <div className="mb-12 flex justify-center">
+                        <Image
+                            src="/logotiny.svg"
+                            alt="UNIO"
+                            width={75}
+                            height={40}
+                            className="w-full h-auto max-w-18.75 object-contain"
+                            priority
+                        />
+                    </div>
 
-                <Input
-                    variant="filled"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="E-mail"
-                />
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                        <Input
+                            variant="filled"
+                            type="text"
+                            value={nome}
+                            onChange={(e) => setNome(e.target.value)}
+                            placeholder="Nome Completo"
+                        />
 
-                <Input
-                    variant="filled"
-                    type="password"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    placeholder="Senha"
-                />
+                        <Input
+                            variant="filled"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="E-mail"
+                        />
 
-                <Input
-                    variant="filled"
-                    type="password"
-                    value={confirmarSenha}
-                    onChange={(e) => setConfirmarSenha(e.target.value)}
-                    placeholder="Confirmar Senha"
-                />
+                        <Input
+                            variant="filled"
+                            type="password"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                            placeholder="Senha"
+                        />
 
-                {confirmarSenha !== '' && confirmarSenha !== senha && (
-                    <p className="text-orange-500 text-sm text-center">As senhas ainda não coincidem</p>
-                )}
+                        <Input
+                            variant="filled"
+                            type="password"
+                            value={confirmarSenha}
+                            onChange={(e) => setConfirmarSenha(e.target.value)}
+                            placeholder="Confirmar Senha"
+                        />
 
-                {erro && <p className="text-red-500 text-sm font-medium text-center">{erro}</p>}
+                        {confirmarSenha !== '' && confirmarSenha !== senha && (
+                            <p className="rounded-lg bg-alerta px-3 py-2 text-center text-sm font-medium text-carvao">
+                                As senhas ainda não coincidem
+                            </p>
+                        )}
 
-                <div className="text-center text-sm text-gray-800 mt-2 dark:text-gray-300">
-                    Já tem uma conta?{' '}
-                    <Link href="/login" className="underline font-medium hover:text-black dark:hover:text-white transition-colors">
-                        Entrar
-                    </Link>
+                        {erro && <p className="text-center text-sm font-medium text-erro">{erro}</p>}
+
+                        <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                            Já tem uma conta?{' '}
+                            <Link href="/login" className="font-semibold text-primary underline transition-colors hover:text-primary-hover">
+                                Entrar
+                            </Link>
+                        </div>
+
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            disabled={carregando}
+                            className="mt-6 w-full uppercase tracking-wide hover:cursor-pointer"
+                        >
+                            {carregando ? "Cadastrando..." : "Cadastrar"}
+                        </Button>
+                    </form>
                 </div>
-
-                <Button type="submit" variant="primary" disabled={carregando}>
-                    Cadastrar
-                </Button>
-            </form>
+            </div>
         </div>
-    )
+    );
 }

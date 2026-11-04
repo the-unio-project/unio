@@ -36,30 +36,32 @@ export default function VisaoProjeto({ projetoId }) {
         if (deuCerto) setTarefaSelecionadaId(null);
     }
 
-    if (carregando) return <p className="p-4 text-gray-500">Carregando...</p>;
-    if (erro) return <p className="p-4 text-red-500">{erro}</p>;
+    if (carregando) return <p className="p-4 text-neutral-500">Carregando...</p>;
+    if (erro) return <p className="p-4 text-erro">{erro}</p>;
 
     return (
         <div className="p-4">
-            <ModosVisualizacao visaoAtual={visao} aoMudar={setVisao} />
-            <FiltrosTarefas
-                membros={membros}
-                filtroPrioridade={filtroPrioridade}
-                aoMudarPrioridade={setFiltroPrioridade}
-                filtroResponsavel={filtroResponsavel}
-                aoMudarResponsavel={setFiltroResponsavel}
-            />
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <ModosVisualizacao visaoAtual={visao} aoMudar={setVisao} />
+                <FiltrosTarefas
+                    membros={membros}
+                    filtroPrioridade={filtroPrioridade}
+                    aoMudarPrioridade={setFiltroPrioridade}
+                    filtroResponsavel={filtroResponsavel}
+                    aoMudarResponsavel={setFiltroResponsavel}
+                />
+            </div>
 
             {statusDoProjeto.length === 0 && (
-                <p className="text-gray-500 mb-4">Este projeto ainda não tem status.</p>
+                <p className="text-neutral-500 mb-4 dark:text-neutral-400">Este projeto ainda não tem status.</p>
             )}
 
             {tarefas.length === 0 && statusDoProjeto.length > 0 && (
-                <p className="text-gray-500 mb-4">Esse projeto ainda não possui tarefas, crie a primeira abaixo.</p>
+                <p className="text-neutral-500 mb-4 dark:text-neutral-400">Esse projeto ainda não possui tarefas, crie a primeira abaixo.</p>
             )}
 
             {tarefas.length > 0 && tarefasFiltradas.length === 0 && (
-                <p className="text-gray-500 mb-4">Nenhuma tarefa corresponde aos filtros aplicados.</p>
+                <p className="text-neutral-500 mb-4 dark:text-neutral-400">Nenhuma tarefa corresponde aos filtros aplicados.</p>
             )}
 
             {visao === "lista" ? (

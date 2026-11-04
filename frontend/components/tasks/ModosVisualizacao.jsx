@@ -1,24 +1,31 @@
+import { LayoutList, Columns3 } from "lucide-react";
+
 const ABAS = [
-    { id: "lista", rotulo: "Lista" },
-    { id: "kanban", rotulo: "Kanban" },
+    { id: "lista", rotulo: "Lista", Icone: LayoutList },
+    { id: "kanban", rotulo: "Kanban", Icone: Columns3 },
 ];
 
 export default function ModosVisualizacao({ visaoAtual, aoMudar }) {
     return (
-        <div className="flex gap-6 mb-4">
-            {ABAS.map((aba) => (
-                <button
-                    key={aba.id}
-                    type="button"
-                    onClick={() => aoMudar(aba.id)}
-                    className={`pb-2 text-sm font-medium border-b-2 transition ${visaoAtual === aba.id
-                        ? "border-violet-500 text-violet-500"
-                        : "border-transparent text-gray-500 hover:text-gray-800"
-                        }`}
-                >
-                    {aba.rotulo}
-                </button>
-            ))}
+        <div className="flex gap-2">
+            {ABAS.map(({ id, rotulo, Icone }) => {
+                const ativa = visaoAtual === id;
+                return (
+                    <button
+                        key={id}
+                        type="button"
+                        onClick={() => aoMudar(id)}
+                        aria-pressed={ativa}
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium hover:cursor-pointer transition ${ativa
+                            ? "border-primary bg-primary/20 text-primary dark:bg-primary/50 dark:text-white"
+                            : "border-carvao text-carvao hover:bg-primary/20 dark:border-neutral-500 dark:text-neutral-200"
+                            }`}
+                    >
+                        <Icone size={16} />
+                        {rotulo}
+                    </button>
+                );
+            })}
         </div>
     );
 }

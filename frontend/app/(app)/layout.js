@@ -7,7 +7,7 @@ export default function AppLayout({ children }) {
     <WorkspaceProvider>
       <div className="flex h-screen flex-col">
         <Header />
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 gap-4 overflow-hidden bg-neutral-200 p-4 dark:bg-neutral-950">
           <Sidebar />
           <main className="flex-1 overflow-y-auto">{children}</main>
         </div>

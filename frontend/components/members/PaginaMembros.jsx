@@ -17,8 +17,8 @@ export default function PaginaMembros({ workspaceId }) {
     const [gerandoLink, setGerandoLink] = useState(false);
     const [linkConvite, setLinkConvite] = useState("");
 
-    if (carregando) return <p className="p-4 text-gray-500">Carregando...</p>;
-    if (erro) return <p className="p-4 text-red-500">{erro}</p>;
+    if (carregando) return <p className="p-4 text-neutral-500">Carregando...</p>;
+    if (erro) return <p className="p-4 text-erro">{erro}</p>;
 
     const minhaFuncao = membros.find((m) => m.id === usuarioAtual?.id)?.funcao;
     const membroRemovendo = membros.find((m) => m.id === membroRemovendoId);
@@ -57,19 +57,20 @@ export default function PaginaMembros({ workspaceId }) {
     }
 
     return (
-        <div className="max-w-xl p-6">
-            <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Membros</h1>
+        <div className="flex max-w-3xl flex-col gap-4 p-4">
+            <div className="flex items-center justify-between">
+                <h1 className="font-titulo text-3xl">Membros</h1>
                 {podeConvidar(minhaFuncao) && (
-                    <Button onClick={gerarLink} disabled={gerandoLink}>
+                    <Button onClick={gerarLink} disabled={gerandoLink} className="hover:cursor-pointer">
                         {gerandoLink ? "Gerando..." : "Gerar link de convite"}
                     </Button>
                 )}
             </div>
 
             {linkConvite && (
-                <div className="mb-8">
+                <div className="rounded-xl bg-white p-5 shadow-sm dark:bg-neutral-900">
                     <Input
+                        variant="filled"
                         label="Link de convite"
                         value={linkConvite}
                         readOnly

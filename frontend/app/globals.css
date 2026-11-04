@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-primary: #5e17eb;
+  --color-primary-hover: #4b12bc;
+
+  --color-erro: #ce3c5e;
+  --color-sucesso: #b9d681;
+  --color-alerta: #ffe08f;
+  --color-info: #68cbff;
+
+  --color-carvao: #141414;
+  --color-campo: #d9d9d9;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: var(--font-poppins), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  /*--font-titulo: var(--font-high-cruiser), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;*/
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-primary, #5e17eb) 55%, transparent) transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    * {
+      scrollbar-color: rgb(255 255 255 / 0.35) transparent;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility scrollbar-clara {
+  scrollbar-color: rgb(255 255 255 / 0.5) transparent;
 }

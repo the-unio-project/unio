@@ -1,16 +1,25 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Montserrat, Poppins } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["800"],
+  variable: "--font-poppins",
+  display: "swap",
 });
+/*const highCruiser = localFont({
+  src: "./fonts/HighCruiser.otf",
+  variable: "--font-high-cruiser",
+  display: "swap",
+});*/
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const montserrat = Montserrat({
   subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
 });
 
 export const metadata = {
@@ -20,18 +29,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+    <html lang="pt-BR">
+      <body className={`${montserrat.variable} ${poppins.variable} font-sans antialiased bg-stone-100 text-carvao dark:bg-neutral-950 dark:text-gray-100`}>
 
         <AuthProvider>
           {children}
         </AuthProvider>
 
         <Toaster theme="system" richColors position="bottom-right" />
-        
+
       </body>
     </html>
   );
