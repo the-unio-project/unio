@@ -7,33 +7,29 @@ from supabase import Client
 from Models.models import User
 from Schemas.profile_schemas import SetProfileSchema
 
-from main import SB_URL
+from config import SB_URL
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+def validate_image_upload(file: UploadFile) -> str:
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Profile picture file has no filename")
+    if not file.size:
+        raise HTTPException(status_code=400, detail="Profile picture file has no size")
+    if file.size > 102400:
+        raise HTTPException(status_code=400, detail="File size too large, limit = 100KB")
 
-def allowed_extensions(filename:str) -> str | None: # taken from https://light-tree.tistory.com/286
-    if '.' not in filename:
-        return None
+    _, separator, suffix = file.filename.rpartition(".")
+    extension = suffix.lower() if separator else ""
+    if extension not in {"jpg", "jpeg", "png"}:
+        raise HTTPException(status_code=400, detail="File extension not allowed, try (.jpg, .jpeg, .png)")
 
-    extension=filename.rsplit('.', 1)[1].lower()
-    if extension in ALLOWED_EXTENSIONS:
-        return extension
+    return extension
 
 def update_profile(user_id:UUID, profile_schema:SetProfileSchema, profile_picture:UploadFile, session:Session, supabase_client:Client):
     user = session.query(User).filter(User.id == user_id).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="No user found")
-    if not profile_picture.filename:
-        raise HTTPException(status_code=400, detail="Profile picture file has no filename")
-    if not profile_picture.size:
-        raise HTTPException(status_code=400, detail="Profile picture file has no size") # somehow
-    if profile_picture.size > 102400:
-        raise HTTPException(status_code=400, detail="File size too large, limit = 100KB")
-
-    extension=allowed_extensions(profile_picture.filename)
-    if not extension:
-        raise HTTPException(status_code=400, detail="File extension not allowed, try (.jpg, .jpeg, .png)")
+    extension = validate_image_upload(profile_picture)
 
     pfp_bytes = profile_picture.file.read()
 

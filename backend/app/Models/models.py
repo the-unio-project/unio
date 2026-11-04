@@ -59,7 +59,7 @@ class Workspace(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
-    logo_url: Mapped[str] = mapped_column(String(100), nullable=True)
+    logo_url: Mapped[str] = mapped_column(String, server_default="/assets/workspace.svg", nullable=False)
 
 class WorkspaceMember(Base):
     __tablename__ = "workspace_members"

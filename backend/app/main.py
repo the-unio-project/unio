@@ -1,3 +1,5 @@
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +15,7 @@ from Controller import list_router, project_router, auth_routes, status_router, 
 from Services.Authentication.auth_methods import verify_token
 
 app = FastAPI()
+app.mount("/assets", StaticFiles(directory=Path(__file__).parent / "assets"), name="assets")
 
 # CORS SETUP
 origins = [
