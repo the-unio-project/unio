@@ -1,4 +1,6 @@
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter, UploadFile
+from supabase import Client
+from Database.supabase import get_supabase
 from sqlalchemy.orm import Session
 from Models.models import User, Workspace, WorkspaceRole
 from Services.Authentication.auth_methods import verify_token
@@ -36,6 +38,11 @@ def query_workspace_tasks(workspace_id:UUID, q:str | None = None, user = Depends
     assert_workspace_member(workspace_id, user.id, session)
 
     return WorkspaceRepository(session).search_task_by_title(workspace_id, q)
+
+@workspace_router.patch("/{workspace_id}/logo")
+def update_workspace_logo(workspace_id: UUID, logo: UploadFile,user: User = Depends(verify_token), session: Session = Depends(get_session), supabase: Client = Depends(get_supabase)):
+    assert_workspace_permission(workspace_id, WorkspaceRole.ADMIN, user.id, session)
+    return WorkspaceRepository(session).update_logo(workspace_id, logo, supabase)
 
 # Invites
 

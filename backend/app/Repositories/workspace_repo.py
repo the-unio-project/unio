@@ -1,4 +1,7 @@
-from fastapi import HTTPException
+from hashlib import sha256
+from fastapi import HTTPException, UploadFile
+from supabase import Client
+from Repositories.profile_repo import validate_image_upload
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -30,6 +33,19 @@ class WorkspaceRepository:
         if workspace is None:
             raise HTTPException(status_code=404, detail="No workspace found")
         return workspace
+
+    def update_logo(self, workspace_id: UUID, logo: UploadFile, supabase: Client):
+        workspace = self.get_workspace_by_id(workspace_id)
+        extension = validate_image_upload(logo)
+        content = logo.file.read()
+        digest = sha256(content).hexdigest()
+        path = f"workspaces/{workspace_id}/{digest}.{extension}"
+        bucket = supabase.storage.from_("profilepictures")
+        media_type = "image/png" if extension == "png" else "image/jpeg"
+        bucket.upload(path, content, file_options={"content-type": media_type, "upsert": "true"})
+        workspace.logo_url = bucket.get_public_url(path)
+        self.session.commit()
+        return {"logo_url": workspace.logo_url}
 
     def get_workspace_by_owner(self, owner_id: UUID) -> list[Workspace]:
         workspaces = self.session.query(Workspace).filter(Workspace.owner_id == owner_id).all()

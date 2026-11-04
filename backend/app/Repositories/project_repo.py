@@ -1,8 +1,13 @@
-from fastapi import HTTPException
+from hashlib import sha256
+
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from uuid import UUID
 
+from supabase import Client
+
 from Models.models import Project
+from Repositories.profile_repo import validate_image_upload
 from Repositories.status_repo import StatusRepository
 from Schemas.project_schema import CreateProjectSchema, DeleteProjectSchema, EditProjectSchema
 
@@ -37,7 +42,6 @@ class ProjectRepository:
         project.name = new_project.name
         project.description = new_project.description
         project.color = new_project.color
-        project.icon_url = new_project.icon_url
         self.session.commit()
         self.session.refresh(project)
         return project
@@ -54,6 +58,19 @@ class ProjectRepository:
         self.session.commit()
         self.session.refresh(project)
         return project
+
+    def update_icon(self, project_id: UUID, logo: UploadFile, supabase: Client):
+        project = self.get_by_id(project_id)
+        extension = validate_image_upload(logo)
+        content = logo.file.read()
+        digest = sha256(content).hexdigest()
+        path = f"projects/{project_id}/{digest}.{extension}"
+        bucket = supabase.storage.from_("profilepictures")
+        media_type = "image/png" if extension == "png" else "image/jpeg"
+        bucket.upload(path, content, file_options={"content-type": media_type, "upsert": "true"})
+        project.icon_url = bucket.get_public_url(path)
+        self.session.commit()
+        return {"icon_url": project.icon_url}
     
     def delete_project(self, project_id: UUID):
         project = self.get_by_id(project_id)

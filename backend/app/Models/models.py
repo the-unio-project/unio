@@ -59,7 +59,7 @@ class Workspace(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
-    logo_url: Mapped[str] = mapped_column(String(100), nullable=True)
+    logo_url: Mapped[str] = mapped_column(String, server_default="/assets/workspace.svg", nullable=False)
 
 class WorkspaceMember(Base):
     __tablename__ = "workspace_members"
@@ -98,7 +98,7 @@ class Project(Base):
         nullable=False
     )
     color: Mapped[str] = mapped_column(String(100), nullable=False)
-    icon_url: Mapped[str] = mapped_column(String(100), nullable=True)
+    icon_url: Mapped[str] = mapped_column(String, server_default="/assets/project.svg", nullable=False)
     is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     statuses: Mapped[list["Status"]] = relationship(
         "Status",
