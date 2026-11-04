@@ -11,6 +11,7 @@ from Repositories.status_repo import StatusRepository
 from Services.Authentication.auth_methods import verify_token
 from Services.Permissions.perm_methods import assert_project_member
 from Services.Statuses.status_service import StatusService
+from Services.Validation.color_validation import validate_color
 
 status_router = APIRouter()
 
@@ -23,6 +24,10 @@ async def create_status(project_id:UUID, status: CreateStatusSchema, session: Se
     service = StatusService(session)
 
     assert_project_member(project_id, user.id, session)
+
+    if status.color:
+        if not validate_color(status.color):
+            raise HTTPException(status_code=404, detail="Hex Code for colour invalid")
 
     position = service.get_position(project_id)
         
@@ -56,6 +61,10 @@ async def replace_status(status: CreateStatusSchema, status_id: UUID, session: S
 
     assert_project_member(project.id, user.id, session)
 
+    if status.color:
+        if not validate_color(status.color):
+            raise HTTPException(status_code=404, detail="Hex Code for colour invalid")
+
     return repo.replace_status(status, status_id)
 
 @status_router.patch("/statuses/{status_id}", response_model=StatusResponseSchema)
@@ -65,6 +74,10 @@ async def edit_status(status: UpdateStatusSchema, status_id: UUID, session: Sess
     project = repo.get_by_id(status_id)
     
     assert_project_member(project.id, user.id, session)
+
+    if status.color:
+        if not validate_color(status.color):
+            raise HTTPException(status_code=404, detail="Hex Code for colour invalid")
 
     return repo.edit_status(status, status_id)
 

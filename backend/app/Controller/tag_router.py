@@ -10,6 +10,7 @@ from Database.database import get_session
 from Repositories.tag_repo import TagRepository
 from Services.Authentication.auth_methods import verify_token
 from Services.Permissions.perm_methods import assert_project_member
+from Services.Validation.color_validation import validate_color
 from Services.tag_service import TagService
 
 tag_router = APIRouter()
@@ -20,6 +21,12 @@ CurrentUserDep = Annotated[User, Depends(verify_token)]
 @tag_router.post("/projects/{project_id}/tags", response_model=TagResponseSchema)
 async def create_tag(project_id: UUID, tag: CreateTagSchema, session: SessionDep) -> TagResponseSchema:
     repo = TagRepository(session)
+
+    if tag.color:
+        if not validate_color(tag.color):
+            raise HTTPException(status_code=404, detail="Hex Code for colour invalid")
+
+
     return repo.create_tag(project_id, tag)
 
 @tag_router.get("/tags/{tag_id}", response_model=TagResponseSchema)
@@ -51,6 +58,11 @@ async def edit_tag(tag_id: UUID, session: SessionDep, schema: EditTagSchema, cur
     if tag is None:
         raise HTTPException(status_code=404, detail="no tag found for id provided")
     assert_project_member(tag.project_id, current_user.id, session)
+
+    if schema.color:
+        if not validate_color(schema.color):
+            raise HTTPException(status_code=404, detail="Hex Code for colour invalid")
+
 
     return repo.edit_tag(schema, tag_id)
 
