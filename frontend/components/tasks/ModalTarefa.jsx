@@ -334,7 +334,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
 
                 </div>
             </Modal>
-
+            
             {confirmandoExclusao && (
                 <ModalConfirmacao
                     titulo="Excluir tarefa"
