@@ -56,9 +56,9 @@ async def replace_task(task: CreateTaskSchema, task_id: UUID, session: SessionDe
     repo = TaskRepository(session)
     service = TaskService(session)
 
-    task = service.get_accessible_task(task_id, current_user.id)
+    current_task = service.get_accessible_task(task_id, current_user.id)
 
-    assert_project_member(task.project_id, current_user.id, session)
+    assert_project_member(current_task.project_id, current_user.id, session)
 
     return repo.replace_task(task, task_id)
 
@@ -111,9 +111,9 @@ async def unassign_task_from_user(task_id: UUID, user_id: UUID, session: Session
 async def move_task(task: MoveTaskStatusSchema, task_id: UUID, session: SessionDep, current_user: CurrentUserDep):
     service = TaskService(session)
 
-    task = service.get_accessible_task(task_id, current_user.id)
+    current_task = service.get_accessible_task(task_id, current_user.id)
 
-    assert_project_member(task.project_id, current_user.id, session)
+    assert_project_member(current_task.project_id, current_user.id, session)
 
     return service.move_task(task_id=task_id, status_id=task.status_id, new_position=task.position)
 
