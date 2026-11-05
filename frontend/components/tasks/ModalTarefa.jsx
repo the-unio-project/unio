@@ -10,6 +10,11 @@ import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 import ComentariosTarefa from "@/components/tasks/ComentariosTarefa";
 
+const CLASSE_SELECT =
+    "w-full rounded-md bg-campo p-2 text-sm text-carvao focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-800 dark:text-gray-100";
+const CLASSE_SELECT2 =
+    "rounded-full bg-campo px-3 py-1.5 text-sm text-carvao focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-800 dark:text-gray-100";
+
 export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoAdicionarResponsavel, aoRemoverResponsavel, aoExcluir, aoMover }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
@@ -68,7 +73,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
         <>
             <Modal
                 aoFechar={fechar}
-                largura="max-w-5xl"
+                largura="max-w-4xl"
                 acoes={
                     <Button
                         variant="iconePerigo"
@@ -80,8 +85,8 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     </Button>
                 }
             >
-                <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-1 overflow-y-auto p-1 pr-3 flex flex-col">
+                <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem]">
+                    <div className="flex min-w-0 flex-col">
                         <div className="mb-6">
                             <Input
                                 value={titulo}
@@ -94,12 +99,12 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
 
                         <div className="grid grid-cols-2 gap-4 mb-6 shrink-0">
                             <div>
-                                <label htmlFor="status" className="block text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                                <label htmlFor="status" className="mb-1 block text-sm font-semibold">Status</label>
                                 <select
                                     id="status"
                                     value={tarefa.statusId ?? ""}
                                     onChange={(e) => aoMover(tarefa.id, e.target.value)}
-                                    className="w-full border border-gray-300 dark:border-neutral-700 bg-transparent dark:bg-neutral-900 rounded-md p-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                                    className={CLASSE_SELECT}
                                 >
                                     <option value="" disabled>Sem status</option>
                                     {statusDoProjeto.map((s) => (
@@ -109,12 +114,12 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                             </div>
 
                             <div>
-                                <label htmlFor="prioridade" className="block text-gray-700 dark:text-gray-300 mb-1">Prioridade</label>
+                                <label htmlFor="prioridade" className="mb-1 block text-sm font-semibold">Prioridade</label>
                                 <select
                                     id="prioridade"
                                     value={tarefa.prioridade}
                                     onChange={(e) => aoAtualizar(tarefa.id, { prioridade: e.target.value })}
-                                    className="w-full border border-gray-300 dark:border-neutral-700 bg-transparent dark:bg-neutral-900 rounded-md p-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                                    className={CLASSE_SELECT}
                                 >
                                     {Object.entries(PRIORIDADES).map(([valor, { rotulo }]) => (
                                         <option key={valor} value={valor}>{rotulo}</option>
@@ -125,10 +130,11 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 shrink-0">
                             <div>
-                                <label htmlFor="data-vencimento" className="block text-gray-700 dark:text-gray-300 mb-1">Data de vencimento</label>
+                                <label htmlFor="data-vencimento" className="mb-1 block text-sm font-semibold">Data de vencimento</label>
                                 <div className="flex items-center gap-2 max-w-[200px]">
                                     <Input
                                         id="data-vencimento"
+                                        variant="filled"
                                         type="date"
                                         value={tarefa.dataVencimento}
                                         onChange={(e) => {
@@ -148,10 +154,10 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                                 </div>
                             </div>
                             <div>
-                                <p className="block text-gray-700 dark:text-gray-300 mb-2">Tags</p>
+                                <p className="mb-1 block text-sm font-semibold">Tags</p>
                                 <div className="flex flex-wrap items-center gap-2">
                                     {tagsAplicadas.map((tag) => (
-                                        <span key={tag.id} className={`flex items-center gap-1 rounded-md px-2 py-1 text-sm ${tag.cor}`}>
+                                        <span key={tag.id} className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm ${tag.cor}`}>
                                             {tag.nome}
                                             <button type="button" onClick={() => removerTag(tag.id)} className="hover:opacity-75" aria-label="Remover tag">
                                                 <X size={14} />
@@ -162,7 +168,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                                         <select
                                             value=""
                                             onChange={(e) => aplicarTag(Number(e.target.value))}
-                                            className="border border-gray-300 dark:border-neutral-700 bg-transparent rounded-md p-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                                            className={CLASSE_SELECT2}
                                         >
                                             <option value="" disabled>+ Adicionar tag</option>
                                             {tagsDisponiveis.map((tag) => (
@@ -174,10 +180,10 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                             </div>
 
                             <div>
-                                <p className="block text-gray-700 dark:text-gray-300 mb-2">Responsáveis</p>
+                                <p className="mb-1 block text-sm font-semibold">Responsáveis</p>
                                 <div className="flex flex-wrap items-center gap-2">
                                     {responsaveisAtuais.map((m) => (
-                                        <span key={m.id} className="flex items-center gap-1 rounded-md bg-gray-200 dark:bg-neutral-800 px-2 py-1 text-sm text-gray-700 dark:text-gray-200">
+                                        <span key={m.id} className="flex items-center gap-1 rounded-full bg-campo px-3 py-1 text-sm text-carvao dark:bg-neutral-800 dark:text-gray-100">
                                             {m.nome}
                                             <button type="button" onClick={() => removerResponsavel(m.id)} className="hover:text-erro" aria-label="Remover responsável">
                                                 <X size={14} />
@@ -188,7 +194,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                                         <select
                                             value=""
                                             onChange={(e) => adicionarResponsavel(e.target.value)}
-                                            className="border border-gray-300 dark:border-neutral-700 bg-transparent rounded-md p-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                                            className={CLASSE_SELECT2}
                                         >
                                             <option value="" disabled>+ Adicionar</option>
                                             {membrosDisponiveis.map((m) => (
@@ -201,33 +207,34 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         </div>
 
                         <div className="mb-4 shrink-0">
-                            <label htmlFor="descricao" className="block text-gray-700 dark:text-gray-300 mb-2">Descrição</label>
+                            <label htmlFor="descricao" className="mb-1 block text-sm font-semibold">Descrição</label>
                             <textarea
                                 id="descricao"
                                 value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
                                 onBlur={() => aoAtualizar(tarefa.id, { descricao })}
-                                className="w-full border border-gray-300 dark:border-neutral-700 bg-transparent dark:bg-neutral-900 rounded-md p-3 text-sm focus:ring-2 focus:ring-primary focus:outline-none min-h-[100px]"
+                                className="min-h-25 w-full rounded-md border border-carvao bg-transparent p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary dark:border-neutral-500 dark:text-gray-100"
                                 maxLength={100}
                                 placeholder="Adicione uma descrição..."
                             />
                         </div>
 
                         <div className="mb-6 shrink-0">
-                            <p className="block text-gray-700 dark:text-gray-300 mb-2">Subtarefas</p>
+                            <p className="mb-1 block text-sm font-semibold">Subtarefas</p>
                             {subtarefas.length === 0 ? (
-                                <p className="mb-3 text-sm text-gray-500">Nenhuma subtarefa adicionada ainda</p>
+                                <p className="mb-3 text-sm text-neutral-500">Nenhuma subtarefa adicionada ainda</p>
                             ) : (
                                 <ul className="mb-3 flex flex-col gap-2">
                                     {subtarefas.map((sub) => (
-                                        <li key={sub.id} className="text-sm flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                        <li key={sub.id} className="flex items-center gap-2 text-sm">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-neutral-400"></span>
                                             {sub.titulo}
                                         </li>
                                     ))}
                                 </ul>
                             )}
                             <Input
+                                variant="filled"
                                 value={novaSubtarefa}
                                 onChange={(e) => setNovaSubtarefa(e.target.value)}
                                 onKeyDown={(e) => {
@@ -238,7 +245,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         </div>
                     </div>
 
-                    <div className="w-full md:w-[350px] flex flex-col shrink-0 border-t md:border-t-0 md:border-l border-gray-200 dark:border-neutral-800 pt-6 md:pt-0 md:pl-6">
+                    <div className="flex flex-col border-t border-neutral-200 pt-6 dark:border-neutral-800 md:border-l md:border-t-0 md:pt-0 md:pl-6">
                         <ComentariosTarefa tarefaId={tarefa.id} membros={membros} />
                     </div>
 
