@@ -11,8 +11,8 @@ gerenciamento de projetos.
 - SQLAlchemy
 - PostgreSQL
 - Docker
-- Zitadel
-- React (frontend)
+- Supabase
+- React & Next.js (frontend)
 
 ### Base URL
 
@@ -24,37 +24,86 @@ http://localhost:8000
 
 # Autenticação
 
-> A autenticação ainda será definida.
+A API utiliza tokens JWT para autenticação.
+Os endpoints de cadastro e login são públicos.
+
+## Cadastrar usuário
+
+`POST /auth/register`
+
+Content-Type: application/json
+
+### Request
+
+```json
+{
+  "name": "João",
+  "email": "joao@example.com",
+  "password": "Senha123!"
+}
+```
+
+### Response — 200 OK
+
+```json
+{
+  "Message": "Registration successful!"
+}
+```
+
+O cadastro também gera um JWT, enviado no cookie `access_token`.
+
+## Fazer login
+
+`POST /auth/login`
+
+Content-Type: application/json
+
+### Request
+
+```json
+{
+  "email": "joao@example.com",
+  "password": "Senha123!"
+}
+```
+
+### Response — 200 OK
+
+```json
+{
+  "Message": "Login successful!"
+}
+```
+
+O JWT é enviado no cookie `access_token`, não no corpo da resposta.
+Sua validade é definida pela variável `AT_TIMEOUT`, em minutos.
+
+## Acessar rotas protegidas
+
+A validação exige o JWT no cabeçalho:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+## Validação da senha
+
+Cadastro e login exigem pelo menos oito caracteres, incluindo
+uma letra, um número e um símbolo entre `@$!%*#?&`.
+Apenas letras sem acento, números e esses símbolos são aceitos.
 
 ---
 
 # Users
 
-## Criar usuário
+O cadastro é realizado por `POST /auth/register`, descrito em Autenticação.
 
-POST /users
+## Consultar meu perfil
 
-### Request
+GET /me/
 
-{
-  "name": "João",
-  "email": "joao@email.com",
-  "password": "senha"
-}
-
-### Response — 201 Created
-
-{
-  "id": "uuid",
-  "name": "João",
-  "email": "joao@email.com"
-}
-
----
-
-## Buscar usuário
-
-GET /users/{user_id}
+Retorna o perfil do usuário identificado pelo token. Não recebe `user_id`.
 
 ### Response — 200 OK
 
@@ -70,7 +119,7 @@ GET /users/{user_id}
 
 ## Criar workspace
 
-POST /workspaces
+POST /workspaces/
 
 ### Request
 
@@ -94,7 +143,9 @@ POST /workspaces
 
 ## Listar workspaces do usuário
 
-GET /users/{user_id}/workspaces
+GET /workspaces/
+
+O usuário é identificado pelo token. Não recebe `user_id`.
 
 ### Response — 200 OK
 
@@ -110,25 +161,22 @@ GET /users/{user_id}/workspaces
 
 # Workspace Members
 
-## Adicionar membro
+## Criar convite
 
-POST /workspaces/{workspace_id}/members
+GET /workspaces/{workspace_id}/create-invite
 
-### Request
+Cria um convite para o workspace informado na URL. Exige autenticação
+e a verificação de permissão de administrador do workspace.
+Não recebe corpo de requisição.
 
-{
-  "user_id": "uuid",
-  "role": "member"
-}
+## Aceitar convite
 
-### Response — 201 Created
+GET /workspaces/invite/{invite_token}
 
-{
-  "id": "uuid",
-  "user_id": "uuid",
-  "workspace_id": "uuid",
-  "role": "member"
-}
+Aceita o convite para o usuário autenticado. O `invite_token` é informado
+na URL. Não recebe corpo de requisição.
+
+Os métodos `GET` acima correspondem à implementação atual.
 
 ---
 
@@ -136,7 +184,7 @@ POST /workspaces/{workspace_id}/members
 
 ## Criar projeto
 
-POST /workspaces/{workspace_id}/projects
+POST /workspaces/{workspace_id}/project/
 
 ### Request
 
@@ -165,7 +213,7 @@ POST /workspaces/{workspace_id}/projects
 
 ## Criar lista
 
-POST /projects/{project_id}/lists
+POST /projects/{project_id}/lists/
 
 ### Request
 
@@ -217,13 +265,10 @@ POST /lists/{list_id}/tasks
 
 ## Atribuir usuário a uma tarefa
 
-POST /tasks/{task_id}/assignees
+POST /tasks/{task_id}/user/{user_id}
 
-### Request
-
-{
-  "user_id": "uuid"
-}
+Os identificadores da tarefa e do usuário são informados na URL.
+Não recebe corpo de requisição.
 
 ### Response — 201 Created
 
@@ -239,7 +284,9 @@ POST /tasks/{task_id}/assignees
 
 ## Criar tag
 
-POST /tags
+POST /projects/{project_id}/tags
+
+A tag é criada no projeto informado na URL.
 
 ### Request
 
@@ -253,13 +300,10 @@ POST /tags
 
 ## Adicionar tag à tarefa
 
-POST /tasks/{task_id}/tags
+POST /tasks/{task_id}/tags/{tag_id}
 
-### Request
-
-{
-  "tag_id": "uuid"
-}
+Os identificadores da tarefa e da tag são informados na URL.
+Não recebe corpo de requisição.
 
 ---
 
