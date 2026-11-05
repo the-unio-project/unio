@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Check, Plus } from "lucide-react";
 import { useWorkspace } from "@/context/WorkspaceContext";
@@ -12,6 +12,17 @@ export default function WorkspaceSelector() {
     const [aberto, setAberto] = useState(false);
     const [modalAberto, setModalAberto] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        if (!aberto) return;
+
+        function aoPressionar(e) {
+            if (e.key === "Escape") setAberto(false);
+        }
+
+        document.addEventListener("keydown", aoPressionar);
+        return () => document.removeEventListener("keydown", aoPressionar);
+    }, [aberto]);
 
     if (!workspaceAtual) return null;
 

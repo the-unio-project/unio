@@ -22,7 +22,7 @@ export default function PainelDashboard() {
         <div className="flex flex-col gap-4 p-4">
             <h1 className="font-titulo text-3xl">Dashboard</h1>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2">
                 <SecaoDashboard
                     titulo="Vencendo hoje"
                     tarefas={doWorkspace(hoje)}

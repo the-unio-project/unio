@@ -1,9 +1,33 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import Button from '@/components/ui/Button';
 
+const MODAIS = [];
+
 export default function Modal({ aoFechar, largura = "max-w-2xl", acoes, children }) {
+    const idRef = useRef({});
+
+    useEffect(() => {
+        const id = idRef.current;
+        MODAIS.push(id);
+        return () => {
+            const posicao = MODAIS.indexOf(id);
+            if (posicao !== -1) MODAIS.splice(posicao, 1);
+        };
+    }, []);
+
+    useEffect(() => {
+        function aoPressionar(e) {
+            if (e.key !== "Escape") return;
+            if (MODAIS[MODAIS.length - 1] !== idRef.current) return;
+            aoFechar();
+        }
+        document.addEventListener("keydown", aoPressionar);
+        return () => document.removeEventListener("keydown", aoPressionar);
+    }, [aoFechar]);
+
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
