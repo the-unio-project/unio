@@ -8,42 +8,13 @@ import Input from '@/components/ui/Input';
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
-import Avatar from "@/components/ui/Avatar";
-import { useComentarios } from "@/hooks/useComentarios";
+import ComentariosTarefa from "@/components/tasks/ComentariosTarefa";
 
 export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoAdicionarResponsavel, aoRemoverResponsavel, aoExcluir, aoMover }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
     const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
-    const {
-        comentarios,
-        carregando: carregandoComentarios,
-        erro: erroComentarios,
-        enviarComentario: enviarNoServidor,
-        excluirComentario,
-    } = useComentarios(tarefa.id);
-
-    const [textoComentario, setTextoComentario] = useState("");
-    const [enviandoComentario, setEnviandoComentario] = useState(false);
-    const [erroEnvio, setErroEnvio] = useState("");
-
-    async function enviarComentario(e) {
-        e.preventDefault();
-        const texto = textoComentario.trim();
-        if (texto === "" || enviandoComentario) return;
-
-        setEnviandoComentario(true);
-        setErroEnvio("");
-        try {
-            await enviarNoServidor(texto);
-            setTextoComentario("");
-        } catch {
-            setErroEnvio("Não foi possível enviar o comentário.");
-        } finally {
-            setEnviandoComentario(false);
-        }
-    }
 
     function salvarTitulo() {
         if (titulo.trim() === "") {
@@ -268,60 +239,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     </div>
 
                     <div className="w-full md:w-[350px] flex flex-col shrink-0 border-t md:border-t-0 md:border-l border-gray-200 dark:border-neutral-800 pt-6 md:pt-0 md:pl-6">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 shrink-0 pr-8">Comentários</h3>
-
-                        <div className="flex-1 overflow-y-auto flex flex-col gap-4 pr-2 mb-4">
-                            {carregandoComentarios ? (
-                                <p className="text-sm text-gray-500 text-center py-4">Carregando...</p>
-                            ) : erroComentarios ? (
-                                <p className="text-sm text-erro text-center py-4">{erroComentarios}</p>
-                            ) : comentarios.length === 0 ? (
-                                <p className="text-sm text-gray-500 text-center py-4">Nenhum comentário ainda.</p>
-                            ) : (
-                                comentarios.map((c) => {
-                                    const autor = membros.find((m) => m.id === c.autorId);
-                                    return (
-                                        <div key={c.id} className="flex gap-3">
-                                            <div className="shrink-0">
-                                                <Avatar nome={autor?.nome} src={autor?.foto} tamanho="sm" />
-                                            </div>
-                                            <div className="flex-1 rounded-xl bg-gray-100 dark:bg-neutral-800 p-3">
-                                                <div className="flex justify-between items-start mb-1">
-                                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                                        {autor?.nome ?? "Usuário desconhecido"}
-                                                    </span>
-                                                    <button
-                                                        onClick={() => excluirComentario(c.id)}
-                                                        variant="iconePerigo"
-                                                        className="text-gray-400 hover:text-erro transition-colors"
-                                                        aria-label="Excluir"
-                                                    >
-                                                        <X size={14} />
-                                                    </button>
-                                                </div>
-                                                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-                                                    {c.texto}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            )}
-                        </div>
-
-                        <form onSubmit={enviarComentario} className="shrink-0 flex flex-col gap-2 border-t border-gray-200 dark:border-neutral-800 pt-4">
-                            <Input
-                                variant="filled"
-                                value={textoComentario}
-                                onChange={(e) => setTextoComentario(e.target.value)}
-                                placeholder="Escreva um comentário..."
-                                className="py-2"
-                            />
-                            {erroEnvio && <p className="text-sm text-erro">{erroEnvio}</p>}
-                            <Button type="submit" variant="primary" disabled={enviandoComentario || textoComentario.trim() === ""} className="w-full">
-                                {enviandoComentario ? "Enviando..." : "Enviar"}
-                            </Button>
-                        </form>
+                        <ComentariosTarefa tarefaId={tarefa.id} membros={membros} />
                     </div>
 
                 </div>
