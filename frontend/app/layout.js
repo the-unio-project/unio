@@ -1,7 +1,6 @@
 import { Montserrat, Poppins } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
-import localFont from "next/font/local";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -10,11 +9,6 @@ const poppins = Poppins({
   variable: "--font-poppins",
   display: "swap",
 });
-/*const highCruiser = localFont({
-  src: "./fonts/HighCruiser.otf",
-  variable: "--font-high-cruiser",
-  display: "swap",
-});*/
 
 const montserrat = Montserrat({
   subsets: ["latin"],
