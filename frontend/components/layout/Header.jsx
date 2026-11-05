@@ -7,6 +7,7 @@ import WorkspaceSelector from "@/components/layout/WorkspaceSelector";
 import CentroNotificacoes from "@/components/notifications/CentroNotificacoes";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
+import Image from "next/image";
 
 export default function Header() {
     const router = useRouter();
@@ -20,12 +21,10 @@ export default function Header() {
     return (
         <header className="flex items-center justify-between p-4 bg-primary text-white border-b border-primary-hover shadow-sm">
             <div className="flex items-center gap-4">
+                <Link href="/dashboard" aria-label="Ir para o Dashboard">
+                    <Image src="/logoBW.svg" alt="UNIO" width={253} height={262} priority className="h-11 w-auto" />
+                </Link>
                 <WorkspaceSelector />
-                <input
-                    type="text"
-                    placeholder="Buscar..."
-                    className="w-64 rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white placeholder-white/60 transition-colors focus:bg-white/20 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-white/50"
-                />
             </div>
             <div className="flex items-center gap-4">
                 <CentroNotificacoes />
