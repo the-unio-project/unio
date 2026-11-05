@@ -5,7 +5,7 @@ import { corSolida } from "@/lib/cores";
 import { formatarDataLista } from "@/lib/datas";
 import NovaTarefaInline from "@/components/tasks/NovaTarefaInline";
 
-const COLUNAS = "grid grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] items-center gap-8";
+const COLUNAS = "grid grid-cols-[minmax(0,1fr)_5rem_5rem_5.5rem] items-center gap-3 lg:grid-cols-[minmax(0,1fr)_8rem_7rem_7rem] lg:gap-8";
 
 export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoSelecionar }) {
 
@@ -39,7 +39,7 @@ export default function SecaoStatus({ status, tarefas, membros, aoAdicionar, aoS
                         className={`${COLUNAS} hover:cursor-pointer rounded-lg px-3 py-2 transition hover:bg-primary/10`}
                         onClick={() => aoSelecionar(tarefa.id)}
                     >
-                        <button type="button" className="truncate text-left font-medium hover:cursor-pointer">
+                        <button type="button" title={tarefa.titulo} className="truncate text-left font-medium hover:cursor-pointer">
                             {tarefa.titulo}
                         </button>
                         <span className="truncate text-sm text-neutral-600 dark:text-neutral-400" title={nomesResponsaveis(tarefa)}>
