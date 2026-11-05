@@ -45,7 +45,7 @@ export default function ComentariosTarefa({ tarefaId, membros }) {
         <>
             <h3 className="mb-4 shrink-0 pr-8 text-lg font-semibold">Comentários</h3>
 
-            <div ref={listaRef} className="mb-4 flex max-h-80 flex-col gap-4 overflow-y-auto pr-2">
+            <div ref={listaRef} className="mb-4 flex max-h-80 flex-col gap-4 overflow-y-auto pr-2 md:max-h-none md:min-h-0 md:flex-1">
                 {carregando ? (
                     <p className="py-4 text-center text-sm text-neutral-500">Carregando...</p>
                 ) : erro ? (

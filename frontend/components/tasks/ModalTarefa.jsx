@@ -85,8 +85,8 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                     </Button>
                 }
             >
-                <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem]">
-                    <div className="flex min-w-0 flex-col">
+                <div className="grid gap-6 md:h-[calc(90vh-3rem)] md:grid-cols-[minmax(0,1fr)_20rem] md:grid-rows-[minmax(0,1fr)]">
+                    <div className="flex min-w-0 flex-col md:overflow-y-auto md:p-1 md:pr-3">
                         <div className="mb-6">
                             <Input
                                 value={titulo}
@@ -245,7 +245,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         </div>
                     </div>
 
-                    <div className="flex flex-col border-t border-neutral-200 pt-6 dark:border-neutral-800 md:border-l md:border-t-0 md:pt-0 md:pl-6">
+                    <div className="flex min-h-0 flex-col border-t border-neutral-200 pt-6 dark:border-neutral-800 md:border-l md:border-t-0 md:pt-0 md:pl-6">
                         <ComentariosTarefa tarefaId={tarefa.id} membros={membros} />
                     </div>
 
