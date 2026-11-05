@@ -1,58 +1,47 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, Trash2 } from "lucide-react";
 import { PRIORIDADES } from "@/lib/prioridades";
 import { tagsMock } from "@/lib/mock";
-import { listarComentarios, criarComentarioApi, excluirComentarioApi } from "@/lib/api";
 import Input from '@/components/ui/Input';
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 import Avatar from "@/components/ui/Avatar";
-import { toast } from "sonner";
+import { useComentarios } from "@/hooks/useComentarios";
 
 export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar, aoAtualizar, aoAdicionarResponsavel, aoRemoverResponsavel, aoExcluir, aoMover }) {
     const [titulo, setTitulo] = useState(tarefa.titulo);
     const [descricao, setDescricao] = useState(tarefa.descricao ?? "");
     const [novaSubtarefa, setNovaSubtarefa] = useState("");
     const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+    const {
+        comentarios,
+        carregando: carregandoComentarios,
+        erro: erroComentarios,
+        enviarComentario: enviarNoServidor,
+        excluirComentario,
+    } = useComentarios(tarefa.id);
 
-    const [comentarios, setComentarios] = useState([]);
-    const [carregandoComentarios, setCarregandoComentarios] = useState(true);
     const [textoComentario, setTextoComentario] = useState("");
     const [enviandoComentario, setEnviandoComentario] = useState(false);
-
-    useEffect(() => {
-        listarComentarios(tarefa.id)
-            .then(setComentarios)
-            .catch(() => toast.error("Não foi possível carregar os comentários."))
-            .finally(() => setCarregandoComentarios(false));
-    }, [tarefa.id]);
+    const [erroEnvio, setErroEnvio] = useState("");
 
     async function enviarComentario(e) {
         e.preventDefault();
-        if (textoComentario.trim() === "" || enviandoComentario) return;
+        const texto = textoComentario.trim();
+        if (texto === "" || enviandoComentario) return;
 
         setEnviandoComentario(true);
+        setErroEnvio("");
         try {
-            await criarComentarioApi(tarefa.id, textoComentario.trim());
-            const listaAtualizada = await listarComentarios(tarefa.id);
-            setComentarios(listaAtualizada);
+            await enviarNoServidor(texto);
             setTextoComentario("");
-        } catch (err) {
-            toast.error("Não foi possível enviar o comentário.");
+        } catch {
+            setErroEnvio("Não foi possível enviar o comentário.");
         } finally {
             setEnviandoComentario(false);
-        }
-    }
-
-    async function apagarComentario(id) {
-        try {
-            await excluirComentarioApi(id);
-            setComentarios((anteriores) => anteriores.filter((c) => c.id !== id));
-        } catch (err) {
-            toast.error("Falha ao apagar o comentário.");
         }
     }
 
@@ -284,6 +273,8 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         <div className="flex-1 overflow-y-auto flex flex-col gap-4 pr-2 mb-4">
                             {carregandoComentarios ? (
                                 <p className="text-sm text-gray-500 text-center py-4">Carregando...</p>
+                            ) : erroComentarios ? (
+                                <p className="text-sm text-erro text-center py-4">{erroComentarios}</p>
                             ) : comentarios.length === 0 ? (
                                 <p className="text-sm text-gray-500 text-center py-4">Nenhum comentário ainda.</p>
                             ) : (
@@ -300,7 +291,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                                                         {autor?.nome ?? "Usuário desconhecido"}
                                                     </span>
                                                     <button
-                                                        onClick={() => apagarComentario(c.id)}
+                                                        onClick={() => excluirComentario(c.id)}
                                                         variant="iconePerigo"
                                                         className="text-gray-400 hover:text-erro transition-colors"
                                                         aria-label="Excluir"
@@ -326,6 +317,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                                 placeholder="Escreva um comentário..."
                                 className="py-2"
                             />
+                            {erroEnvio && <p className="text-sm text-erro">{erroEnvio}</p>}
                             <Button type="submit" variant="primary" disabled={enviandoComentario || textoComentario.trim() === ""} className="w-full">
                                 {enviandoComentario ? "Enviando..." : "Enviar"}
                             </Button>
@@ -334,7 +326,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
 
                 </div>
             </Modal>
-            
+
             {confirmandoExclusao && (
                 <ModalConfirmacao
                     titulo="Excluir tarefa"
