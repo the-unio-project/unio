@@ -16,7 +16,6 @@
 @theme inline {
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
   --font-titulo: var(--font-poppins), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
-  /*--font-titulo: var(--font-high-cruiser), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;*/
 }
 
 @layer base {
