@@ -1,0 +1,51 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { X } from "lucide-react";
+import Button from '@/components/ui/Button';
+
+const MODAIS = [];
+
+export default function Modal({ aoFechar, largura = "max-w-2xl", acoes, children }) {
+    const idRef = useRef({});
+
+    useEffect(() => {
+        const id = idRef.current;
+        MODAIS.push(id);
+        return () => {
+            const posicao = MODAIS.indexOf(id);
+            if (posicao !== -1) MODAIS.splice(posicao, 1);
+        };
+    }, []);
+
+    useEffect(() => {
+        function aoPressionar(e) {
+            if (e.key !== "Escape") return;
+            if (MODAIS[MODAIS.length - 1] !== idRef.current) return;
+            aoFechar();
+        }
+        document.addEventListener("keydown", aoPressionar);
+        return () => document.removeEventListener("keydown", aoPressionar);
+    }, [aoFechar]);
+
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-modal-fundo motion-reduce:animate-none"
+            onMouseDown={(e) => {
+                if (e.target === e.currentTarget) aoFechar();
+            }}
+        >
+            <div className={`relative w-full ${largura} rounded-lg bg-white text-left text-carvao dark:bg-neutral-900 dark:text-gray-100 animate-modal-painel motion-reduce:animate-none`}>
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-1">
+                    {acoes}
+                    <Button variant="icone" onClick={aoFechar} aria-label="Fechar">
+                        <X size={20} />
+                    </Button>
+                </div>
+                <div className="max-h-[90vh] overflow-y-auto rounded-lg p-6">
+                    {children}
+                </div>
+            </div>
+        </div>
+    )
+}

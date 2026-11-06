@@ -1,0 +1,68 @@
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from uuid import UUID
+
+from Models.models import Tag, TaskTag
+from Schemas.tag_schema import CreateTagSchema, DeleteTagSchema, EditTagSchema
+
+class TagRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def create_tag(self, project_id: UUID, tag: CreateTagSchema):
+        new_tag = Tag(**tag.model_dump(), project_id=project_id)
+        self.session.add(new_tag)
+        self.session.commit()
+        self.session.refresh(new_tag)
+        return new_tag
+
+    def get_by_id(self, tag_id: UUID) -> Tag:
+        tag = self.session.query(Tag).filter(Tag.id == tag_id).first()
+        if not tag:
+            raise HTTPException(status_code=404, detail="No tag found")
+        return tag
+     
+    def delete_tag(self, tag_id: UUID):
+        tag = self.get_by_id(tag_id)
+        if tag is None:
+            return None
+        self.session.delete(tag)
+        self.session.commit()
+        return DeleteTagSchema(mensagem=f"Tag {tag.name} deleted successfully!", id=tag_id)
+
+    def edit_tag(self, new_tag: EditTagSchema, tag_id: UUID):
+        tag = self.get_by_id(tag_id)
+        if tag is None:
+            return None
+        update_data = new_tag.model_dump(exclude_unset=True)
+        if not update_data:
+            raise HTTPException(status_code=404, detail="No valid data found")
+        for field, value in update_data.items():
+            setattr(tag, field, value)
+        self.session.commit()
+        self.session.refresh(tag)
+        return tag
+
+    def apply_tag(self, task_id: UUID, tag_id: UUID):
+        task_tag = TaskTag(
+            task_id=task_id,
+            tag_id=tag_id
+        )
+
+        self.session.add(task_tag)
+        self.session.commit()
+        self.session.refresh(task_tag)
+        return task_tag
+
+    def remove_tag(self, task_id: UUID, tag_id: UUID):
+        task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first()
+        self.session.delete(task_tag)
+        self.session.commit()
+        return DeleteTagSchema(mensagem=f"Tag {task_tag.tag.name} removed task from {task_tag.task.title} successfully!", id=tag_id)
+
+
+    def is_applied(self, task_id: UUID, tag_id: UUID) -> bool:
+        task_tag = self.session.query(TaskTag).filter(TaskTag.task_id == task_id, TaskTag.tag_id == tag_id).first() 
+        if task_tag is None:
+            return False
+        return True
