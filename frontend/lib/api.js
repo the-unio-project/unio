@@ -1,3 +1,5 @@
+import { FUNCOES } from "@/lib/funcoes";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const COR_PADRAO_PROJETO = "#3b82f6";
 
@@ -129,6 +131,7 @@ function traduzirWorkspace(w) {
         nome: w.name,
         donoId: w.owner_id,
         logoUrl: w.logo_url,
+        funcao: w.current_user_role,
     };
 }
 
@@ -236,7 +239,11 @@ export async function criarWorkspaceApi(nome) {
         method: 'POST',
         body: JSON.stringify({ name: nome }),
     });
-    return traduzirWorkspace(dados.Workspace);
+    return { ...traduzirWorkspace(dados.Workspace), funcao: FUNCOES.PROPRIETARIO };
+}
+
+export async function excluirWorkspaceApi(workspaceId) {
+    await apiFetch(`/workspaces/${workspaceId}`, { method: 'DELETE' });
 }
 
 export async function criarProjetoApi(workspaceId, dados) {

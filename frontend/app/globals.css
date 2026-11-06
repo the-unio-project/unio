@@ -11,6 +11,31 @@
 
   --color-carvao: #141414;
   --color-campo: #d9d9d9;
+
+  --animate-modal-fundo: modal-fundo 150ms ease-out;
+  --animate-modal-painel: modal-painel 200ms ease-out;
+
+  @keyframes modal-fundo {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modal-painel {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 }
 
 @theme inline {

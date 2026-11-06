@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { X, Trash2 } from "lucide-react";
 import { PRIORIDADES } from "@/lib/prioridades";
-import { tagsMock } from "@/lib/mock";
 import Input from '@/components/ui/Input';
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
@@ -42,19 +41,6 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
         const nova = { id: Date.now(), titulo: novaSubtarefa.trim() };
         aoAtualizar(tarefa.id, { subtarefas: [...subtarefas, nova] });
         setNovaSubtarefa("");
-    }
-
-    const idsAplicados = tarefa.tags ?? [];
-    const tagsProjeto = tagsMock.filter((tag) => tag.projetoId === tarefa.projetoId);
-    const tagsAplicadas = tagsProjeto.filter((tag) => idsAplicados.includes(tag.id));
-    const tagsDisponiveis = tagsProjeto.filter((tag) => !idsAplicados.includes(tag.id));
-
-    function aplicarTag(tagId) {
-        aoAtualizar(tarefa.id, { tags: [...idsAplicados, tagId] });
-    }
-
-    function removerTag(tagId) {
-        aoAtualizar(tarefa.id, { tags: idsAplicados.filter((id) => id !== tagId) });
     }
 
     const idsResponsaveis = tarefa.responsaveis ?? [];
@@ -150,31 +136,6 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                                             onClick={() => aoAtualizar(tarefa.id, { dataVencimento: "" })}>
                                             <X size={16} />
                                         </Button>
-                                    )}
-                                </div>
-                            </div>
-                            <div>
-                                <p className="mb-1 block text-sm font-semibold">Tags</p>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {tagsAplicadas.map((tag) => (
-                                        <span key={tag.id} className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm ${tag.cor}`}>
-                                            {tag.nome}
-                                            <button type="button" onClick={() => removerTag(tag.id)} className="hover:opacity-75" aria-label="Remover tag">
-                                                <X size={14} />
-                                            </button>
-                                        </span>
-                                    ))}
-                                    {tagsDisponiveis.length > 0 && (
-                                        <select
-                                            value=""
-                                            onChange={(e) => aplicarTag(Number(e.target.value))}
-                                            className={CLASSE_SELECT2}
-                                        >
-                                            <option value="" disabled>+ Adicionar tag</option>
-                                            {tagsDisponiveis.map((tag) => (
-                                                <option key={tag.id} value={tag.id}>{tag.nome}</option>
-                                            ))}
-                                        </select>
                                     )}
                                 </div>
                             </div>

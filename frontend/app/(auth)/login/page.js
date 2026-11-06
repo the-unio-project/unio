@@ -72,7 +72,15 @@ export default function LoginPage() {
                             alt="UNIO"
                             width={75}
                             height={40}
-                            className="w-full h-auto max-w-18.75 object-contain"
+                            className="h-auto w-full max-w-18.75 object-contain block dark:hidden"
+                            priority
+                        />
+                        <Image
+                            src="/logotiny-dark.svg"
+                            alt="UNIO"
+                            width={75}
+                            height={40}
+                            className="h-auto w-full max-w-18.75 object-contain hidden dark:block"
                             priority
                         />
                     </div>

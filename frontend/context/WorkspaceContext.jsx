@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import {
     listarWorkspaces, listarProjetos, criarWorkspaceApi, criarProjetoApi,
-    editarProjetoApi, arquivarProjetoApi, excluirProjetoApi,
+    editarProjetoApi, arquivarProjetoApi, excluirProjetoApi, excluirWorkspaceApi,
 } from "@/lib/api";
 
 const WorkspaceContext = createContext();
@@ -76,6 +76,21 @@ export function WorkspaceProvider({ children }) {
         return novo;
     }
 
+    async function excluirWorkspace(id) {
+        try {
+            await excluirWorkspaceApi(id);
+        } catch {
+            toast.error("Não foi possível excluir o workspace.");
+            return false;
+        }
+
+        setWorkspaceLembrado((atual) => (atual?.id === id ? null : atual));
+        setProjetos((anteriores) => anteriores.filter((p) => p.workspaceId !== id));
+        setWorkspaces((anteriores) => anteriores.filter((w) => w.id !== id));
+        toast.success("Workspace excluído.");
+        return true;
+    }
+
     async function arquivarProjeto(id) {
         substituirProjeto(await arquivarProjetoApi(id));
         toast.success("Projeto arquivado.");
@@ -91,7 +106,7 @@ export function WorkspaceProvider({ children }) {
         <WorkspaceContext.Provider
             value={{
                 workspaceAtual, setWorkspaceLembrado, workspaces, setWorkspaces, projetos, criarProjeto,
-                editarProjeto, criarWorkspace, projetosAtivos, arquivarProjeto, excluirProjeto,
+                editarProjeto, criarWorkspace, excluirWorkspace, projetosAtivos, arquivarProjeto, excluirProjeto,
                 carregandoWorkspaces, erroWorkspaces, carregandoProjetos, erroProjetos
             }}
         >
