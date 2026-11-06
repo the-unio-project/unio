@@ -39,6 +39,9 @@ export async function login(email, senha) {
     return resposta.json().catch(() => null);
 }
 
+const EMAIL_REPETIDO = "E-mail already registered";
+const SENHA_FRACA = "Password not strong enough";
+
 export async function cadastro(nome, email, senha) {
     let resposta;
 
@@ -54,11 +57,15 @@ export async function cadastro(nome, email, senha) {
     }
 
     if (!resposta.ok) {
-        throw new Error(
-            resposta.status === 400
-                ? 'Este e-mail já está cadastrado.'
-                : 'Falha ao fazer cadastro. Tente novamente.'
-        );
+        const corpo = await resposta.json().catch(() => null);
+
+        if (corpo?.detail === EMAIL_REPETIDO) {
+            throw new Error('Este e-mail já está cadastrado.');
+        }
+        if (corpo?.detail === SENHA_FRACA) {
+            throw new Error('Senha fraca. Use 8 ou mais caracteres, com letra, número e símbolo.');
+        }
+        throw new Error('Falha ao fazer cadastro. Tente novamente.');
     }
 
     return resposta.json().catch(() => null);
