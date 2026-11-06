@@ -98,64 +98,208 @@ Apenas letras sem acento, números e esses símbolos são aceitos.
 # Users
 
 O cadastro é realizado por `POST /auth/register`, descrito em Autenticação.
+As rotas de perfil abaixo exigem `Authorization: Bearer <access_token>`.
 
 ## Consultar meu perfil
 
-GET /me/
+`GET /me/`
 
-Retorna o perfil do usuário identificado pelo token. Não recebe `user_id`.
+Retorna o usuário identificado pelo token. Não recebe parâmetros nem corpo.
 
 ### Response — 200 OK
 
+```json
 {
-  "id": "uuid",
+  "id": "11111111-1111-4111-8111-111111111111",
   "name": "João",
-  "email": "joao@email.com"
+  "email": "joao@example.com",
+  "created_at": "2026-09-10T17:00:00Z",
+  "nickname": "João",
+  "bio": "Desenvolvedor",
+  "profile_picture": null
 }
+```
+
+## Atualizar meu perfil
+
+`PUT /me/`
+
+Exige os três campos abaixo. O usuário é identificado pelo token.
+
+| Campo | Local | Tipo | Obrigatório |
+|---|---|---|---|
+| `nickname` | Query string | string | Sim |
+| `bio` | Query string | string | Sim |
+| `profile_picture` | Corpo multipart/form-data | arquivo | Sim |
+
+Exemplo de URL: `/me/?nickname=Joao&bio=Desenvolvedor`.
+Envie o arquivo no campo `profile_picture` do formulário multipart.
+`nickname` e `bio` não são campos do corpo na implementação atual.
+O arquivo deve ter extensão `.jpg`, `.jpeg` ou `.png`, tamanho maior que zero
+ e no máximo 102400 bytes (100 KiB).
+
+### Response — 200 OK
+
+```json
+{
+  "message": "Profile updated successfully"
+}
+```
 
 ---
 
 # Workspaces
 
+Todas as rotas de workspace, membros e convites abaixo exigem
+`Authorization: Bearer <access_token>`. Os identificadores de caminho
+(`workspace_id`, `target_user_id` e `invite_token`) devem ser UUIDs.
+Os exemplos usam identificadores fictícios.
+
+Os papéis são serializados como números:
+
+| Valor | Papel |
+|---|---|
+| 0 | MEMBER — membro |
+| 1 | ADMIN — administrador |
+| 2 | OWNER — proprietário |
+
+As permissões de administrador também são atendidas pelo proprietário.
+As respostas de sucesso das rotas abaixo usam `200 OK`, inclusive criações
+ e exclusões, conforme o código atual.
+
 ## Criar workspace
 
-POST /workspaces/
+`POST /workspaces/`
 
-### Request
+Corpo JSON com `name` obrigatório. O proprietário é o usuário autenticado,
+que também é adicionado como membro com papel OWNER. `owner_id` e `logo_url`
+não fazem parte do corpo de criação.
 
+### Request — application/json
+
+```json
 {
-  "name": "Projeto IFCE",
-  "owner_id": "uuid",
-  "logo_url": null
+  "name": "Projeto IFCE"
 }
-
-### Response — 201 Created
-
-{
-  "id": "uuid",
-  "name": "Projeto IFCE",
-  "owner_id": "uuid",
-  "logo_url": null,
-  "created_at": "2026-09-10T17:00:00Z"
-}
-
----
-
-## Listar workspaces do usuário
-
-GET /workspaces/
-
-O usuário é identificado pelo token. Não recebe `user_id`.
+```
 
 ### Response — 200 OK
 
+```json
+{
+  "Message": "Successfully created workspace!",
+  "Workspace": {
+    "id": "22222222-2222-4222-8222-222222222222",
+    "name": "Projeto IFCE",
+    "owner_id": "11111111-1111-4111-8111-111111111111",
+    "logo_url": "/assets/workspace.svg",
+    "created_at": "2026-09-10T17:00:00Z"
+  }
+}
+```
+
+## Listar meus workspaces
+
+`GET /workspaces/`
+
+Não recebe parâmetros nem corpo. Retorna os workspaces dos quais o usuário
+ autenticado participa. O campo do papel é `current_user_role`.
+
+### Response — 200 OK
+
+```json
 [
   {
-    "id": "uuid",
+    "id": "22222222-2222-4222-8222-222222222222",
     "name": "Projeto IFCE",
-    "role": "owner"
+    "owner_id": "11111111-1111-4111-8111-111111111111",
+    "logo_url": "/assets/workspace.svg",
+    "created_at": "2026-09-10T17:00:00Z",
+    "current_user_role": 2
   }
 ]
+```
+
+## Consultar workspace
+
+`GET /workspaces/{workspace_id}`
+
+Recebe somente o UUID do workspace na URL. A implementação exige autenticação,
+mas não verifica se o solicitante é membro nessa rota.
+
+### Response — 200 OK
+
+```json
+{
+  "id": "22222222-2222-4222-8222-222222222222",
+  "name": "Projeto IFCE",
+  "owner_id": "11111111-1111-4111-8111-111111111111",
+  "logo_url": "/assets/workspace.svg",
+  "created_at": "2026-09-10T17:00:00Z"
+}
+```
+
+Workspace inexistente retorna `404` com `detail: "No workspace found"`.
+
+## Buscar tarefas do workspace
+
+`GET /workspaces/{workspace_id}/search`
+
+Exige participação no workspace. Não recebe corpo.
+
+| Parâmetro | Local | Tipo | Obrigatório |
+|---|---|---|---|
+| `workspace_id` | Caminho | UUID | Sim |
+| `q` | Query string | string | Não na assinatura atual; envie um texto para pesquisar |
+
+Exemplo: `/workspaces/22222222-2222-4222-8222-222222222222/search?q=Implementar`.
+A busca compara a similaridade do texto com os títulos das tarefas dos projetos
+ do workspace (limiar de 0,85), sem paginação.
+
+### Response — 200 OK
+
+Retorna um array de tarefas; sem correspondências, retorna `[]`.
+Cada tarefa contém os campos persistidos `id`, `task_id` (tarefa pai), `list_id`,
+`project_id`, `title`, `description`, `term`, `priority`, `status_id` e `position`.
+A rota não declara um schema de resposta próprio.
+
+**Limitação atual:** embora `q` seja opcional na assinatura, o serviço de busca
+não trata explicitamente `None`. O comportamento sem `q` não está garantido.
+
+## Atualizar logo do workspace
+
+`PATCH /workspaces/{workspace_id}/logo`
+
+Exige papel ADMIN ou OWNER. Informe `workspace_id` na URL e o arquivo obrigatório
+`logo` no corpo `multipart/form-data`.
+São aceitas extensões `.jpg`, `.jpeg` e `.png`, com tamanho maior que zero
+ e no máximo 102400 bytes (100 KiB).
+
+### Response — 200 OK
+
+```json
+{
+  "logo_url": "https://example.com/storage/workspaces/logo.png"
+}
+```
+
+A URL acima é ilustrativa; a API retorna a URL pública gerada pelo armazenamento.
+Os erros de validação do arquivo são os mesmos descritos na atualização do perfil.
+
+## Excluir workspace
+
+`DELETE /workspaces/{workspace_id}`
+
+Exige papel OWNER. Não recebe corpo.
+
+### Response — 200 OK
+
+```json
+{
+  "message": "Workspace Projeto IFCE deletado com sucesso!",
+  "id": "22222222-2222-4222-8222-222222222222"
+}
+```
 
 ---
 
@@ -163,20 +307,114 @@ O usuário é identificado pelo token. Não recebe `user_id`.
 
 ## Criar convite
 
-GET /workspaces/{workspace_id}/create-invite
+`GET /workspaces/{workspace_id}/create-invite`
 
-Cria um convite para o workspace informado na URL. Exige autenticação
-e a verificação de permissão de administrador do workspace.
-Não recebe corpo de requisição.
+Exige papel ADMIN ou OWNER. Não recebe corpo. Cria um convite para o workspace.
+O campo `id` retornado é o `invite_token` usado para aceitar o convite.
+
+### Response — 200 OK
+
+```json
+{
+  "id": "33333333-3333-4333-8333-333333333333",
+  "workspace_id": "22222222-2222-4222-8222-222222222222"
+}
+```
 
 ## Aceitar convite
 
-GET /workspaces/invite/{invite_token}
+`GET /workspaces/invite/{invite_token}`
 
-Aceita o convite para o usuário autenticado. O `invite_token` é informado
-na URL. Não recebe corpo de requisição.
+Não recebe corpo. Adiciona o usuário autenticado como MEMBER no workspace do
+convite. Não há expiração ou consumo do convite implementados nesse fluxo.
+Os métodos `GET` de criação e aceite refletem a implementação atual.
 
-Os métodos `GET` acima correspondem à implementação atual.
+### Response — 200 OK
+
+```json
+{
+  "id": "44444444-4444-4444-8444-444444444444",
+  "workspace_id": "22222222-2222-4222-8222-222222222222",
+  "user_id": "55555555-5555-4555-8555-555555555555",
+  "role": 0
+}
+```
+
+Convite inexistente retorna `404` com `detail: "invalid invite"`.
+Usuário que já participa retorna `409` com
+`detail: "User already belongs to this workspace"`.
+
+## Listar membros
+
+`POST /workspaces/{workspace_id}/member/list`
+
+Exige participação no workspace. Não recebe corpo, apesar do método `POST`.
+Retorna os dados de perfil de cada usuário acrescidos de `role`.
+
+### Response — 200 OK
+
+```json
+[
+  {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "name": "João",
+    "email": "joao@example.com",
+    "created_at": "2026-09-10T17:00:00Z",
+    "nickname": "João",
+    "bio": "Desenvolvedor",
+    "profile_picture": null,
+    "role": 2
+  }
+]
+```
+
+## Remover membro
+
+`DELETE /workspaces/{workspace_id}/member/remove`
+
+| Parâmetro | Local | Tipo | Obrigatório |
+|---|---|---|---|
+| `workspace_id` | Caminho | UUID | Sim |
+| `target_user_id` | Query string | UUID | Sim |
+
+Não recebe corpo. Exemplo:
+`/workspaces/22222222-2222-4222-8222-222222222222/member/remove?target_user_id=55555555-5555-4555-8555-555555555555`.
+
+ADMIN ou OWNER pode remover MEMBER. Somente OWNER pode remover ADMIN.
+O proprietário não pode ser removido por essa rota.
+
+### Response — 200 OK
+
+A resposta é uma string JSON:
+
+```json
+"Workspace member deleted successfully"
+```
+
+## Alterar papel de membro
+
+`PATCH /workspaces/{workspace_id}/members/{target_user_id}/role`
+
+Os dois UUIDs são informados na URL. Não recebe corpo nem um campo `role`.
+A operação alterna MEMBER para ADMIN ou ADMIN para MEMBER.
+ADMIN ou OWNER pode promover MEMBER; somente OWNER pode rebaixar ADMIN.
+O papel do proprietário não pode ser alterado por essa rota.
+
+### Response — 200 OK
+
+```json
+"Workspace member role was changed"
+```
+
+## Erros de workspaces, membros e convites
+
+Os erros são objetos JSON com campo `detail`, por exemplo:
+
+```json
+{
+  "detail": "Insufficient Authorization"
+}
+```
 
 ---
 
