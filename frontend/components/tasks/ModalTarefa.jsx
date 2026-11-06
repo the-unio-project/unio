@@ -131,7 +131,7 @@ export default function ModalTarefa({ tarefa, membros, statusDoProjeto, aoFechar
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 shrink-0">
                             <div>
                                 <label htmlFor="data-vencimento" className="mb-1 block text-sm font-semibold">Data de vencimento</label>
-                                <div className="flex items-center gap-2 max-w-[200px]">
+                                <div className="flex items-center gap-2 max-w-50">
                                     <Input
                                         id="data-vencimento"
                                         variant="filled"
