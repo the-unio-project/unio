@@ -57,4 +57,4 @@ You can find all the variables used in the code in the [.env.example](https://gi
 
 ## Deployed Project
 
-...
+Check out [unio](unio-alpha.vercel.app)!
