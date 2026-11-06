@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Check, Plus } from "lucide-react";
+import { ChevronDown, Check, Plus, Trash2 } from "lucide-react";
+import { FUNCOES } from "@/lib/funcoes";
 import { useWorkspace } from "@/context/WorkspaceContext";
+import ModalConfirmacao from "@/components/ui/ModalConfirmacao";
 import ModalWorkspace from "@/components/workspaces/ModalWorkspace";
 import Button from "@/components/ui/Button";
 
 export default function WorkspaceSelector() {
-    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetosAtivos, criarWorkspace } = useWorkspace();
+    const { workspaceAtual, setWorkspaceLembrado, workspaces, projetosAtivos, criarWorkspace, excluirWorkspace } = useWorkspace();
     const [aberto, setAberto] = useState(false);
     const [modalAberto, setModalAberto] = useState(false);
+    const [confirmando, setConfirmando] = useState(false);
+    const [excluindo, setExcluindo] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -25,6 +29,8 @@ export default function WorkspaceSelector() {
     }, [aberto]);
 
     if (!workspaceAtual) return null;
+
+    const ehProprietario = workspaceAtual.funcao === FUNCOES.PROPRIETARIO;
 
     function trocarWorkspace(workspace) {
         setWorkspaceLembrado(workspace);
@@ -41,6 +47,15 @@ export default function WorkspaceSelector() {
         const novo = await criarWorkspace(nome);
         setModalAberto(false);
         trocarWorkspace(novo);
+    }
+
+    async function excluirWorkspaceAtual() {
+        if (excluindo) return;
+        setExcluindo(true);
+        const excluido = await excluirWorkspace(workspaceAtual.id);
+        setExcluindo(false);
+        setConfirmando(false);
+        if (excluido) router.push("/dashboard");
     }
 
     return (
@@ -84,6 +99,21 @@ export default function WorkspaceSelector() {
                                 Criar Workspace
                             </Button>
                         </li>
+                        {ehProprietario && (
+                            <li>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setConfirmando(true);
+                                        setAberto(false);
+                                    }}
+                                    className="flex w-full items-center gap-2 rounded-md p-2 text-left text-sm text-erro transition-colors hover:cursor-pointer hover:bg-erro/10"
+                                >
+                                    <Trash2 size={16} />
+                                    Excluir workspace
+                                </button>
+                            </li>
+                        )}
                     </ul>
                 </>
             )}
@@ -91,6 +121,14 @@ export default function WorkspaceSelector() {
                 <ModalWorkspace
                     aoSalvar={salvarNovoWorkspace}
                     aoFechar={() => setModalAberto(false)}
+                />
+            )}
+            {confirmando && (
+                <ModalConfirmacao
+                    titulo="Excluir workspace"
+                    mensagem={`Tem certeza que deseja excluir "${workspaceAtual.nome}"? Os projetos e tarefas dele serão perdidos. Esta ação não pode ser desfeita.`}
+                    aoConfirmar={excluirWorkspaceAtual}
+                    aoCancelar={() => setConfirmando(false)}
                 />
             )}
         </div>
