@@ -8,6 +8,10 @@ import { useAuth } from "@/context/AuthContext";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
+const REGEX_EMAIL = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
+const REGEX_SENHA = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+const MENSAGEM_SENHA = "A senha deve ter 8 ou mais caracteres, com letras, números e um símbolo entre @ $ ! % * # ? &.";
+
 export default function CadastroPage() {
     const router = useRouter();
     const [nome, setNome] = useState('');
@@ -26,7 +30,7 @@ export default function CadastroPage() {
             return;
         }
 
-        if (!email.includes('@')) {
+        if (!REGEX_EMAIL.test(email)) {
             setErro('E-mail inválido');
             return;
         }
@@ -36,8 +40,8 @@ export default function CadastroPage() {
             return;
         }
 
-        if (senha.length < 6) {
-            setErro('A senha deve ter pelo menos 6 caracteres');
+        if (!REGEX_SENHA.test(senha)) {
+            setErro(MENSAGEM_SENHA);
             return;
         }
 
